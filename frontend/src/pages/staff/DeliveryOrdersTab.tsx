@@ -179,36 +179,35 @@ export const DeliveryOrdersTab: React.FC = () => {
       )}
 
       {/* Main Header Card */}
-      <div className="card-clean" style={{ padding: '14px 16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-          <div>
-            <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
-              <Truck size={18} color="#2563EB" />
-              GIAO HÀNG TTTM
+      <div className="card-clean" style={{ padding: '12px 14px', width: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+          <div style={{ minWidth: 0 }}>
+            <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A', margin: 0, display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+              <Truck size={17} color="#2563EB" />
+              GIAO HÀNG
             </h2>
-            <p style={{ fontSize: '0.78rem', color: '#64748B', margin: '2px 0 0 0', whiteSpace: 'nowrap' }}>
-              Vận chuyển tự động giữa các quầy
+            <p style={{ fontSize: '0.74rem', color: '#64748B', margin: '2px 0 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              Vận chuyển giữa các quầy
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
             <button 
               className="btn-outline" 
               onClick={fetchOrders} 
               disabled={refreshing}
               title="Làm mới"
-              style={{ padding: '7px 10px', fontSize: '0.8rem' }}
+              style={{ padding: '6px 8px', borderRadius: '8px' }}
             >
               <RefreshCw size={14} className={refreshing ? 'spin-pulse' : ''} />
-              <span>Làm mới</span>
             </button>
             <button 
               className="btn-solid-blue" 
               onClick={() => setIsModalOpen(true)}
-              style={{ padding: '7px 12px', fontSize: '0.82rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+              style={{ padding: '6px 12px', fontSize: '0.8rem', fontWeight: 700, borderRadius: '8px', whiteSpace: 'nowrap' }}
             >
-              <Plus size={16} />
-              <span>+ Tạo Đơn</span>
+              <Plus size={14} />
+              <span>Tạo đơn</span>
             </button>
           </div>
         </div>

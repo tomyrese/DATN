@@ -94,9 +94,9 @@ export const MallAssistantTab: React.FC = () => {
       <div className="chat-welcome-banner">
         <div className="chat-welcome-avatar">🤖</div>
         <div>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>TRỢ LÝ ẢO ROBOT (AI CONCIERGE)</h2>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>TRỢ LÝ ẢO</h2>
           <p style={{ fontSize: '0.85rem', color: '#64748B' }}>
-            Hỏi tôi bất cứ điều gì về các gian hàng, ẩm thực, rạp phim hoặc yêu cầu tôi dẫn đường trực tiếp!
+            Hỏi bất cứ điều gì về các gian hàng, ẩm thực, rạp phim hoặc yêu cầu dẫn đường trực tiếp!
           </p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export const MallAssistantTab: React.FC = () => {
           <div className="chat-msg-row bot">
             <div className="chat-bubble-clean" style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="spin-pulse">⏳</span>
-              <span>Robot AI đang tìm câu trả lời tốt nhất cho quý khách...</span>
+              <span>Robot đang tìm câu trả lời tốt nhất cho quý khách...</span>
             </div>
           </div>
         )}

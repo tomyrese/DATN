@@ -43,7 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
         </div>
         <div className="brand-text-block">
           <h1>
-            MALL ROBOT <span className="brand-badge">4.0</span>
+            ROBOT TTTM
           </h1>
         </div>
       </div>

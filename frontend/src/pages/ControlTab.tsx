@@ -63,7 +63,7 @@ export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
 
           <div className="camera-badge-live">
             <span className="status-dot online"></span>
-            <span>LIVE</span>
+            <span>TRỰC TIẾP</span>
           </div>
 
           {telemetry?.personDetected && (
@@ -127,7 +127,7 @@ export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
           {isEmergencyStopped && (
             <button type="button" className="btn-reset-estop-clean" onClick={handleReset}>
               <RefreshCw size={14} style={{ display: 'inline', marginRight: '6px' }} />
-              KHÔI PHỤC (RESET)
+              KHÔI PHỤC HOẠT ĐỘNG
             </button>
           )}
         </div>
