@@ -284,6 +284,12 @@ def create_api_server(
                 with open(target_path, "rb") as f:
                     return Response(content=f.read(), media_type=mime_type or "application/octet-stream")
 
+            # SPA fallback: return index.html for client-side routing
+            index_path = dist_dir / "index.html"
+            if index_path.exists():
+                with open(index_path, "r", encoding="utf-8") as f:
+                    return HTMLResponse(content=f.read())
+
         raise HTTPException(status_code=404, detail="File Not Found")
 
     return app

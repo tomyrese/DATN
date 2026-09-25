@@ -9,13 +9,19 @@ import {
 } from '../types/protocol';
 
 export class RobotApi {
-  static getBaseUrl(host: string, port: number): string {
+  static getBaseUrl(host?: string, port?: number): string {
     if (!host) {
       return window.location.origin;
     }
-    const cleanHost = host.trim();
+    let cleanHost = host.trim();
     if (cleanHost.startsWith('http://') || cleanHost.startsWith('https://')) {
       return cleanHost.replace(/\/+$/, '');
+    }
+    if (cleanHost.includes(':')) {
+      return `http://${cleanHost}`;
+    }
+    if (cleanHost.includes('trycloudflare.com') || cleanHost.includes('.app') || cleanHost.includes('.com') || cleanHost.includes('.io') || cleanHost.includes('.net')) {
+      return `https://${cleanHost}`;
     }
     const currentPort = port || 8765;
     return `http://${cleanHost}:${currentPort}`;

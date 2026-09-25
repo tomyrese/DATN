@@ -90,7 +90,19 @@ export class RobotSocket {
     this.setStatus('CONNECTING');
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const url = `${protocol}//${this.host}:${this.port}/ws/v1/control?token=${encodeURIComponent(this.token)}`;
+    let wsHost = this.host;
+    if (wsHost.startsWith('http://')) wsHost = wsHost.replace('http://', '');
+    if (wsHost.startsWith('https://')) wsHost = wsHost.replace('https://', '');
+    wsHost = wsHost.replace(/\/+$/, '');
+
+    let url: string;
+    if (wsHost.includes(':')) {
+      url = `${protocol}//${wsHost}/ws/v1/control?token=${encodeURIComponent(this.token)}`;
+    } else if (wsHost.includes('trycloudflare.com') || wsHost.includes('.app') || wsHost.includes('.com') || wsHost.includes('.io') || wsHost.includes('.net')) {
+      url = `${protocol}//${wsHost}/ws/v1/control?token=${encodeURIComponent(this.token)}`;
+    } else {
+      url = `${protocol}//${wsHost}:${this.port}/ws/v1/control?token=${encodeURIComponent(this.token)}`;
+    }
 
     try {
       this.ws = new WebSocket(url);

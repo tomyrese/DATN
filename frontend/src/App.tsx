@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { initializeStore, useRobotStore } from './store/useRobotStore';
+import { initializeStore, useRobotStore, updateGlobalState } from './store/useRobotStore';
 import { RobotSocket } from './services/RobotSocket';
 import { RobotApi } from './services/RobotApi';
+import { StorageService } from './services/StorageService';
+import { PairedRobotInfo } from './types/robot';
 import { Header } from './components/Header';
 import { SafetyBanner } from './components/SafetyBanner';
 import { NavigationTabs, TabType } from './components/NavigationTabs';
@@ -29,6 +31,51 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>(userRole === 'staff' ? 'delivery-orders' : 'mall-map');
   const [isPairingOpen, setIsPairingOpen] = useState(false);
   const [cameraTicket, setCameraTicket] = useState<string | null>(null);
+
+  // Auto-pair from URL query param when scanning OLED QR code (e.g. http://pi-ip:8765/?code=ABC123)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const codeParam = params.get('code') || params.get('pairCode');
+    const roleParam = params.get('role');
+
+    const host = window.location.hostname || 'localhost';
+    const port = window.location.port ? parseInt(window.location.port, 10) : (window.location.protocol === 'https:' ? 443 : 8765);
+
+    if (codeParam) {
+      RobotApi.pair(host, port, codeParam).then(res => {
+        if (res.success && res.token) {
+          const robotInfo: PairedRobotInfo = {
+            robotId: res.robotId,
+            robotName: res.robotName,
+            host,
+            port,
+            token: res.token,
+            lastConnected: Date.now(),
+          };
+          StorageService.savePairedRobot(robotInfo);
+          if (roleParam === 'staff') {
+            StorageService.saveUserRole('staff');
+            updateGlobalState(() => ({ userRole: 'staff' }));
+          }
+          updateGlobalState(() => ({ pairedRobot: robotInfo }));
+          RobotSocket.getInstance().connect(host, port, res.token);
+
+          // Clean URL without reloading page
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+      }).catch(err => {
+        console.warn('Auto pairing via QR code URL failed:', err);
+      });
+    } else {
+      // Auto-load POIs & info from current origin if hosted directly on Raspberry Pi
+      RobotApi.getMallPois(host, port, false).then(pois => {
+        if (pois && pois.length > 0) {
+          updateGlobalState(() => ({ pois }));
+        }
+      }).catch(() => {});
+    }
+  }, []);
 
   // Sync tab when userRole switches
   useEffect(() => {

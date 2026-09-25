@@ -92,10 +92,10 @@ class OLEDController:
             img.paste(qr_image, (pos_x, pos_y))
 
         text_x = 64
-        draw.text((text_x, 2), "PAIR APP", font=self.font, fill=255)
+        draw.text((text_x, 2), "SCAN WEB", font=self.font, fill=255)
         draw.line([(text_x, 13), (self.cfg.OLED_WIDTH, 13)], fill=255)
-        draw.text((text_x, 16), f"C:{code}", font=self.font, fill=255)
-        draw.text((text_x, 28), f"TTL:{remaining_sec}s", font=self.font, fill=255)
+        draw.text((text_x, 16), f"PIN:{code}", font=self.font, fill=255)
+        draw.text((text_x, 28), f"EXP:{remaining_sec}s", font=self.font, fill=255)
         if ip:
             draw.text((text_x, 40), ip[-11:], font=self.font, fill=255)
         draw.text((text_x, 52), f":{self.cfg.SERVER_PORT}", font=self.font, fill=255)

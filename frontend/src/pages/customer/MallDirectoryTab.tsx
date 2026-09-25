@@ -33,12 +33,10 @@ export const MallDirectoryTab: React.FC = () => {
   };
 
   const handleEscort = async (poi: PointOfInterest) => {
-    if (!pairedRobot) {
-      alert('Vui lòng kết nối với Robot qua mục Cài Đặt trước khi yêu cầu dẫn đường.');
-      return;
-    }
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     try {
-      const res = await RobotApi.requestEscort(pairedRobot.host, pairedRobot.port, poi.id);
+      const res = await RobotApi.requestEscort(host, port, poi.id);
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
         alert(`Robot đã bắt đầu dẫn đường đến: ${res.task.target_name}!`);

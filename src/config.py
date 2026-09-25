@@ -60,6 +60,7 @@ class RobotConfig:
 
     SERVER_HOST: str = os.getenv("SERVER_HOST", "0.0.0.0")
     SERVER_PORT: int = int(os.getenv("SERVER_PORT", "8765"))
+    PUBLIC_URL: str = os.getenv("PUBLIC_URL", "")
     ROBOT_ID: str = os.getenv("ROBOT_ID", "RBT01")
     ROBOT_NAME: str = os.getenv("ROBOT_NAME", "Pi Robot")
     PAIRING_ENABLED: bool = os.getenv("PAIRING_ENABLED", "true").lower() in ("true", "1", "yes")

@@ -9,7 +9,7 @@ def test_pairing_code_generation():
     code, payload = pm.start_pairing(host="192.168.1.50", port=8765)
     assert len(code) == 6
     assert code.isalnum()
-    assert payload == f"P1|192.168.1.50|8765|{code}"
+    assert payload == f"http://192.168.1.50:8765/?code={code}"
     assert pm.is_pairing_active()
     assert pm.get_remaining_seconds() > 0
 

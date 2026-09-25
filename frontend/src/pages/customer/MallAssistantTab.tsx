@@ -74,12 +74,10 @@ export const MallAssistantTab: React.FC = () => {
   };
 
   const handleEscortToSuggested = async (poiId: string) => {
-    if (!pairedRobot) {
-      alert('Vui lòng kiểm tra kết nối đến Robot');
-      return;
-    }
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     try {
-      const res = await RobotApi.requestEscort(pairedRobot.host, pairedRobot.port, poiId);
+      const res = await RobotApi.requestEscort(host, port, poiId);
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
         alert(`Robot đã bắt đầu dẫn đường đến: ${res.task.target_name}!`);

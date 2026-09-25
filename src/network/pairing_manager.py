@@ -20,14 +20,24 @@ class PairingManager:
         chars = "".join([c for c in string.ascii_uppercase + string.digits if c not in "01IO"])
         return "".join(random.choice(chars) for _ in range(length))
 
+    def get_web_url(self) -> str:
+        public_url = getattr(self.cfg, "PUBLIC_URL", "")
+        if public_url:
+            base = public_url.rstrip("/")
+        else:
+            base = f"http://{self.host}:{self.port}"
+        if self.current_code:
+            return f"{base}/?code={self.current_code}"
+        return base
+
     def start_pairing(self, host: Optional[str] = None, port: Optional[int] = None) -> Tuple[str, str]:
         self.host = host or get_ip_address()
         self.port = port or self.cfg.SERVER_PORT
         self.current_code = self._generate_random_code(6)
         self.expires_at = time.monotonic() + self.cfg.PAIRING_CODE_TTL
 
-        payload = f"P1|{self.host}|{self.port}|{self.current_code}"
-        logger.info(f"PAIRING_OPEN code={self.current_code} ttl={self.cfg.PAIRING_CODE_TTL}s host={self.host}:{self.port}")
+        payload = self.get_web_url()
+        logger.info(f"PAIRING_OPEN code={self.current_code} ttl={self.cfg.PAIRING_CODE_TTL}s url={payload}")
         return self.current_code, payload
 
     def is_pairing_active(self) -> bool:
@@ -46,12 +56,18 @@ class PairingManager:
     def get_payload(self) -> Optional[str]:
         if not self.is_pairing_active():
             return None
-        return f"P1|{self.host}|{self.port}|{self.current_code}"
+        return self.get_web_url()
 
     def validate_code(self, input_code: str) -> bool:
-        if not self.is_pairing_active():
+        if not self.is_pairing_active() or not input_code:
             return False
-        if self.current_code.upper() == input_code.strip().upper():
+        clean = input_code.strip()
+        if "code=" in clean:
+            clean = clean.split("code=")[-1].split("&")[0]
+        elif "|" in clean:
+            clean = clean.split("|")[-1]
+
+        if self.current_code and self.current_code.upper() == clean.upper():
             logger.info(f"PAIRING_SUCCESS code={self.current_code}")
             self.invalidate()
             return True
@@ -77,7 +93,5 @@ class PairingManager:
         qr.make(fit=True)
 
         img = qr.make_image(fill_color="black", back_color="white").convert("1")
-        scale = max(1, target_size // img.size[0])
-        new_size = (img.size[0] * scale, img.size[1] * scale)
-        scaled_img = img.resize(new_size, resample=Image.NEAREST)
+        scaled_img = img.resize((target_size, target_size), resample=Image.NEAREST)
         return scaled_img

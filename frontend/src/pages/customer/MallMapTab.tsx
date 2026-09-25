@@ -34,13 +34,11 @@ export const MallMapTab: React.FC = () => {
   });
 
   const handleStartEscort = async (poi: PointOfInterest) => {
-    if (!pairedRobot) {
-      alert('Vui lòng vào mục Cài Đặt để nhập link kết nối Robot (hoặc Cloudflare Tunnel URL).');
-      return;
-    }
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     setLoadingEscort(true);
     try {
-      const res = await RobotApi.requestEscort(pairedRobot.host, pairedRobot.port, poi.id);
+      const res = await RobotApi.requestEscort(host, port, poi.id);
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
       } else {
@@ -54,9 +52,10 @@ export const MallMapTab: React.FC = () => {
   };
 
   const handleCancelEscort = async () => {
-    if (!pairedRobot) return;
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     try {
-      await RobotApi.cancelEscort(pairedRobot.host, pairedRobot.port);
+      await RobotApi.cancelEscort(host, port);
       updateGlobalState(() => ({ activeEscort: null }));
     } catch (e) {}
   };
