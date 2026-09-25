@@ -59,6 +59,7 @@ class RobotController:
         self.last_perf_log_time = time.monotonic()
         self.last_telemetry_time = 0.0
         self.was_person_active = False
+        self.cli_motion_active = False
 
     def log_event(self, message: str):
         now_str = time.strftime("%H:%M:%S")
@@ -190,14 +191,18 @@ class RobotController:
                         else:
                             self.oled.update_state(RobotState.STOPPED, {"ip": self.ip_address})
 
-                conn_alive, drive_valid = self.websocket_manager.connection_watchdog.check()
-                if not drive_valid and is_moving:
+                if self.websocket_manager.is_client_connected():
+                    conn_alive, drive_valid = self.websocket_manager.connection_watchdog.check()
+                    if not drive_valid and is_moving and not self.cli_motion_active:
+                        self.motor.stop()
+                        self.current_motion = RobotState.STOPPED
+                        if self.safety.can_move():
+                            self.state = RobotState.CONNECTED
+                            self.oled.update_state(self.state, {"ip": self.ip_address, "speed": self.cfg.DEFAULT_SPEED})
+                        self.log_event("Drive command lease expired - Motor stopped")
+                elif not self.cli_motion_active and is_moving:
                     self.motor.stop()
                     self.current_motion = RobotState.STOPPED
-                    if self.safety.can_move():
-                        self.state = RobotState.CONNECTED if self.websocket_manager.is_client_connected() else RobotState.STOPPED
-                        self.oled.update_state(self.state, {"ip": self.ip_address, "speed": self.cfg.DEFAULT_SPEED})
-                    self.log_event("Drive command lease expired - Motor stopped")
 
                 effective_state = self.safety.get_effective_robot_state(self.current_motion)
                 if self.state != effective_state and self.state != RobotState.PAIRING:
@@ -390,10 +395,12 @@ class RobotController:
         target_speed = speed if speed is not None else self.cfg.DEFAULT_SPEED
 
         if cmd == MovementCommand.EMERGENCY_STOP:
+            self.cli_motion_active = False
             self.handle_remote_emergency_stop()
             return True
 
         if cmd == MovementCommand.STOP:
+            self.cli_motion_active = False
             self.handle_remote_stop()
             return True
 
@@ -408,6 +415,7 @@ class RobotController:
             MovementCommand.TURN_RIGHT: "right",
         }
         if cmd in dir_map:
+            self.cli_motion_active = True
             accepted, _ = self.handle_remote_drive(dir_map[cmd], target_speed)
             return accepted
         return False

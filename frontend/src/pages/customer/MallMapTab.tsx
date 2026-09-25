@@ -145,7 +145,7 @@ export const MallMapTab: React.FC = () => {
 
         {/* Unified Single-Floor Architectural Floorplan Viewport */}
         <div className="map-viewport-card">
-          <div className="floorplan-wrapper" style={{ height: '620px' }}>
+          <div className="floorplan-wrapper">
             <svg viewBox="0 0 1100 660" className="floorplan-svg">
               <defs>
                 <pattern id="mallTile" width="40" height="40" patternUnits="userSpaceOnUse">

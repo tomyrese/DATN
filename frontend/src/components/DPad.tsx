@@ -41,6 +41,8 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
           onMouseLeave={stopDrive}
           onTouchStart={(e) => startDrive('forward', e)}
           onTouchEnd={stopDrive}
+          onTouchCancel={stopDrive}
+          onContextMenu={(e) => e.preventDefault()}
           title="Forward (W / Up Arrow)"
         >
           <ArrowUp size={22} />
@@ -57,6 +59,8 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
             onMouseLeave={stopDrive}
             onTouchStart={(e) => startDrive('left', e)}
             onTouchEnd={stopDrive}
+            onTouchCancel={stopDrive}
+            onContextMenu={(e) => e.preventDefault()}
             title="Turn Left (A / Left Arrow)"
           >
             <ArrowLeft size={22} />
@@ -67,6 +71,7 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
             className="dpad-btn dpad-stop"
             disabled={disabled}
             onClick={handleManualStop}
+            onContextMenu={(e) => e.preventDefault()}
             title="Stop (Space / X)"
           >
             <Square size={18} fill="#FF1744" stroke="none" />
@@ -81,6 +86,8 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
             onMouseLeave={stopDrive}
             onTouchStart={(e) => startDrive('right', e)}
             onTouchEnd={stopDrive}
+            onTouchCancel={stopDrive}
+            onContextMenu={(e) => e.preventDefault()}
             title="Turn Right (D / Right Arrow)"
           >
             <ArrowRight size={22} />
@@ -97,6 +104,8 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
           onMouseLeave={stopDrive}
           onTouchStart={(e) => startDrive('backward', e)}
           onTouchEnd={stopDrive}
+          onTouchCancel={stopDrive}
+          onContextMenu={(e) => e.preventDefault()}
           title="Backward (S / Down Arrow)"
         >
           <ArrowDown size={22} />
