@@ -21,6 +21,7 @@ from src.network.websocket_manager import WebSocketManager
 from src.network.api_server import create_api_server
 from src.utils.network import get_ip_address
 from src.services.logging_service import logger
+from src.services.mall_service import MallService
 
 class RobotController:
     def __init__(self, cfg: Optional[RobotConfig] = None):
@@ -30,6 +31,7 @@ class RobotController:
         self.running = False
         self.ip_address = get_ip_address()
 
+        self.mall = MallService()
         self.motor = MotorController(self.cfg)
         self.oled = OLEDController(self.cfg)
         self.camera = CameraService(self.cfg)

@@ -177,6 +177,68 @@ def create_api_server(
         auth_manager.revoke_token(token)
         return {"success": True, "message": "Session revoked"}
 
+    # ==================== MALL & NAVIGATION APIS ====================
+    @app.get("/api/v1/mall/pois")
+    async def get_mall_pois(include_staff: bool = Query(False)):
+        return {"pois": robot_controller.mall.get_pois(include_staff=include_staff)}
+
+    @app.get("/api/v1/mall/delivery/orders")
+    async def get_delivery_orders():
+        return {"orders": robot_controller.mall.get_orders()}
+
+    @app.post("/api/v1/mall/delivery/orders")
+    async def create_delivery_order(data: Dict[str, Any], token: str = Depends(verify_auth_token)):
+        creator = data.get("creatorName", "Nhân viên")
+        pickup = data.get("pickupPoiId", "")
+        dropoff = data.get("dropoffPoiId", "")
+        desc = data.get("itemDescription", "Hàng hóa nội bộ")
+        if not pickup or not dropoff:
+            raise HTTPException(status_code=400, detail="Missing pickup or dropoff POI ID")
+        order = robot_controller.mall.create_delivery_order(creator, pickup, dropoff, desc)
+        robot_controller.log_event(f"New delivery order created: {order.order_id} ({order.pickup_poi_name} -> {order.dropoff_poi_name})")
+        return {"success": True, "order": order.__dict__}
+
+    @app.patch("/api/v1/mall/delivery/orders/{order_id}")
+    async def update_delivery_order_status(order_id: str, data: Dict[str, Any], token: str = Depends(verify_auth_token)):
+        status_val = data.get("status")
+        progress_val = data.get("progress")
+        if not status_val:
+            raise HTTPException(status_code=400, detail="Missing status")
+        ok = robot_controller.mall.update_order_status(order_id, status_val, progress_val)
+        if not ok:
+            raise HTTPException(status_code=404, detail="Order not found")
+        robot_controller.log_event(f"Order {order_id} status updated to {status_val}")
+        return {"success": True}
+
+    @app.post("/api/v1/mall/escort")
+    async def request_escort_navigation(data: Dict[str, Any]):
+        poi_id = data.get("targetPoiId")
+        if not poi_id:
+            raise HTTPException(status_code=400, detail="Missing targetPoiId")
+        task = robot_controller.mall.request_escort(poi_id)
+        if not task:
+            raise HTTPException(status_code=404, detail="Target POI not found")
+        robot_controller.log_event(f"Customer escort started to {task.target_name} ({task.target_floor})")
+        return {"success": True, "task": task.__dict__}
+
+    @app.delete("/api/v1/mall/escort")
+    async def cancel_escort_navigation():
+        ok = robot_controller.mall.cancel_escort()
+        robot_controller.log_event("Customer escort cancelled")
+        return {"success": ok}
+
+    @app.get("/api/v1/mall/escort")
+    async def get_escort_status():
+        return {"task": robot_controller.mall.get_escort_status()}
+
+    @app.post("/api/v1/mall/ai/ask")
+    async def ask_mall_assistant(data: Dict[str, Any]):
+        question = data.get("question", "")
+        if not question:
+            raise HTTPException(status_code=400, detail="Missing question")
+        res = robot_controller.mall.ask_concierge(question)
+        return res
+
     @app.websocket("/ws/v1/control")
     async def websocket_control_endpoint(websocket: WebSocket, token: Optional[str] = Query(None)):
         auth_header = websocket.headers.get("authorization")
@@ -196,5 +258,42 @@ def create_api_server(
         except Exception as e:
             logger.warning(f"WebSocket error: {e}")
             await websocket_manager.disconnect(websocket)
+
+    import mimetypes
+    from pathlib import Path
+    from fastapi.responses import HTMLResponse
+
+    web_dir = Path(__file__).resolve().parent.parent.parent / "web"
+    dist_dir = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+
+    @app.get("/", response_class=HTMLResponse)
+    async def serve_index():
+        if dist_dir.exists() and (dist_dir / "index.html").exists():
+            with open(dist_dir / "index.html", "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+        index_file = web_dir / "index.html"
+        if index_file.exists():
+            with open(index_file, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+        return HTMLResponse(content="<h1>Pi Robot Server</h1><p>Web UI not found.</p>")
+
+    @app.get("/{file_path:path}")
+    async def serve_static_file(file_path: str):
+        if not file_path or file_path.startswith("api/") or file_path.startswith("ws/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+
+        if dist_dir.exists():
+            target_path = (dist_dir / file_path).resolve()
+            if target_path.is_file() and str(target_path).startswith(str(dist_dir.resolve())):
+                mime_type, _ = mimetypes.guess_type(str(target_path))
+                with open(target_path, "rb") as f:
+                    return Response(content=f.read(), media_type=mime_type or "application/octet-stream")
+
+        target_path = (web_dir / file_path).resolve()
+        if target_path.is_file() and str(target_path).startswith(str(web_dir.resolve())):
+            mime_type, _ = mimetypes.guess_type(str(target_path))
+            with open(target_path, "rb") as f:
+                return Response(content=f.read(), media_type=mime_type or "application/octet-stream")
+        raise HTTPException(status_code=404, detail="File Not Found")
 
     return app

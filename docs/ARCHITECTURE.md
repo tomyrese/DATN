@@ -1,6 +1,6 @@
 # Pi Robot System Architecture (Phase 2)
 
-Tài liệu thiết kế kiến trúc hệ thống toàn diện của Robot Trung Tâm Thương Mại trên Raspberry Pi 4 Model B kết hợp ứng dụng điều khiển Android React Native.
+Tài liệu thiết kế kiến trúc hệ thống toàn diện của Robot Trung Tâm Thương Mại trên Raspberry Pi 4 Model B kết hợp ứng dụng điều khiển Web Application Central Command.
 
 ---
 
@@ -8,21 +8,22 @@ Tài liệu thiết kế kiến trúc hệ thống toàn diện của Robot Trun
 
 ```
 +---------------------------------------------------------------------------------+
-|                       Ứng Dụng Android (React Native CLI)                       |
+|               Giao Diện Web Dashboard Điều Khiển (Responsive Web App)           |
 |                                                                                 |
-|  [ PairScreen / QrScanner ]  -->  [ Dashboard ]  -->  [ Control / D-Pad ]       |
-|  [ Camera Screen (MJPEG)  ]  -->  [ Motor Test ] -->  [ Diagnostics / Settings ]|
+|  [ PairModal / WebQrScanner ]  -->  [ Dashboard ]  -->  [ Control / D-Pad ]     |
+|  [ Camera Screen (MJPEG)    ]  -->  [ Motor Test ] -->  [ Diagnostics / Settings|
 |                                                                                 |
 |       +-----------------------------------------------------------------+       |
 |       |     RobotSocket (WebSocket)   &   RobotApi (FastAPI REST)       |       |
 |       +-----------------------------------------------------------------+       |
 +----------------------------------------|----------------------------------------+
-                                         | Wi-Fi LAN
+                                         | Wi-Fi LAN / HTTP & WS
 +----------------------------------------v----------------------------------------+
 |                            Raspberry Pi 4 Model B                               |
 |                                                                                 |
 |   +-------------------------------------------------------------------------+   |
 |   |                  FastAPI / Uvicorn Server (Port 8765)                   |   |
+|   |   - Web Server: / (index.html, css/, js/)                               |   |
 |   |   - REST: /api/v1/health, /pair, /camera/mjpeg, /camera/ticket, /info   |   |
 |   |   - WebSocket: /ws/v1/control (Hello, Drive, Heartbeat, Telemetry)      |   |
 |   +-------------------------------------------------------------------------+   |

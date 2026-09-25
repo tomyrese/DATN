@@ -197,24 +197,36 @@ python -m pytest tests/ -v
 
 ---
 
-## 7. Vận Hành Robot Chính Thức (CLI Control)
+## 7. Vận Hành Robot & Giao Diện Điều Khiển Website (Web Dashboard)
 
-Khởi động hệ thống điều khiển robot:
+Khởi động hệ thống điều khiển robot và máy chủ Web:
 ```bash
 source venv/bin/activate
 python -m src.main
 ```
 
-### Các phím điều khiển qua bàn phím:
+Khi robot khởi động, máy chủ FastAPI & WebSocket sẽ tự động phục vụ **Giao diện Điều khiển Website** tại địa chỉ:
+👉 **`http://<IP_ROBOT>:8765/`** *(hoặc `http://localhost:8765/` khi chạy trên máy)*
+
+### 7.1. Các tính năng trên Giao diện Web:
+- **Ghép nối bảo mật (Pairing System)**: Quét mã QR trên màn hình OLED bằng camera trình duyệt hoặc nhập mã PIN 6 ký tự.
+- **Drive Controller**: Điều khiển hướng di chuyển bằng phím ảo D-Pad cảm ứng hoặc bàn phím (`W`, `A`, `S`, `D`, `Space`/`X` để dừng, `1`-`5` để chỉnh tốc độ).
+- **CSI Camera Live Stream**: Xem luồng video MJPEG thời gian thực kèm lớp phủ nhận diện AI và cảnh báo vật cản.
+- **HUD Telemetry & Diagnostics**: Giám sát nhiệt độ CPU, tải CPU/RAM, FPS camera/AI, đồ thị công suất 4 motor DC và nhật ký sự kiện hệ thống (Live Logs).
+- **Motor Bench Test**: Thử nghiệm độc lập chiều quay từng motor (+20% FWD / -20% REV) khi robot đặt trên giá đỡ.
+- **Critical Emergency Stop**: Nút phanh dừng khẩn cấp tức thời (Phím tắt: `E`, Reset: `R`).
+
+### 7.2. Các phím điều khiển qua bàn phím (CLI / Web):
 | Phím | Chức năng | Mô tả hành vi |
 | :---: | :--- | :--- |
-| **`w`** | Tiến (Forward) | 4 bánh quay tiến tốc độ 35% |
-| **`s`** | Lùi (Backward) | 4 bánh quay lùi tốc độ 35% |
-| **`a`** | Quay trái (Turn Left) | Bánh trái quay lùi, bánh phải quay tiến |
-| **`d`** | Quay phải (Turn Right) | Bánh trái quay tiến, bánh phải quay lùi |
-| **`x`** | Dừng (Stop) | Ngắt PWM về 0 |
+| **`w`** / `▲` | Tiến (Forward) | 4 bánh quay tiến theo tốc độ đã chọn |
+| **`s`** / `▼` | Lùi (Backward) | 4 bánh quay lùi theo tốc độ đã chọn |
+| **`a`** / `◀` | Quay trái (Turn Left) | Bánh trái quay lùi, bánh phải quay tiến |
+| **`d`** / `▶` | Quay phải (Turn Right) | Bánh trái quay tiến, bánh phải quay lùi |
+| **`x`** / `Space` | Dừng (Stop) | Ngắt PWM về 0 |
 | **`e`** | Dừng khẩn cấp (E-Stop) | Ngắt PWM, tắt chân STBY cả 2 bên TB6612 |
 | **`r`** | Reset E-Stop | Mở khóa an toàn sau khi đã clear chướng ngại vật |
+| **`1` - `5`** | Tốc độ ga (Throttle) | Chuyển nhanh giữa các mức 20%, 35%, 50%, 75%, 100% |
 | **`q`** | Thoát (Quit) | Dừng motor, tắt camera, dọn dẹp GPIO và thoát sạch sẽ |
 
 ---

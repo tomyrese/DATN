@@ -9,16 +9,13 @@ env/
 *.log
 .DS_Store
 Thumbs.db
-node_modules/
-android-app/node_modules/
-android-app/android/.gradle/
-android-app/android/local.properties
-android-app/android/app/.cxx/
-android-app/android/app/build/
-android-app/android/build/
-android-app/.idea/
-android-app/.gradle/
-android-app/npm-debug.log
-android-app/yarn-error.log
 
 .paired_tokens.json
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vercel/
+*.tsbuildinfo

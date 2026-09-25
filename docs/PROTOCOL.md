@@ -1,6 +1,6 @@
 # Pi Robot Protocol Specification (v1.0)
 
-Tài liệu đặc tả toàn bộ giao thức truyền thông giữa robot (Raspberry Pi 4) và ứng dụng điều khiển Android (React Native).
+Tài liệu đặc tả toàn bộ giao thức truyền thông giữa robot (Raspberry Pi 4) và ứng dụng điều khiển Web Dashboard / Client.
 
 ---
 

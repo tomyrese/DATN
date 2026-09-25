@@ -92,3 +92,75 @@ def test_public_config_endpoint(client):
     assert "defaultSpeed" in data
     assert "speedRange" in data
     assert "stopZone" in data
+
+def test_web_index_and_static_files(client):
+    tc, _ = client
+    res = tc.get("/")
+    assert res.status_code == 200
+    assert "PI ROBOT" in res.text
+
+    css_res = tc.get("/css/style.css")
+    assert css_res.status_code == 200
+    assert "app-layout" in css_res.text
+
+def test_mall_apis(client):
+    tc, robot = client
+    token = robot.auth_manager.create_session_token()
+
+    # 1. POIs
+    pois_res = tc.get("/api/v1/mall/pois")
+    assert pois_res.status_code == 200
+    pois = pois_res.json()["pois"]
+    assert len(pois) > 0
+    assert any(p["id"] == "poi_zara" for p in pois)
+
+    # 2. Escort Navigation (Customer - no auth)
+    escort_res = tc.post("/api/v1/mall/escort", json={"targetPoiId": "poi_zara"})
+    assert escort_res.status_code == 200
+    assert escort_res.json()["success"] is True
+    assert escort_res.json()["task"]["target_name"] == "Cửa hàng Thời trang ZARA"
+
+    escort_status = tc.get("/api/v1/mall/escort")
+    assert escort_status.status_code == 200
+    assert escort_status.json()["task"]["status"] == "NAVIGATING"
+
+    cancel_escort = tc.delete("/api/v1/mall/escort")
+    assert cancel_escort.status_code == 200
+    assert cancel_escort.json()["success"] is True
+
+    # 3. AI Concierge Ask
+    ai_res = tc.post("/api/v1/mall/ai/ask", json={"question": "Nhà vệ sinh ở đâu?"})
+    assert ai_res.status_code == 200
+    assert "vệ sinh" in ai_res.json()["answer"].lower()
+    assert ai_res.json()["suggested_poi_id"] == "poi_wc_t1"
+
+    # 4. Delivery Orders (Staff - requires auth)
+    order_res = tc.post(
+        "/api/v1/mall/delivery/orders",
+        json={
+            "creatorName": "NV Kho B1",
+            "pickupPoiId": "poi_warehouse_b1",
+            "dropoffPoiId": "poi_zara",
+            "itemDescription": "Thùng quần áo mẫu mới"
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert order_res.status_code == 200
+    order_data = order_res.json()["order"]
+    order_id = order_data["order_id"]
+    assert order_data["status"] == "MOVING_TO_PICKUP"
+
+    # Update order status
+    patch_res = tc.patch(
+        f"/api/v1/mall/delivery/orders/{order_id}",
+        json={"status": "COMPLETED", "progress": 100},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert patch_res.status_code == 200
+    assert patch_res.json()["success"] is True
+
+    orders_list = tc.get("/api/v1/mall/delivery/orders")
+    assert orders_list.status_code == 200
+    assert len(orders_list.json()["orders"]) >= 1
+
+

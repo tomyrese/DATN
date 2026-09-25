@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Pi Robot Autonomous Control Platform - High Performance Web Dashboard & Telemetry">
+  <meta name="theme-color" content="#0A0D14">
+  <title>Pi Robot Central Command</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Top Global Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="10" width="36" height="28" rx="8" fill="#141926" stroke="#00E676" stroke-width="2.5"/>
+            <circle cx="16" cy="22" r="4" fill="#00E5FF"/>
+            <circle cx="32" cy="22" r="4" fill="#00E5FF"/>
+            <path d="M18 31H30" stroke="#00E676" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M24 4V10" stroke="#00E676" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="24" cy="4" r="2" fill="#00E676"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1 class="brand-title">PI ROBOT <span>OS</span></h1>
+          <span class="brand-subtitle">Autonomous CSI Vision Platform</span>
+        </div>
+      </div>
+
+      <div class="header-status-area">
+        <!-- Live Ping / Latency -->
+        <div class="ping-badge" id="pingBadge" title="WebSocket Roundtrip Latency">
+          <span class="ping-dot"></span>
+          <span class="ping-text" id="pingValue">-- ms</span>
+        </div>
+
+        <!-- Connection Status Pill -->
+        <div class="connection-pill status-disconnected" id="connectionPill">
+          <span class="status-indicator"></span>
+          <span class="status-label" id="connectionStatusText">DISCONNECTED</span>
+        </div>
+
+        <!-- Quick Pair / Robot Info -->
+        <button class="btn-icon" id="btnHeaderPair" title="Pair / Robot Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Global Safety Banner (Always Visible) -->
+    <section class="safety-banner-wrapper">
+      <div class="safety-banner banner-clear" id="safetyBanner">
+        <div class="banner-icon-box">
+          <span class="banner-icon-dot"></span>
+        </div>
+        <div class="banner-text-box">
+          <h2 class="banner-title" id="safetyBannerTitle">SAFETY SYSTEM OPERATIONAL (ALL CLEAR)</h2>
+          <p class="banner-desc" id="safetyBannerDesc">Autonomous safety interlock active. No obstacles in stop zone.</p>
+        </div>
+        <button class="btn-banner-reset hidden" id="btnBannerReset">RESET INTERLOCK</button>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="dashboard" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="tab-btn" data-tab="control" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Drive Control</span>
+      </button>
+      <button class="tab-btn" data-tab="camera" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>CSI Camera</span>
+      </button>
+      <button class="tab-btn" data-tab="diagnostics" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <span>Diagnostics</span>
+      </button>
+      <button class="tab-btn" data-tab="motor-test" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Motor Bench</span>
+      </button>
+      <button class="tab-btn" data-tab="settings" role="tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- TAB 1: DASHBOARD -->
+      <section class="tab-pane active" id="pane-dashboard">
+        
+        <!-- Quick Action Hero Grid -->
+        <div class="dashboard-hero-grid">
+          
+          <!-- Live Telemetry HUD Card -->
+          <div class="card hud-card">
+            <div class="card-header">
+              <span class="card-tag">SYSTEM TELEMETRY HUD</span>
+              <div class="live-tag"><span class="pulse-dot"></span> LIVE FEED</div>
+            </div>
+            
+            <div class="hud-metric-grid">
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">CSI CAM FPS</span>
+                <span class="hud-metric-value text-cyan" id="hudCamFps">0.0</span>
+                <span class="hud-metric-unit">Picamera2 640x480</span>
+              </div>
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">AI INFERENCE</span>
+                <span class="hud-metric-value text-cyan" id="hudInfFps">0.0</span>
+                <span class="hud-metric-unit">SSD MobileNet V2</span>
+              </div>
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">CPU TEMP</span>
+                <span class="hud-metric-value text-green" id="hudCpuTemp">--</span>
+                <span class="hud-metric-unit">BCM2711 SoC</span>
+              </div>
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">CPU LOAD</span>
+                <span class="hud-metric-value text-cyan" id="hudCpuLoad">--%</span>
+                <span class="hud-metric-unit">4x Cortex-A72</span>
+              </div>
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">RAM USAGE</span>
+                <span class="hud-metric-value text-cyan" id="hudRamUsage">--%</span>
+                <span class="hud-metric-unit">LPDDR4 System RAM</span>
+              </div>
+              <div class="hud-metric-box">
+                <span class="hud-metric-label">SAFETY ZONE</span>
+                <span class="hud-metric-value text-green" id="hudSafetyZone">CLEAR</span>
+                <span class="hud-metric-unit">Center Path [0.2 - 0.8]</span>
+              </div>
+            </div>
+
+            <!-- TB6612FNG Motor Output Gauge -->
+            <div class="motor-telemetry-sub">
+              <span class="sub-section-title">MOTOR DRIVER OUTPUTS (TB6612FNG 4-CHANNELS)</span>
+              <div class="motor-bars-grid">
+                <div class="motor-bar-item">
+                  <div class="bar-header"><span>M1 (FL)</span><span id="hudM1">0%</span></div>
+                  <div class="bar-track"><div class="bar-fill" id="barM1"></div></div>
+                </div>
+                <div class="motor-bar-item">
+                  <div class="bar-header"><span>M3 (FR)</span><span id="hudM3">0%</span></div>
+                  <div class="bar-track"><div class="bar-fill" id="barM3"></div></div>
+                </div>
+                <div class="motor-bar-item">
+                  <div class="bar-header"><span>M2 (RL)</span><span id="hudM2">0%</span></div>
+                  <div class="bar-track"><div class="bar-fill" id="barM2"></div></div>
+                </div>
+                <div class="motor-bar-item">
+                  <div class="bar-header"><span>M4 (RR)</span><span id="hudM4">0%</span></div>
+                  <div class="bar-track"><div class="bar-fill" id="barM4"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Tiles -->
+          <div class="tiles-grid">
+            <div class="menu-tile tile-primary" onclick="window.switchTab('control')">
+              <div class="tile-top"><span class="tile-pill">DRIVE</span><span class="tile-badge">WASD</span></div>
+              <h3 class="tile-title">DRIVE CONTROLLER</h3>
+              <p class="tile-desc">Tactile D-Pad, Throttle slider, Hotkeys & Live PIP camera.</p>
+            </div>
+            <div class="menu-tile tile-cyan" onclick="window.switchTab('camera')">
+              <div class="tile-top"><span class="tile-pill">VISION</span><span class="tile-badge">CSI</span></div>
+              <h3 class="tile-title">CSI CAMERA FEED</h3>
+              <p class="tile-desc">High-framerate MJPEG stream & real-time AI bounding boxes.</p>
+            </div>
+            <div class="menu-tile" onclick="window.switchTab('diagnostics')">
+              <div class="tile-top"><span class="tile-pill">STATS</span></div>
+              <h3 class="tile-title">SYSTEM DIAGNOSTICS</h3>
+              <p class="tile-desc">System vitals, thermal charts, and real-time terminal logs.</p>
+            </div>
+            <div class="menu-tile" onclick="window.switchTab('motor-test')">
+              <div class="tile-top"><span class="tile-pill">BENCH</span></div>
+              <h3 class="tile-title">MOTOR BENCH TEST</h3>
+              <p class="tile-desc">Individual directional testing for all 4 DC motor channels.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Master Emergency Button Section -->
+        <div class="emergency-action-section">
+          <button class="btn-emergency-stop" id="btnEmergencyStop">
+            <div class="estop-stripes"></div>
+            <span class="estop-title">CRITICAL EMERGENCY STOP</span>
+            <span class="estop-sub">INSTANT POWER CUT & HARDWARE BRAKE (KEY: E)</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: DRIVE CONTROLLER -->
+      <section class="tab-pane" id="pane-control">
+        <div class="control-layout-grid">
+          
+          <!-- Left: Video Stream PIP (Optional) -->
+          <div class="control-stream-card" id="controlStreamCard">
+            <div class="stream-header">
+              <span class="card-tag">LIVE CSI CAMERA PREVIEW</span>
+              <span class="fps-pill" id="ctrlCamFps">0.0 FPS</span>
+            </div>
+            <div class="stream-viewport mini-viewport">
+              <img id="ctrlCameraImg" alt="Live Camera Preview" src="" />
+              <div class="stream-placeholder" id="ctrlStreamPlaceholder">
+                <div class="loader-spinner"></div>
+                <span>Awaiting video stream...</span>
+              </div>
+              <div class="stream-overlay-warning hidden" id="ctrlStreamAlert">
+                <span>PERSON IN SAFETY ZONE</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Drive Controls & D-Pad -->
+          <div class="control-pad-card">
+            
+            <!-- Throttle Slider & Presets -->
+            <div class="throttle-box">
+              <div class="throttle-header">
+                <div class="throttle-title-wrap">
+                  <span class="card-tag">THROTTLE CONTROL</span>
+                  <span class="card-sub">Target Motor Output Power</span>
+                </div>
+                <div class="throttle-val-badge" id="throttleBadge">35%</div>
+              </div>
+              <input type="range" class="throttle-slider" id="throttleSlider" min="20" max="100" step="5" value="35">
+              <div class="speed-presets-row">
+                <button class="speed-chip" data-speed="0.20">ECO 20%</button>
+                <button class="speed-chip active" data-speed="0.35">STD 35%</button>
+                <button class="speed-chip" data-speed="0.50">MID 50%</button>
+                <button class="speed-chip" data-speed="0.75">PWR 75%</button>
+                <button class="speed-chip" data-speed="1.00">MAX 100%</button>
+              </div>
+            </div>
+
+            <!-- Virtual D-Pad -->
+            <div class="dpad-wrapper">
+              <div class="dpad-container">
+                <button class="dpad-btn dpad-up" id="btnDriveUp" title="Forward (W / Up Arrow)">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h6v8h4v-8h6z"/></svg>
+                  <span>FORWARD</span>
+                </button>
+                <div class="dpad-mid-row">
+                  <button class="dpad-btn dpad-left" id="btnDriveLeft" title="Turn Left (A / Left Arrow)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l8-8v6h8v4h-8v6z"/></svg>
+                    <span>LEFT</span>
+                  </button>
+                  <button class="dpad-btn dpad-stop" id="btnDriveStop" title="Stop (Space / X)">
+                    <div class="stop-icon-box">■</div>
+                    <span>STOP</span>
+                  </button>
+                  <button class="dpad-btn dpad-right" id="btnDriveRight" title="Turn Right (D / Right Arrow)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 12l-8-8v6H4v4h8v6z"/></svg>
+                    <span>RIGHT</span>
+                  </button>
+                </div>
+                <button class="dpad-btn dpad-down" id="btnDriveDown" title="Backward (S / Down Arrow)">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l8-8h-6V4h-4v8H4z"/></svg>
+                  <span>BACKWARD</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Keyboard Hotkeys Cheatsheet -->
+            <div class="hotkeys-bar">
+              <div class="hotkey-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Drive</div>
+              <div class="hotkey-item"><kbd>SPACE</kbd> Stop</div>
+              <div class="hotkey-item"><kbd>1-5</kbd> Speed</div>
+              <div class="hotkey-item"><kbd>E</kbd> E-Stop</div>
+              <div class="hotkey-item"><kbd>R</kbd> Reset</div>
+            </div>
+
+            <!-- Emergency Stop Buttons -->
+            <div class="ctrl-bottom-estop">
+              <button class="btn-emergency-stop" id="btnControlEStop">EMERGENCY STOP (E)</button>
+              <button class="btn-reset-estop hidden" id="btnControlReset">RESET EMERGENCY STOP (R)</button>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: CSI CAMERA FULL -->
+      <section class="tab-pane" id="pane-camera">
+        <div class="camera-layout-grid">
+          
+          <div class="card camera-feed-card">
+            <div class="card-header">
+              <div class="cam-title-wrap">
+                <span class="card-tag">RASPBERRY PI CSI CAMERA LIVE STREAM</span>
+                <span class="cam-res-badge">640x480 @ 30 FPS Hardware CSI</span>
+              </div>
+              <div class="cam-actions">
+                <button class="btn-sm" id="btnCamSnapshot">📷 Snapshot</button>
+              </div>
+            </div>
+
+            <div class="stream-viewport full-viewport">
+              <img id="fullCameraImg" alt="Live CSI Camera Feed" src="" />
+              <div class="stream-placeholder" id="fullStreamPlaceholder">
+                <div class="loader-spinner"></div>
+                <span>Connecting to robot camera stream...</span>
+              </div>
+              <div class="stream-hud-overlay">
+                <div class="overlay-pill left-pill">
+                  <span class="pulse-dot"></span>
+                  <span id="fullCamFpsBadge">CAM: 0.0 FPS</span>
+                </div>
+                <div class="overlay-pill right-pill alert-hidden" id="fullCamAiBadge">
+                  <span>PERSON DETECTED (0%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vision & AI Metadata Box -->
+          <div class="card ai-meta-card">
+            <span class="card-tag">AI VISION PIPELINE & STOP ZONE SPECS</span>
+            <div class="meta-table">
+              <div class="meta-row">
+                <span class="meta-key">Camera Backend:</span>
+                <span class="meta-val">Picamera2 Native (RGB888)</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-key">AI Detection Model:</span>
+                <span class="meta-val">SSD MobileNet V2 COCO (INT8)</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-key">Active Stop Zone X:</span>
+                <span class="meta-val">20% to 80% Horizontal Center</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-key">Safety Clear Delay:</span>
+                <span class="meta-val">1.5s Anti-Flicker Hysteresis</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-key">Auto-Resume Policy:</span>
+                <span class="meta-val text-green">STRICT LOCKOUT (Requires User Input)</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 4: DIAGNOSTICS -->
+      <section class="tab-pane" id="pane-diagnostics">
+        <div class="diagnostics-grid">
+          
+          <!-- System Metrics Row -->
+          <div class="card diag-stats-card">
+            <span class="card-tag">HEALTH & THERMAL METRICS</span>
+            <div class="diag-metrics-row">
+              <div class="metric-gauge-box">
+                <span class="gauge-label">CPU TEMPERATURE</span>
+                <span class="gauge-value text-green" id="diagCpuTemp">-- °C</span>
+                <span class="gauge-sub">Throttling Limit: 80°C</span>
+              </div>
+              <div class="metric-gauge-box">
+                <span class="gauge-label">CPU USAGE</span>
+                <span class="gauge-value text-cyan" id="diagCpuLoad">-- %</span>
+                <span class="gauge-sub">4 Cores Active</span>
+              </div>
+              <div class="metric-gauge-box">
+                <span class="gauge-label">MEMORY LOAD</span>
+                <span class="gauge-value text-cyan" id="diagRamLoad">-- %</span>
+                <span class="gauge-sub">System RAM</span>
+              </div>
+              <div class="metric-gauge-box">
+                <span class="gauge-label">ROBOT UPTIME</span>
+                <span class="gauge-value text-white" id="diagUptime">0s</span>
+                <span class="gauge-sub">Continuous Operation</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Event Logs Terminal -->
+          <div class="card diag-logs-card">
+            <div class="card-header">
+              <span class="card-tag">REAL-TIME SYSTEM & EVENT LOGS</span>
+              <div class="log-actions">
+                <button class="btn-sm" id="btnCopyLogs">📋 Copy</button>
+                <button class="btn-sm" id="btnClearLogs">🗑️ Clear</button>
+              </div>
+            </div>
+            <div class="log-terminal" id="logTerminal">
+              <div class="log-line text-muted">[SYSTEM] Pi Robot Web Console Initialized.</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 5: MOTOR BENCH TEST -->
+      <section class="tab-pane" id="pane-motor-test">
+        <div class="bench-layout">
+          
+          <div class="warning-banner">
+            <span class="warning-title">⚠️ MOTOR BENCH TEST MODE</span>
+            <p class="warning-desc">Ensure the robot is placed safely on a workbench stand with all 4 wheels elevated off the ground. Press and hold to spin each motor at 20% test speed.</p>
+          </div>
+
+          <div class="motors-grid">
+            
+            <!-- Motor 1 -->
+            <div class="motor-test-card" id="cardMotor1">
+              <div class="motor-card-header">
+                <div>
+                  <h3 class="motor-title">MOTOR 1 (FRONT LEFT)</h3>
+                  <span class="motor-channel">TB_L Channel A • GPIO13 / GPIO5,6</span>
+                </div>
+                <span class="motor-speed-pill" id="m1SpeedPill">0%</span>
+              </div>
+              <div class="motor-test-actions">
+                <button class="btn-motor-test btn-fwd" data-motor="1" data-speed="0.20">HOLD FWD (+20%)</button>
+                <button class="btn-motor-test btn-rev" data-motor="1" data-speed="-0.20">HOLD REV (-20%)</button>
+              </div>
+            </div>
+
+            <!-- Motor 2 -->
+            <div class="motor-test-card" id="cardMotor2">
+              <div class="motor-card-header">
+                <div>
+                  <h3 class="motor-title">MOTOR 2 (REAR LEFT)</h3>
+                  <span class="motor-channel">TB_L Channel B • GPIO19 / GPIO26,22</span>
+                </div>
+                <span class="motor-speed-pill" id="m2SpeedPill">0%</span>
+              </div>
+              <div class="motor-test-actions">
+                <button class="btn-motor-test btn-fwd" data-motor="2" data-speed="0.20">HOLD FWD (+20%)</button>
+                <button class="btn-motor-test btn-rev" data-motor="2" data-speed="-0.20">HOLD REV (-20%)</button>
+              </div>
+            </div>
+
+            <!-- Motor 3 -->
+            <div class="motor-test-card" id="cardMotor3">
+              <div class="motor-card-header">
+                <div>
+                  <h3 class="motor-title">MOTOR 3 (FRONT RIGHT)</h3>
+                  <span class="motor-channel">TB_R Channel A • GPIO12 / GPIO16,20</span>
+                </div>
+                <span class="motor-speed-pill" id="m3SpeedPill">0%</span>
+              </div>
+              <div class="motor-test-actions">
+                <button class="btn-motor-test btn-fwd" data-motor="3" data-speed="0.20">HOLD FWD (+20%)</button>
+                <button class="btn-motor-test btn-rev" data-motor="3" data-speed="-0.20">HOLD REV (-20%)</button>
+              </div>
+            </div>
+
+            <!-- Motor 4 -->
+            <div class="motor-test-card" id="cardMotor4">
+              <div class="motor-card-header">
+                <div>
+                  <h3 class="motor-title">MOTOR 4 (REAR RIGHT)</h3>
+                  <span class="motor-channel">TB_R Channel B • GPIO18 / GPIO23,24</span>
+                </div>
+                <span class="motor-speed-pill" id="m4SpeedPill">0%</span>
+              </div>
+              <div class="motor-test-actions">
+                <button class="btn-motor-test btn-fwd" data-motor="4" data-speed="0.20">HOLD FWD (+20%)</button>
+                <button class="btn-motor-test btn-rev" data-motor="4" data-speed="-0.20">HOLD REV (-20%)</button>
+              </div>
+            </div>
+
+          </div>
+
+          <button class="btn-emergency-stop" id="btnBenchStopAll">STOP ALL MOTORS</button>
+
+        </div>
+      </section>
+
+      <!-- TAB 6: SETTINGS & PAIRING -->
+      <section class="tab-pane" id="pane-settings">
+        <div class="settings-layout">
+          
+          <div class="card settings-card">
+            <span class="card-tag">ROBOT CONNECTION SETTINGS</span>
+            
+            <div class="settings-group">
+              <label class="setting-label" for="settingHost">Robot Host / IP Address</label>
+              <input type="text" class="input-text" id="settingHost" placeholder="192.168.1.50 or localhost">
+            </div>
+
+            <div class="settings-group">
+              <label class="setting-label" for="settingPort">Robot Port</label>
+              <input type="number" class="input-text" id="settingPort" placeholder="8765" value="8765">
+            </div>
+
+            <div class="settings-group">
+              <label class="setting-label" for="settingToken">Session Auth Token</label>
+              <input type="password" class="input-text" id="settingToken" placeholder="Session Token">
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn-primary" id="btnSaveConnection">CONNECT / RE-AUTHENTICATE</button>
+              <button class="btn-secondary" id="btnOpenPairModal">SCAN QR / PAIR WITH PIN</button>
+              <button class="btn-danger" id="btnUnpairRobot">FORGET ROBOT & REVOKE TOKEN</button>
+            </div>
+          </div>
+
+          <div class="card settings-card">
+            <span class="card-tag">UI PREFERENCES</span>
+            
+            <div class="setting-row">
+              <div>
+                <span class="setting-name">Mini Camera on Drive Screen</span>
+                <span class="setting-hint">Show live CSI preview inside the Drive Controller panel</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="prefMiniCamera" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <span class="setting-name">Auto Reconnect</span>
+                <span class="setting-hint">Automatically reconnect with exponential backoff on Wi-Fi drop</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="prefAutoReconnect" checked>
+                <span class="slider round"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- PAIRING MODAL (QR Scanner / Manual PIN) -->
+  <div class="modal-overlay hidden" id="pairModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">SECURE ROBOT PAIRING</h3>
+        <button class="btn-close-modal" id="btnClosePairModal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Scan the dynamic QR code displayed on the Robot's 1.3" OLED screen, or enter the 6-character PIN code below.
+        </p>
+
+        <!-- QR Scanner Viewport -->
+        <div class="qr-scanner-box">
+          <video id="qrVideo" playsinline class="qr-video hidden"></video>
+          <canvas id="qrCanvas" class="hidden"></canvas>
+          <div class="qr-placeholder" id="qrPlaceholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M8 8h8v8H8z"/></svg>
+            <span>Click Start Camera to Scan OLED QR</span>
+          </div>
+          <button class="btn-primary btn-block" id="btnStartQrCamera">📸 START SCANNER CAMERA</button>
+        </div>
+
+        <div class="modal-divider"><span>OR ENTER 6-CHAR PIN</span></div>
+
+        <!-- Manual Form -->
+        <div class="manual-pair-form">
+          <div class="form-row">
+            <div class="form-col-2">
+              <label class="setting-label" for="pairHostInput">Robot IP</label>
+              <input type="text" class="input-text" id="pairHostInput" placeholder="192.168.1.50">
+            </div>
+            <div class="form-col-1">
+              <label class="setting-label" for="pairPortInput">Port</label>
+              <input type="number" class="input-text" id="pairPortInput" value="8765">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-col-full">
+              <label class="setting-label" for="pairCodeInput">6-Character OLED PIN Code</label>
+              <input type="text" class="input-text text-uppercase pin-input" id="pairCodeInput" placeholder="e.g. 7A9K3F" maxlength="12">
+            </div>
+          </div>
+          <div class="pair-error-msg hidden" id="pairErrorMsg"></div>
+          <button class="btn-primary btn-block" id="btnSubmitPairPin">PAIR WITH ROBOT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/qr_scanner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
