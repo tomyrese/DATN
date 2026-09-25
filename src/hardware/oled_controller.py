@@ -133,6 +133,9 @@ class OLEDController:
     def show_shutdown(self):
         self._draw_lines("ROBOT SHUTDOWN", ["SYSTEM STOPPED", "POWER SAFE TO OFF"])
 
+    def show_custom(self, title: str, lines: list):
+        self._draw_lines(title, lines)
+
     def update_state(self, state: RobotState, info: Optional[Dict[str, Any]] = None):
         info_dict = info or {}
         if state == RobotState.BOOTING:

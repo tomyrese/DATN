@@ -172,17 +172,16 @@ export class RobotApi {
   static async createDeliveryOrder(
     host: string,
     port: number,
-    token: string,
-    order: { creatorName: string; pickupPoiId: string; dropoffPoiId: string; itemDescription: string }
+    order: { creatorName: string; pickupPoiId: string; dropoffPoiId: string; itemDescription: string },
+    token?: string
   ): Promise<{ success: boolean; order?: DeliveryOrder; message?: string }> {
     try {
       const url = `${this.getBaseUrl(host, port)}/api/v1/mall/delivery/orders`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await this.fetchWithTimeout(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(order),
       });
       return res.json();
@@ -194,19 +193,18 @@ export class RobotApi {
   static async updateDeliveryOrderStatus(
     host: string,
     port: number,
-    token: string,
     orderId: string,
     status: string,
-    progress?: number
+    progress?: number,
+    token?: string
   ): Promise<boolean> {
     try {
       const url = `${this.getBaseUrl(host, port)}/api/v1/mall/delivery/orders/${orderId}`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await this.fetchWithTimeout(url, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ status, progress }),
       });
       const data = await res.json();

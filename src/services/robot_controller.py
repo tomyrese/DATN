@@ -192,20 +192,28 @@ class RobotController:
                             self.oled.update_state(RobotState.STOPPED, {"ip": self.ip_address})
 
                 # Autonomous Mall Escort Navigation
-                if self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING":
+                is_escorting = self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"
+                if is_escorting:
                     self._update_escort_step()
+
+                # Autonomous Mall Delivery Navigation
+                active_order = self.mall.get_active_order()
+                is_delivering = active_order and active_order.status in ("MOVING_TO_PICKUP", "DELIVERING")
+                if is_delivering:
+                    self._update_delivery_step(active_order)
+
+                is_autonomous = is_escorting or is_delivering
 
                 if self.websocket_manager.is_client_connected():
                     conn_alive, drive_valid = self.websocket_manager.connection_watchdog.check()
-                    is_escorting = self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"
-                    if not drive_valid and is_moving and not self.cli_motion_active and not is_escorting:
+                    if not drive_valid and is_moving and not self.cli_motion_active and not is_autonomous:
                         self.motor.stop()
                         self.current_motion = RobotState.STOPPED
                         if self.safety.can_move():
                             self.state = RobotState.CONNECTED
                             self.oled.update_state(self.state, {"ip": self.ip_address, "speed": self.cfg.DEFAULT_SPEED})
                         self.log_event("Drive command lease expired - Motor stopped")
-                elif not self.cli_motion_active and is_moving and not (self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"):
+                elif not self.cli_motion_active and is_moving and not is_autonomous:
                     self.motor.stop()
                     self.current_motion = RobotState.STOPPED
 
@@ -282,6 +290,81 @@ class RobotController:
             escort.status = "ARRIVED"
             self.log_event(f"Escort successfully arrived at {escort.target_name}")
             self.oled.update_state(RobotState.READY, {"ip": self.ip_address})
+
+    def _update_delivery_step(self, order: Any):
+        if not order or order.status not in ("MOVING_TO_PICKUP", "DELIVERING"):
+            return
+
+        if not self.safety.can_move():
+            if self.motor.is_moving():
+                self.motor.stop()
+                self.current_motion = RobotState.STOPPED
+            return
+
+        now = time.time()
+        elapsed = max(0.0, now - (order.phase_started_at or now))
+
+        if order.status == "MOVING_TO_PICKUP":
+            transit_duration = 15.0  # transit time to reach pickup POI
+            progress = min(100, int((elapsed / transit_duration) * 100))
+            if progress != order.current_progress:
+                order.current_progress = progress
+                if int(elapsed * 2) % 3 == 0:
+                    self.mall.update_order_progress(order.order_id, progress)
+
+            if progress < 100:
+                delivery_speed = min(0.30, self.cfg.DEFAULT_SPEED)
+                if not self.motor.is_moving() or self.current_motion != RobotState.FORWARD:
+                    self.motor.forward(delivery_speed)
+                    self.current_motion = RobotState.FORWARD
+                    self.state = RobotState.FORWARD
+                self.oled.show_custom("DEN DIEM LAY HANG", [
+                    f"DIEM: {order.pickup_poi_name[:14]}",
+                    f"TIEN DO: {progress}%",
+                    f"DON: {order.order_id}"
+                ])
+            else:
+                self.motor.stop()
+                self.current_motion = RobotState.STOPPED
+                self.state = RobotState.STOPPED
+                self.mall.update_order_status(order.order_id, "ARRIVED_AT_PICKUP", progress=100)
+                self.log_event(f"Robot arrived at pickup: {order.pickup_poi_name} (Order: {order.order_id})")
+                self.oled.show_custom("DA DEN DIEM LAY", [
+                    f"TAI: {order.pickup_poi_name[:14]}",
+                    "DAT HANG LEN XE",
+                    "XAC NHAN TREN WEB"
+                ])
+
+        elif order.status == "DELIVERING":
+            transit_duration = 18.0  # transit time to reach dropoff POI
+            progress = min(100, int((elapsed / transit_duration) * 100))
+            if progress != order.current_progress:
+                order.current_progress = progress
+                if int(elapsed * 2) % 3 == 0:
+                    self.mall.update_order_progress(order.order_id, progress)
+
+            if progress < 100:
+                delivery_speed = min(0.30, self.cfg.DEFAULT_SPEED)
+                if not self.motor.is_moving() or self.current_motion != RobotState.FORWARD:
+                    self.motor.forward(delivery_speed)
+                    self.current_motion = RobotState.FORWARD
+                    self.state = RobotState.FORWARD
+                self.oled.show_custom("DANG GIAO HANG", [
+                    f"DEN: {order.dropoff_poi_name[:14]}",
+                    f"TIEN DO: {progress}%",
+                    f"DON: {order.order_id}"
+                ])
+            else:
+                self.motor.stop()
+                self.current_motion = RobotState.STOPPED
+                self.state = RobotState.STOPPED
+                self.mall.update_order_status(order.order_id, "ARRIVED_AT_DROPOFF", progress=100)
+                self.log_event(f"Robot arrived at dropoff: {order.dropoff_poi_name} (Order: {order.order_id})")
+                self.oled.show_custom("DA DEN DIEM GIAO", [
+                    f"TAI: {order.dropoff_poi_name[:14]}",
+                    "MOI NHAN HANG",
+                    "HOAN TAT TREN WEB"
+                ])
 
     def _schedule_async(self, coro):
         if self.async_loop and self.async_loop.is_running():

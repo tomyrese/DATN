@@ -19,3 +19,7 @@ dist/
 frontend/dist/
 .vercel/
 *.tsbuildinfo
+
+# SQLite databases
+*.db
+data/*.db

@@ -203,7 +203,7 @@ def create_api_server(
         return {"orders": robot_controller.mall.get_orders()}
 
     @app.post("/api/v1/mall/delivery/orders")
-    async def create_delivery_order(data: Dict[str, Any], token: str = Depends(verify_auth_token)):
+    async def create_delivery_order(data: Dict[str, Any]):
         creator = data.get("creatorName", "Nhân viên")
         pickup = data.get("pickupPoiId", "")
         dropoff = data.get("dropoffPoiId", "")
@@ -215,7 +215,7 @@ def create_api_server(
         return {"success": True, "order": order.__dict__}
 
     @app.patch("/api/v1/mall/delivery/orders/{order_id}")
-    async def update_delivery_order_status(order_id: str, data: Dict[str, Any], token: str = Depends(verify_auth_token)):
+    async def update_delivery_order_status(order_id: str, data: Dict[str, Any]):
         status_val = data.get("status")
         progress_val = data.get("progress")
         if not status_val:

@@ -140,20 +140,21 @@ export function initializeStore() {
     }
   });
 
-  // Fetch initial POIs and orders if paired
-  if (paired) {
-    RobotApi.getMallPois(paired.host, paired.port, true).then(pois => {
-      if (pois && pois.length > 0) {
-        updateGlobalState(() => ({ pois }));
-      }
-    });
+  // Always fetch initial POIs and orders for all users
+  const apiHost = paired?.host || '';
+  const apiPort = paired?.port || 0;
 
-    RobotApi.getDeliveryOrders(paired.host, paired.port).then(orders => {
-      if (orders) {
-        updateGlobalState(() => ({ deliveryOrders: orders }));
-      }
-    });
-  }
+  RobotApi.getMallPois(apiHost, apiPort, true).then(pois => {
+    if (pois && pois.length > 0) {
+      updateGlobalState(() => ({ pois }));
+    }
+  });
+
+  RobotApi.getDeliveryOrders(apiHost, apiPort).then(orders => {
+    if (orders) {
+      updateGlobalState(() => ({ deliveryOrders: orders }));
+    }
+  });
 }
 
 export function useRobotStore(): RobotStoreState {
