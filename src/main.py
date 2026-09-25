@@ -2,6 +2,13 @@ import sys
 import os
 import time
 import signal
+from pathlib import Path
+
+# Ensure project root is in sys.path so 'src' can be imported from anywhere
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.config import config
 from src.state import MovementCommand
 from src.services.robot_controller import RobotController
