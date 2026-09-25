@@ -6,21 +6,16 @@ import { StorageService } from '../services/StorageService';
 import { RobotApi } from '../services/RobotApi';
 
 const DEFAULT_POIS: PointOfInterest[] = [
-  { id: 'poi_reception', name: 'Quầy Lễ Tân & CSKH', category: 'utility', floor: 'T1', x: 50.0, y: 85.0, description: 'Sảnh chính trung tâm, hỗ trợ đổi quà và hướng dẫn.' },
-  { id: 'poi_highlands', name: 'Highlands Coffee', category: 'food', floor: 'T1', x: 20.0, y: 75.0, description: 'Cà phê, bánh ngọt, không gian mở view sảnh.' },
-  { id: 'poi_zara', name: 'Cửa hàng Thời trang ZARA', category: 'fashion', floor: 'T1', x: 80.0, y: 60.0, description: 'Thời trang nam, nữ và trẻ em cao cấp.' },
-  { id: 'poi_uniqlo', name: 'UNIQLO LifeWear', category: 'fashion', floor: 'T1', x: 25.0, y: 40.0, description: 'Quần áo thời trang tiện dụng Nhật Bản.' },
-  { id: 'poi_wc_t1', name: 'Nhà Vệ Sinh Tầng 1', category: 'utility', floor: 'T1', x: 88.0, y: 85.0, description: 'Nhà vệ sinh nam/nữ, phòng em bé.' },
-  { id: 'poi_elevator_t1', name: 'Cụm Thang Máy T1', category: 'utility', floor: 'T1', x: 50.0, y: 50.0, description: 'Thang máy lên các tầng B1, T2, T3.' },
-  { id: 'poi_phuclong', name: 'Trà Sữa Phúc Long', category: 'food', floor: 'T2', x: 30.0, y: 70.0, description: 'Trà đào, trà sữa và cà phê truyền thống.' },
-  { id: 'poi_kura_sushi', name: 'Nhà Hàng Kura Sushi', category: 'food', floor: 'T2', x: 70.0, y: 35.0, description: 'Sushi băng chuyền công nghệ cao.' },
-  { id: 'poi_adidas', name: 'Adidas Originals Store', category: 'fashion', floor: 'T2', x: 20.0, y: 35.0, description: 'Giày thể thao, phụ kiện chính hãng.' },
-  { id: 'poi_wc_t2', name: 'Nhà Vệ Sinh Tầng 2', category: 'utility', floor: 'T2', x: 88.0, y: 85.0, description: 'Khu vệ sinh tiện nghi.' },
-  { id: 'poi_cgv', name: 'Rạp Chiếu Phim CGV Cinemas', category: 'entertainment', floor: 'T3', x: 50.0, y: 30.0, description: 'Phòng chiếu IMAX, Starium và quầy bắp nước.' },
-  { id: 'poi_arcade', name: 'Khu Vui Chơi TimeZone Arcade', category: 'entertainment', floor: 'T3', x: 25.0, y: 60.0, description: 'Máy game thùng, bắn súng, gắp thú.' },
-  { id: 'poi_wc_t3', name: 'Nhà Vệ Sinh Tầng 3', category: 'utility', floor: 'T3', x: 88.0, y: 85.0, description: 'Nhà vệ sinh tầng 3.' },
-  { id: 'poi_warehouse_b1', name: 'Kho Vận Hàng Hóa Trung Tâm', category: 'staff', floor: 'B1', x: 15.0, y: 20.0, description: 'Khu vực xuất nhập và phân loại hàng hóa.', is_staff_only: true },
-  { id: 'poi_staff_counter', name: 'Quầy Giao Nhận Nội Bộ T1', category: 'staff', floor: 'T1', x: 85.0, y: 20.0, description: 'Điểm tiếp nhận đơn hàng chuyển phát nhanh nội bộ.', is_staff_only: true },
+  { id: 'poi_reception', name: 'Quầy Lễ Tân & CSKH', category: 'utility', floor: 'T1', x: 50.0, y: 72.0, description: 'Sảnh chính trung tâm, hỗ trợ đổi quà, chỉ đường và thông tin.' },
+  { id: 'poi_wc', name: 'Khu Vệ Sinh & Tiện Ích', category: 'utility', floor: 'T1', x: 82.0, y: 72.0, description: 'Nhà vệ sinh hiện đại Nam, Nữ và phòng chăm sóc em bé.' },
+  { id: 'poi_elevator', name: 'Thang Máy & Bãi Đỗ Xe', category: 'utility', floor: 'T1', x: 18.0, y: 72.0, description: 'Cụm thang máy lồng kính và lối xuống bãi đỗ xe.' },
+  { id: 'poi_uniqlo', name: 'UNIQLO LifeWear', category: 'fashion', floor: 'T1', x: 20.0, y: 24.0, description: 'Thời trang phong cách Nhật Bản, trang phục nam, nữ và trẻ em.' },
+  { id: 'poi_zara', name: 'Thời Trang ZARA', category: 'fashion', floor: 'T1', x: 80.0, y: 24.0, description: 'Thương hiệu thời trang cao cấp Tây Ban Nha mới nhất.' },
+  { id: 'poi_highlands', name: 'Highlands Coffee', category: 'food', floor: 'T1', x: 20.0, y: 48.0, description: 'Cà phê pha phin truyền thống, Freeze và bánh ngọt.' },
+  { id: 'poi_phuclong', name: 'Trà Phúc Long', category: 'food', floor: 'T1', x: 36.0, y: 48.0, description: 'Trà sữa Ô Long, Trà đào và thức uống thanh mát.' },
+  { id: 'poi_kura_sushi', name: 'Nhà Hàng Kura Sushi', category: 'food', floor: 'T1', x: 50.0, y: 24.0, description: 'Sushi băng chuyền công nghệ cao và ẩm thực Nhật.' },
+  { id: 'poi_cgv', name: 'Rạp Phim CGV Cinemas', category: 'entertainment', floor: 'T1', x: 80.0, y: 48.0, description: 'Cụm rạp chiếu phim IMAX & 4DX hiện đại bậc nhất.' },
+  { id: 'poi_warehouse', name: 'Kho Giao Nhận Hàng Nội Bộ', category: 'staff', floor: 'T1', x: 90.0, y: 88.0, description: 'Khu vực bốc dỡ và xuất nhập hàng hóa nội bộ.', is_staff_only: true },
 ];
 
 let globalState: RobotStoreState = {

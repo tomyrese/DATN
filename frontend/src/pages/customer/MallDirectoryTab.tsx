@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRobotStore, updateGlobalState } from '../../store/useRobotStore';
 import { RobotApi } from '../../services/RobotApi';
 import { PointOfInterest } from '../../types/protocol';
-import { Search, Navigation, Coffee, ShoppingBag, Film, Info } from 'lucide-react';
+import { Search, Navigation, Coffee, ShoppingBag, Film, Info, Sparkles } from 'lucide-react';
 
 export const MallDirectoryTab: React.FC = () => {
   const { pois, pairedRobot, activeEscort } = useRobotStore();
@@ -15,34 +15,33 @@ export const MallDirectoryTab: React.FC = () => {
     const matchCat = selectedCategory === 'all' || poi.category === selectedCategory;
     const matchSearch =
       poi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      poi.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      poi.floor.toLowerCase().includes(searchTerm.toLowerCase());
+      poi.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchCat && matchSearch;
   });
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'food':
-        return <Coffee size={18} color="#F59E0B" />;
+        return <Coffee size={20} color="#EA580C" />;
       case 'fashion':
-        return <ShoppingBag size={18} color="#EC4899" />;
+        return <ShoppingBag size={20} color="#DB2777" />;
       case 'entertainment':
-        return <Film size={18} color="#8B5CF6" />;
+        return <Film size={20} color="#7C3AED" />;
       default:
-        return <Info size={18} color="#00E5FF" />;
+        return <Info size={20} color="#2563EB" />;
     }
   };
 
   const handleEscort = async (poi: PointOfInterest) => {
     if (!pairedRobot) {
-      alert('Vui lòng cấu hình kết nối đến Robot để dẫn đường.');
+      alert('Vui lòng kết nối với Robot qua mục Cài Đặt trước khi yêu cầu dẫn đường.');
       return;
     }
     try {
       const res = await RobotApi.requestEscort(pairedRobot.host, pairedRobot.port, poi.id);
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
-        alert(`Robot đã bắt đầu dẫn đường đến: ${res.task.target_name} (${res.task.target_floor})!`);
+        alert(`Robot đã bắt đầu dẫn đường đến: ${res.task.target_name}!`);
       }
     } catch (e: any) {
       alert(`Lỗi: ${e.message}`);
@@ -56,23 +55,23 @@ export const MallDirectoryTab: React.FC = () => {
         {/* Search & Filter Header */}
         <div className="card directory-search-card">
           <div className="search-bar-wrapper">
-            <Search size={18} color="#64748B" />
+            <Search size={20} color="#64748B" />
             <input
               type="text"
               className="directory-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm kiếm gian hàng, rạp phim, quán ăn, nhà vệ sinh..."
+              placeholder="Tìm kiếm gian hàng, nhà hàng, rạp phim, khu vệ sinh..."
             />
           </div>
 
           <div className="category-filters">
             {[
-              { id: 'all', label: 'Tất Cả' },
-              { id: 'food', label: 'Ẩm Thực & Cafe' },
-              { id: 'fashion', label: 'Thời Trang' },
-              { id: 'entertainment', label: 'Giải Trí & Rạp Phim' },
-              { id: 'utility', label: 'Tiện Ích & WC' },
+              { id: 'all', label: 'Tất Cả Gian Hàng' },
+              { id: 'fashion', label: '👗 Thời Trang' },
+              { id: 'food', label: '🍔 Ẩm Thực & Cafe' },
+              { id: 'entertainment', label: '🎬 Rạp Chiếu Phim' },
+              { id: 'utility', label: '🚻 Tiện Ích & WC' },
             ].map(cat => (
               <button
                 key={cat.id}
@@ -96,7 +95,7 @@ export const MallDirectoryTab: React.FC = () => {
                     {getCategoryIcon(poi.category)}
                   </div>
                   <div className="dir-badges">
-                    <span className="floor-badge">{poi.floor}</span>
+                    <span className="floor-badge">Sảnh Chính T1</span>
                     <span className="cat-badge">{poi.category.toUpperCase()}</span>
                   </div>
                 </div>
@@ -109,8 +108,8 @@ export const MallDirectoryTab: React.FC = () => {
                   onClick={() => handleEscort(poi)}
                   disabled={isTarget}
                 >
-                  <Navigation size={14} style={{ display: 'inline', marginRight: 6 }} />
-                  {isTarget ? 'ĐANG DẪN ĐƯỜNG' : 'DẪN TÔI ĐẾN ĐÂY'}
+                  <Navigation size={15} style={{ display: 'inline', marginRight: 6 }} />
+                  {isTarget ? 'ROBOT ĐANG DẪN ĐƯỜNG' : 'ROBOT DẪN TÔI ĐẾN ĐÂY'}
                 </button>
               </div>
             );

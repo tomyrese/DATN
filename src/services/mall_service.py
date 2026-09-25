@@ -1,14 +1,14 @@
 import time
 import uuid
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 
 @dataclass
 class PointOfInterest:
     id: str
     name: str
     category: str  # 'food', 'fashion', 'entertainment', 'utility', 'staff'
-    floor: str     # 'B1', 'T1', 'T2', 'T3'
+    floor: str     # 'T1' (Single unified floor)
     x: float       # 0.0 - 100.0 (percentage coordinates on map)
     y: float
     description: str
@@ -41,8 +41,8 @@ class EscortTask:
 
 class MallService:
     """
-    Manages Shopping Mall Points of Interest (POIs), Delivery Orders for Staff,
-    Customer Escort Navigation, and Mall Information Q&A Assistant.
+    Manages Single-Floor Shopping Mall Points of Interest (POIs),
+    Delivery Orders for Staff, Customer Escort Navigation, and Concierge Q&A.
     """
 
     def __init__(self):
@@ -50,32 +50,29 @@ class MallService:
         self.orders: Dict[str, DeliveryOrder] = {}
         self.active_order_id: Optional[str] = None
         self.current_escort: Optional[EscortTask] = None
-        self.robot_pos = {"x": 50.0, "y": 80.0, "floor": "T1", "heading": 0.0}
+        self.robot_pos = {"x": 50.0, "y": 68.0, "floor": "T1", "heading": 0.0}
 
     def _init_default_pois(self) -> Dict[str, PointOfInterest]:
         default_list = [
-            # Tầng 1 (Sảnh chính & Thời trang)
-            PointOfInterest("poi_reception", "Quầy Lễ Tân & CSKH", "utility", "T1", 50.0, 85.0, "Sảnh chính trung tâm, hỗ trợ đổi quà và hướng dẫn."),
-            PointOfInterest("poi_highlands", "Highlands Coffee", "food", "T1", 20.0, 75.0, "Cà phê, bánh ngọt, không gian mở view sảnh."),
-            PointOfInterest("poi_zara", "Cửa hàng Thời trang ZARA", "fashion", "T1", 80.0, 60.0, "Thời trang nam, nữ và trẻ em cao cấp."),
-            PointOfInterest("poi_uniqlo", "UNIQLO LifeWear", "fashion", "T1", 25.0, 40.0, "Quần áo thời trang tiện dụng Nhật Bản."),
-            PointOfInterest("poi_wc_t1", "Nhà Vệ Sinh Tầng 1", "utility", "T1", 88.0, 85.0, "Nhà vệ sinh nam/nữ, phòng em bé."),
-            PointOfInterest("poi_elevator_t1", "Cụm Thang Máy T1", "utility", "T1", 50.0, 50.0, "Thang máy lên các tầng B1, T2, T3."),
+            # Khu Trung Tâm & Tiện Ích
+            PointOfInterest("poi_reception", "Quầy Lễ Tân & CSKH", "utility", "T1", 50.0, 72.0, "Sảnh chính trung tâm, hỗ trợ đổi quà, chỉ đường và thông tin."),
+            PointOfInterest("poi_wc", "Khu Vệ Sinh & Tiện Ích", "utility", "T1", 82.0, 72.0, "Nhà vệ sinh hiện đại Nam, Nữ và phòng chăm sóc em bé."),
+            PointOfInterest("poi_elevator", "Thang Máy & Bãi Đỗ Xe", "utility", "T1", 18.0, 72.0, "Cụm thang máy lồng kính và lối xuống bãi đỗ xe."),
 
-            # Tầng 2 (Ẩm thực & Mua sắm)
-            PointOfInterest("poi_phuclong", "Trà Sữa Phúc Long", "food", "T2", 30.0, 70.0, "Trà đào, trà sữa và cà phê truyền thống."),
-            PointOfInterest("poi_kura_sushi", "Nhà Hàng Kura Sushi", "food", "T2", 70.0, 35.0, "Sushi băng chuyền công nghệ cao."),
-            PointOfInterest("poi_adidas", "Adidas Originals Store", "fashion", "T2", 20.0, 35.0, "Giày thể thao, phụ kiện chính hãng."),
-            PointOfInterest("poi_wc_t2", "Nhà Vệ Sinh Tầng 2", "utility", "T2", 88.0, 85.0, "Khu vệ sinh tiện nghi."),
+            # Khu Thời Trang Quốc Tế
+            PointOfInterest("poi_uniqlo", "UNIQLO LifeWear", "fashion", "T1", 20.0, 24.0, "Thời trang phong cách Nhật Bản, trang phục nam, nữ và trẻ em."),
+            PointOfInterest("poi_zara", "Thời Trang ZARA", "fashion", "T1", 80.0, 24.0, "Thương hiệu thời trang cao cấp Tây Ban Nha mới nhất."),
 
-            # Tầng 3 (Giải trí & Rạp chiếu phim)
-            PointOfInterest("poi_cgv", "Rạp Chiếu Phim CGV Cinemas", "entertainment", "T3", 50.0, 30.0, "Phòng chiếu IMAX, Starium và quầy bắp nước."),
-            PointOfInterest("poi_arcade", "Khu Vui Chơi TimeZone Arcade", "entertainment", "T3", 25.0, 60.0, "Máy game thùng, bắn súng, gắp thú."),
-            PointOfInterest("poi_wc_t3", "Nhà Vệ Sinh Tầng 3", "utility", "T3", 88.0, 85.0, "Nhà vệ sinh tầng 3."),
+            # Khu Ẩm Thực & Cafe
+            PointOfInterest("poi_highlands", "Highlands Coffee", "food", "T1", 20.0, 48.0, "Cà phê pha phin truyền thống, Freeze và bánh ngọt."),
+            PointOfInterest("poi_phuclong", "Trà Phúc Long", "food", "T1", 36.0, 48.0, "Trà sữa Ô Long, Trà đào và thức uống thanh mát."),
+            PointOfInterest("poi_kura_sushi", "Nhà Hàng Kura Sushi", "food", "T1", 50.0, 24.0, "Sushi băng chuyền công nghệ cao và ẩm thực Nhật."),
 
-            # Khu vực Nội bộ Nhân viên (Staff Only)
-            PointOfInterest("poi_warehouse_b1", "Kho Vận Hàng Hóa Trung Tâm", "staff", "B1", 15.0, 20.0, "Khu vực xuất nhập và phân loại hàng hóa.", is_staff_only=True),
-            PointOfInterest("poi_staff_counter", "Quầy Giao Nhận Nội Bộ T1", "staff", "T1", 85.0, 20.0, "Điểm tiếp nhận đơn hàng chuyển phát nhanh nội bộ.", is_staff_only=True),
+            # Khu Giải Trí
+            PointOfInterest("poi_cgv", "Rạp Phim CGV Cinemas", "entertainment", "T1", 80.0, 48.0, "Cụm rạp chiếu phim IMAX & 4DX hiện đại bậc nhất."),
+
+            # Khu Vực Nội Bộ Nhân Viên (Staff Only)
+            PointOfInterest("poi_warehouse", "Kho Giao Nhận Hàng Nội Bộ", "staff", "T1", 90.0, 88.0, "Khu vực bốc dỡ và xuất nhập hàng hóa nội bộ.", is_staff_only=True),
         ]
         return {p.id: p for p in default_list}
 
@@ -145,7 +142,6 @@ class MallService:
         return True
 
     def get_orders(self) -> List[Dict[str, Any]]:
-        # Sort newest first
         sorted_orders = sorted(self.orders.values(), key=lambda o: o.created_at, reverse=True)
         return [asdict(o) for o in sorted_orders]
 
@@ -160,10 +156,10 @@ class MallService:
             task_id=task_id,
             target_poi_id=target_poi_id,
             target_name=poi.name,
-            target_floor=poi.floor,
+            target_floor="Sảnh Chính",
             status="NAVIGATING",
             started_at=time.time(),
-            estimated_seconds=40,
+            estimated_seconds=35,
             current_progress=10
         )
         self.current_escort = task
@@ -185,59 +181,64 @@ class MallService:
     def ask_concierge(self, question: str) -> Dict[str, Any]:
         q = question.lower().strip()
         
-        # Keyword & Intent Matcher
         if any(w in q for w in ["vệ sinh", "toilet", "wc", "nhà tắm", "rửa tay"]):
             return {
-                "answer": "Nhà vệ sinh có ở tất cả các tầng (T1, T2, T3) nằm ở góc hành lang phía Đông cạnh thang bộ. Bạn có thể nhấn nút 'Dẫn đường' để robot dẫn bạn đến ngay!",
-                "suggested_poi_id": "poi_wc_t1",
-                "suggested_poi_name": "Nhà Vệ Sinh Tầng 1"
+                "answer": "Khu vệ sinh trung tâm nằm ở Cánh Đông Nam (cạnh rạp CGV). Quý khách có thể nhấn nút 'Dẫn đường' để robot dẫn đi ngay!",
+                "suggested_poi_id": "poi_wc",
+                "suggested_poi_name": "Khu Vệ Sinh & Tiện Ích"
             }
         
-        if any(w in q for w in ["cà phê", "cafe", "coffee", "uống nước", "trà sữa", "highland", "phúc long"]):
+        if any(w in q for w in ["cà phê", "cafe", "coffee", "highland"]):
             return {
-                "answer": "Trung tâm có Highlands Coffee tại sảnh chính Tầng 1 và Trà Sữa Phúc Long tại Tầng 2. Bạn muốn robot dẫn tới địa điểm nào?",
+                "answer": "Quán Highlands Coffee nằm ở Cánh Tây Nam sảnh chính với view thoáng mát và nhiều món nước ngon.",
                 "suggested_poi_id": "poi_highlands",
-                "suggested_poi_name": "Highlands Coffee (Tầng 1)"
+                "suggested_poi_name": "Highlands Coffee"
             }
 
-        if any(w in q for w in ["quần áo", "thời trang", "áo", "quần", "zara", "uniqlo", "adidas"]):
+        if any(w in q for w in ["trà", "trà sữa", "phúc long"]):
             return {
-                "answer": "Khu mua sắm thời trang tập trung tại Tầng 1 và Tầng 2 với các thương hiệu ZARA, UNIQLO LifeWear và Adidas Originals Store.",
+                "answer": "Quầy Trà Phúc Long nằm ở Cánh Tây (gần Highlands Coffee). Quý khách muốn robot dẫn đến đó không ạ?",
+                "suggested_poi_id": "poi_phuclong",
+                "suggested_poi_name": "Trà Phúc Long"
+            }
+
+        if any(w in q for w in ["quần áo", "thời trang", "áo", "quần", "zara", "uniqlo"]):
+            return {
+                "answer": "Trung tâm có 2 gian hàng thời trang lớn: UNIQLO LifeWear (Cánh Tây Bắc) và ZARA (Cánh Đông Bắc).",
                 "suggested_poi_id": "poi_zara",
-                "suggested_poi_name": "Cửa hàng ZARA (Tầng 1)"
+                "suggested_poi_name": "Thời Trang ZARA"
             }
 
         if any(w in q for w in ["phim", "cinema", "cgv", "chiếu phim", "vé xem phim"]):
             return {
-                "answer": "Rạp chiếu phim CGV Cinemas nằm tại Tầng 3 với 6 phòng chiếu hiện đại. Suất chiếu mở từ 9:00 sáng đến 23:30 đêm.",
+                "answer": "Cụm rạp CGV Cinemas nằm ở Cánh Đông sảnh chính với các suất chiếu mở từ 09:00 - 23:30.",
                 "suggested_poi_id": "poi_cgv",
-                "suggested_poi_name": "CGV Cinemas (Tầng 3)"
+                "suggested_poi_name": "Rạp Phim CGV Cinemas"
             }
 
-        if any(w in q for w in ["ăn", "nhà hàng", "sushi", "cơm", "buffet", "ẩm thực"]):
+        if any(w in q for w in ["ăn", "sushi", "nhà hàng", "kura"]):
             return {
-                "answer": "Khu ẩm thực Tầng 2 có Nhà hàng Kura Sushi băng chuyền công nghệ cao và nhiều gian hàng ẩm thực hấp dẫn khác.",
+                "answer": "Nhà hàng Kura Sushi băng chuyền công nghệ cao nằm ở Cánh Bắc sảnh chính.",
                 "suggested_poi_id": "poi_kura_sushi",
-                "suggested_poi_name": "Nhà Hàng Kura Sushi (Tầng 2)"
+                "suggested_poi_name": "Nhà Hàng Kura Sushi"
             }
 
         if any(w in q for w in ["giờ mở cửa", "đóng cửa", "mấy giờ"]):
             return {
-                "answer": "Trung tâm thương mại mở cửa đón khách từ 09:00 đến 22:00 hàng ngày (Rạp phim CGV và siêu thị mở tới 23:30).",
+                "answer": "Trung tâm thương mại mở cửa đón khách từ 09:00 đến 22:00 hàng ngày (Rạp phim CGV mở tới 23:30).",
                 "suggested_poi_id": "poi_reception",
                 "suggested_poi_name": "Quầy Lễ Tân & CSKH"
             }
 
         if any(w in q for w in ["wifi", "mạng", "internet", "pass wifi"]):
             return {
-                "answer": "WiFi miễn phí trong toàn bộ trung tâm là 'MALL-FREE-WIFI' (không cần mật khẩu, chỉ cần xác nhận điều khoản truy cập).",
+                "answer": "WiFi miễn phí trong toàn bộ sảnh là 'MALL-FREE-WIFI' (không cần mật khẩu).",
                 "suggested_poi_id": None,
                 "suggested_poi_name": None
             }
 
-        # Default fallback
         return {
-            "answer": "Xin chào quý khách! Tôi là Robot Lễ Tân & Dẫn Đường. Quý khách có thể hỏi tôi về vị trí các cửa hàng, nhà hàng, nhà vệ sinh, rạp phim hoặc yêu cầu tôi dẫn đường trực tiếp.",
+            "answer": "Xin chào quý khách! Tôi là Robot Lễ Tân & Dẫn Đường. Quý khách có thể hỏi tôi về vị trí các cửa hàng, nhà hàng, WC hoặc yêu cầu dẫn đường trực tiếp.",
             "suggested_poi_id": "poi_reception",
             "suggested_poi_name": "Quầy Lễ Tân & CSKH"
         }
