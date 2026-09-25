@@ -53,6 +53,15 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera, Edge */
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
 }
 
 html, body {
@@ -65,6 +74,8 @@ html, body {
   overflow-x: hidden;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 #root {
@@ -80,7 +91,7 @@ html, body {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 12px 14px 120px; /* 120px bottom clearance for fixed bottom nav on mobile */
+  padding: 10px 12px 120px; /* 120px bottom clearance for fixed bottom nav on mobile */
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -95,7 +106,7 @@ html, body {
 }
 
 /* ==========================================================================
-   HEADER (Crisp Single-Line Layout)
+   HEADER (Crisp Single-Line Layout, Zero Overflow)
    ========================================================================== */
 .app-header {
   display: flex;
@@ -104,9 +115,12 @@ html, body {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  padding: 8px 14px;
+  padding: 8px 12px;
   box-shadow: var(--shadow-sm);
-  gap: 8px;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .brand-section {

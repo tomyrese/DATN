@@ -7,7 +7,6 @@ import { PairedRobotInfo } from './types/robot';
 import { Header } from './components/Header';
 import { SafetyBanner } from './components/SafetyBanner';
 import { NavigationTabs, TabType } from './components/NavigationTabs';
-import { PairingModal } from './components/PairingModal';
 
 // Customer Views
 import { MallMapTab } from './pages/customer/MallMapTab';
@@ -25,7 +24,6 @@ initializeStore();
 export const App: React.FC = () => {
   const { pairedRobot, settings, connectionStatus, isSafetyBlocked, isEmergencyStopped, userRole } = useRobotStore();
   const [activeTab, setActiveTab] = useState<TabType>(userRole === 'staff' ? 'control' : 'mall-map');
-  const [isPairingOpen, setIsPairingOpen] = useState(false);
   const [cameraTicket, setCameraTicket] = useState<string | null>(null);
 
   // Auto-pair from URL query param when scanning OLED QR code
@@ -196,7 +194,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Header onOpenPairModal={() => setIsPairingOpen(true)} />
+      <Header />
       {userRole === 'staff' && <SafetyBanner />}
       <NavigationTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
@@ -213,8 +211,6 @@ export const App: React.FC = () => {
         {/* Settings & Config */}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
-
-      <PairingModal isOpen={isPairingOpen} onClose={() => setIsPairingOpen(false)} />
     </div>
   );
 };

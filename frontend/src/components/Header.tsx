@@ -1,13 +1,13 @@
 import React from 'react';
 import { useRobotStore, updateGlobalState } from '../store/useRobotStore';
 import { StorageService } from '../services/StorageService';
-import { Bot, User, ShieldCheck, Settings } from 'lucide-react';
+import { Bot, User, ShieldCheck } from 'lucide-react';
 
 interface HeaderProps {
-  onOpenPairModal: () => void;
+  onOpenSettings?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   const { connectionStatus, userRole } = useRobotStore();
 
   const getStatusInfo = () => {
@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
       case 'RECONNECTING':
         return { text: 'Đang nối', className: 'connecting' };
       default:
-        return { text: 'Sẵn Sàng', className: 'online' }; // Default friendly online indicator
+        return { text: 'Sẵn Sàng', className: 'online' };
     }
   };
 
@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
     <header className="app-header">
       <div className="brand-section">
         <div className="brand-icon-bubble">
-          <Bot size={22} />
+          <Bot size={20} />
         </div>
         <div className="brand-text-block">
           <h1>
@@ -63,24 +63,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
         >
           {userRole === 'staff' ? (
             <>
-              <ShieldCheck size={14} color="#B45309" />
+              <ShieldCheck size={13} color="#B45309" />
               <span>NV</span>
             </>
           ) : (
             <>
-              <User size={14} />
+              <User size={13} />
               <span>Khách</span>
             </>
           )}
-        </button>
-
-        {/* Settings button */}
-        <button
-          className="btn-header-gear"
-          onClick={onOpenPairModal}
-          title="Cài đặt kết nối"
-        >
-          <Settings size={16} />
         </button>
       </div>
     </header>
