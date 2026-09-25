@@ -21,17 +21,15 @@ class CameraStreamManager:
 
         try:
             import cv2
-            # Resize if necessary
             target_size = (self.cfg.CAMERA_STREAM_WIDTH, self.cfg.CAMERA_STREAM_HEIGHT)
             if (frame.shape[1], frame.shape[0]) != target_size:
                 frame_resized = cv2.resize(frame, target_size, interpolation=cv2.INTER_LINEAR)
             else:
                 frame_resized = frame
 
-            # Convert RGB to BGR for cv2 encoding
-            bgr = cv2.cvtColor(frame_resized, cv2.COLOR_RGB2BGR)
+            # Encode standard BGR frame directly with libjpeg turbo
             encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), int(self.quality)]
-            success, encoded_img = cv2.imencode('.jpg', bgr, encode_params)
+            success, encoded_img = cv2.imencode('.jpg', frame_resized, encode_params)
             if success:
                 return encoded_img.tobytes()
         except Exception:

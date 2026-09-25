@@ -25,12 +25,12 @@ class CameraService:
             from picamera2 import Picamera2
             self.picam2 = Picamera2()
             cam_config = self.picam2.create_preview_configuration(
-                main={"format": "RGB888", "size": (self.cfg.CAMERA_WIDTH, self.cfg.CAMERA_HEIGHT)}
+                main={"format": "BGR888", "size": (self.cfg.CAMERA_WIDTH, self.cfg.CAMERA_HEIGHT)}
             )
             self.picam2.configure(cam_config)
             self.picam2.start()
             self.backend = "picamera2"
-            logger.info(f"Picamera2 initialized successfully at {self.cfg.CAMERA_WIDTH}x{self.cfg.CAMERA_HEIGHT}")
+            logger.info(f"Picamera2 initialized successfully at {self.cfg.CAMERA_WIDTH}x{self.cfg.CAMERA_HEIGHT} (BGR888)")
             return True
         except Exception as e:
             logger.warning(f"Failed to initialize Picamera2: {e}")
@@ -119,10 +119,9 @@ class CameraService:
                     frame = self.picam2.capture_array()
                     consecutive_errors = 0
                 elif self.backend == "opencv" and self.cap is not None:
-                    import cv2
                     ret, bgr = self.cap.read()
                     if ret and bgr is not None:
-                        frame = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                        frame = bgr
                         consecutive_errors = 0
                     else:
                         consecutive_errors += 1
