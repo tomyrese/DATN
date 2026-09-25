@@ -108,6 +108,7 @@ class CameraService:
     def _capture_loop(self):
         fps_frames = 0
         fps_start = time.monotonic()
+        consecutive_errors = 0
 
         while self.running:
             frame = None
@@ -116,14 +117,19 @@ class CameraService:
             try:
                 if self.backend == "picamera2" and self.picam2 is not None:
                     frame = self.picam2.capture_array()
+                    consecutive_errors = 0
                 elif self.backend == "opencv" and self.cap is not None:
                     import cv2
                     ret, bgr = self.cap.read()
                     if ret and bgr is not None:
                         frame = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                        consecutive_errors = 0
+                    else:
+                        consecutive_errors += 1
                 elif self.backend == "synthetic":
                     frame = np.zeros((self.cfg.CAMERA_HEIGHT, self.cfg.CAMERA_WIDTH, 3), dtype=np.uint8)
-                    time.sleep(1.0 / self.cfg.CAMERA_FPS)
+                    time.sleep(1.0 / max(1.0, self.cfg.CAMERA_FPS))
+                    consecutive_errors = 0
 
                 if frame is not None:
                     with self.lock:
@@ -134,20 +140,33 @@ class CameraService:
                     fps_frames += 1
                     now = time.monotonic()
                     if now - fps_start >= 2.0:
-                        self.fps = fps_frames / (now - fps_start)
+                        self.fps = fps_frames / max(0.1, now - fps_start)
                         fps_frames = 0
                         fps_start = now
+
+                    # Sleep briefly to match target FPS and not starve CPU
+                    target_interval = 1.0 / max(1.0, self.cfg.CAMERA_FPS)
+                    elapsed = time.monotonic() - timestamp
+                    if elapsed < target_interval:
+                        time.sleep(target_interval - elapsed)
                 else:
-                    time.sleep(0.01)
+                    if consecutive_errors > 20:
+                        logger.warning("Camera hardware stalled, attempting recovery...")
+                        time.sleep(0.5)
+                        consecutive_errors = 0
+                    else:
+                        time.sleep(0.02)
             except Exception as e:
-                logger.error(f"Error in camera capture loop: {e}")
+                consecutive_errors += 1
+                if consecutive_errors % 20 == 1:
+                    logger.error(f"Error in camera capture loop: {e}")
                 time.sleep(0.05)
 
     def get_latest_frame(self) -> Tuple[Optional[np.ndarray], float]:
         with self.lock:
             if self.latest_frame is None:
                 return None, 0.0
-            return self.latest_frame.copy(), self.latest_timestamp
+            return self.latest_frame, self.latest_timestamp
 
     def get_fps(self) -> float:
         return self.fps

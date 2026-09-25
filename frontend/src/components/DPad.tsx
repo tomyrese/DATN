@@ -31,10 +31,10 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
 
   return (
     <div className="dpad-wrapper">
-      <div className="dpad-container">
-        {/* Forward */}
+      <div className="dpad-grid-container">
+        {/* Forward (Row 1, Col 2) */}
         <button
-          className={`dpad-btn dpad-up ${activeDir === 'forward' ? 'active' : ''}`}
+          className={`dpad-key dpad-key-up ${activeDir === 'forward' ? 'active' : ''}`}
           disabled={disabled}
           onMouseDown={(e) => startDrive('forward', e)}
           onMouseUp={stopDrive}
@@ -43,61 +43,61 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
           onTouchEnd={stopDrive}
           onTouchCancel={stopDrive}
           onContextMenu={(e) => e.preventDefault()}
-          title="Forward (W / Up Arrow)"
+          title="Tiến (W / Mũi tên Lên)"
         >
-          <ArrowUp size={22} />
-          <span>FORWARD</span>
+          <ArrowUp size={24} />
+          <span>TIẾN (W)</span>
         </button>
 
-        {/* Mid Row (Left - Stop - Right) */}
-        <div className="dpad-mid-row">
-          <button
-            className={`dpad-btn dpad-left ${activeDir === 'left' ? 'active' : ''}`}
-            disabled={disabled}
-            onMouseDown={(e) => startDrive('left', e)}
-            onMouseUp={stopDrive}
-            onMouseLeave={stopDrive}
-            onTouchStart={(e) => startDrive('left', e)}
-            onTouchEnd={stopDrive}
-            onTouchCancel={stopDrive}
-            onContextMenu={(e) => e.preventDefault()}
-            title="Turn Left (A / Left Arrow)"
-          >
-            <ArrowLeft size={22} />
-            <span>LEFT</span>
-          </button>
-
-          <button
-            className="dpad-btn dpad-stop"
-            disabled={disabled}
-            onClick={handleManualStop}
-            onContextMenu={(e) => e.preventDefault()}
-            title="Stop (Space / X)"
-          >
-            <Square size={18} fill="#FF1744" stroke="none" />
-            <span>STOP</span>
-          </button>
-
-          <button
-            className={`dpad-btn dpad-right ${activeDir === 'right' ? 'active' : ''}`}
-            disabled={disabled}
-            onMouseDown={(e) => startDrive('right', e)}
-            onMouseUp={stopDrive}
-            onMouseLeave={stopDrive}
-            onTouchStart={(e) => startDrive('right', e)}
-            onTouchEnd={stopDrive}
-            onTouchCancel={stopDrive}
-            onContextMenu={(e) => e.preventDefault()}
-            title="Turn Right (D / Right Arrow)"
-          >
-            <ArrowRight size={22} />
-            <span>RIGHT</span>
-          </button>
-        </div>
-
-        {/* Backward */}
+        {/* Turn Left (Row 2, Col 1) */}
         <button
-          className={`dpad-btn dpad-down ${activeDir === 'backward' ? 'active' : ''}`}
+          className={`dpad-key dpad-key-left ${activeDir === 'left' ? 'active' : ''}`}
+          disabled={disabled}
+          onMouseDown={(e) => startDrive('left', e)}
+          onMouseUp={stopDrive}
+          onMouseLeave={stopDrive}
+          onTouchStart={(e) => startDrive('left', e)}
+          onTouchEnd={stopDrive}
+          onTouchCancel={stopDrive}
+          onContextMenu={(e) => e.preventDefault()}
+          title="Rẽ Trái (A / Mũi tên Trái)"
+        >
+          <ArrowLeft size={24} />
+          <span>TRÁI (A)</span>
+        </button>
+
+        {/* Center Stop Button (Row 2, Col 2) */}
+        <button
+          className="dpad-key dpad-key-stop"
+          disabled={disabled}
+          onClick={handleManualStop}
+          onContextMenu={(e) => e.preventDefault()}
+          title="Dừng (Space / X)"
+        >
+          <Square size={20} fill="#EF4444" stroke="none" />
+          <span>DỪNG</span>
+        </button>
+
+        {/* Turn Right (Row 2, Col 3) */}
+        <button
+          className={`dpad-key dpad-key-right ${activeDir === 'right' ? 'active' : ''}`}
+          disabled={disabled}
+          onMouseDown={(e) => startDrive('right', e)}
+          onMouseUp={stopDrive}
+          onMouseLeave={stopDrive}
+          onTouchStart={(e) => startDrive('right', e)}
+          onTouchEnd={stopDrive}
+          onTouchCancel={stopDrive}
+          onContextMenu={(e) => e.preventDefault()}
+          title="Rẽ Phải (D / Mũi tên Phải)"
+        >
+          <ArrowRight size={24} />
+          <span>PHẢI (D)</span>
+        </button>
+
+        {/* Backward (Row 3, Col 2) */}
+        <button
+          className={`dpad-key dpad-key-down ${activeDir === 'backward' ? 'active' : ''}`}
           disabled={disabled}
           onMouseDown={(e) => startDrive('backward', e)}
           onMouseUp={stopDrive}
@@ -106,10 +106,10 @@ export const DPad: React.FC<DPadProps> = ({ currentSpeed, disabled = false }) =>
           onTouchEnd={stopDrive}
           onTouchCancel={stopDrive}
           onContextMenu={(e) => e.preventDefault()}
-          title="Backward (S / Down Arrow)"
+          title="Lùi (S / Mũi tên Xuống)"
         >
-          <ArrowDown size={22} />
-          <span>BACKWARD</span>
+          <ArrowDown size={24} />
+          <span>LÙI (S)</span>
         </button>
       </div>
     </div>

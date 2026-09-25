@@ -60,8 +60,30 @@ export const MallMapTab: React.FC = () => {
     } catch (e) {}
   };
 
-  // Robot Position in Central Promenade
-  const robotPos = { x: 550, y: 430 };
+  // Escort live polling effect
+  React.useEffect(() => {
+    if (!activeEscort || activeEscort.status !== 'NAVIGATING') return;
+
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+
+    const interval = setInterval(async () => {
+      try {
+        const task = await RobotApi.getEscortStatus(host, port);
+        if (task) {
+          updateGlobalState(() => ({ activeEscort: task }));
+          if (task.status === 'ARRIVED') {
+            alert(`🎉 Robot đã dẫn quý khách đến đúng vị trí: ${task.target_name}!`);
+            setTimeout(() => {
+              updateGlobalState(() => ({ activeEscort: null }));
+            }, 3000);
+          }
+        }
+      } catch (err) {}
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeEscort?.status]);
 
   // Store coordinates mapping for SVG Route calculation
   const storeCoordinates: Record<string, { x: number; y: number }> = {
@@ -75,16 +97,26 @@ export const MallMapTab: React.FC = () => {
     poi_wc: { x: 900, y: 540 },
   };
 
+  // Dynamically calculate robot position based on escort progress
+  const targetCoord = activeEscort ? storeCoordinates[activeEscort.target_poi_id] : null;
+  const progressRatio = (activeEscort?.current_progress || 0) / 100.0;
+  const currentRobotPos = targetCoord
+    ? {
+        x: 550 + (targetCoord.x - 550) * progressRatio,
+        y: 430 + (targetCoord.y - 430) * progressRatio,
+      }
+    : { x: 550, y: 430 };
+
   const getRoutePath = (targetPoiId: string) => {
     const target = storeCoordinates[targetPoiId];
-    if (!target) return `M ${robotPos.x} ${robotPos.y} L 550 340`;
+    if (!target) return `M 550 430 L 550 340`;
     // Corridor waypoint routing
     if (target.y < 200) {
-      return `M ${robotPos.x} ${robotPos.y} L 550 220 L ${target.x} 220 L ${target.x} ${target.y + 70}`;
+      return `M 550 430 L 550 220 L ${target.x} 220 L ${target.x} ${target.y + 70}`;
     } else if (target.y > 500) {
-      return `M ${robotPos.x} ${robotPos.y} L 550 450 L ${target.x} 450 L ${target.x} ${target.y - 60}`;
+      return `M 550 430 L 550 450 L ${target.x} 450 L ${target.x} ${target.y - 60}`;
     } else {
-      return `M ${robotPos.x} ${robotPos.y} L 550 340 L ${target.x} 340`;
+      return `M 550 430 L 550 340 L ${target.x} 340`;
     }
   };
 
@@ -354,7 +386,7 @@ export const MallMapTab: React.FC = () => {
               )}
 
               {/* Robot Position Indicator (In Open Promenade) */}
-              <g transform={`translate(${robotPos.x}, ${robotPos.y})`} filter="url(#robotRadar)">
+              <g transform={`translate(${currentRobotPos.x}, ${currentRobotPos.y})`} filter="url(#robotRadar)">
                 <circle cx="0" cy="0" r="28" fill="rgba(16, 185, 129, 0.2)" className="spin-pulse" />
                 <circle cx="0" cy="0" r="15" fill="#10B981" stroke="#FFFFFF" strokeWidth="3" />
                 <polygon points="0,-8 6,5 0,2 -6,5" fill="#FFFFFF" />

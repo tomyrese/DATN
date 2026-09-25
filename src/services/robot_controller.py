@@ -191,16 +191,21 @@ class RobotController:
                         else:
                             self.oled.update_state(RobotState.STOPPED, {"ip": self.ip_address})
 
+                # Autonomous Mall Escort Navigation
+                if self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING":
+                    self._update_escort_step()
+
                 if self.websocket_manager.is_client_connected():
                     conn_alive, drive_valid = self.websocket_manager.connection_watchdog.check()
-                    if not drive_valid and is_moving and not self.cli_motion_active:
+                    is_escorting = self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"
+                    if not drive_valid and is_moving and not self.cli_motion_active and not is_escorting:
                         self.motor.stop()
                         self.current_motion = RobotState.STOPPED
                         if self.safety.can_move():
                             self.state = RobotState.CONNECTED
                             self.oled.update_state(self.state, {"ip": self.ip_address, "speed": self.cfg.DEFAULT_SPEED})
                         self.log_event("Drive command lease expired - Motor stopped")
-                elif not self.cli_motion_active and is_moving:
+                elif not self.cli_motion_active and is_moving and not (self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"):
                     self.motor.stop()
                     self.current_motion = RobotState.STOPPED
 
@@ -246,6 +251,37 @@ class RobotController:
                     self.oled.update_state(RobotState.SYSTEM_ERROR, {"error": str(e)})
                     self.log_event(f"Critical system error: {e}")
                 time.sleep(0.05)
+
+    def _update_escort_step(self):
+        escort = self.mall.current_escort
+        if not escort or escort.status != "NAVIGATING":
+            return
+
+        if not self.safety.can_move():
+            if self.motor.is_moving():
+                self.motor.stop()
+                self.current_motion = RobotState.STOPPED
+            return
+
+        now = time.time()
+        elapsed = now - escort.started_at
+        total_time = max(10.0, float(escort.estimated_seconds))
+        progress = min(100, int((elapsed / total_time) * 100))
+        escort.current_progress = progress
+
+        if progress < 100:
+            escort_speed = min(0.30, self.cfg.DEFAULT_SPEED)
+            if not self.motor.is_moving() or self.current_motion != RobotState.FORWARD:
+                self.motor.forward(escort_speed)
+                self.current_motion = RobotState.FORWARD
+                self.state = RobotState.FORWARD
+        else:
+            self.motor.stop()
+            self.current_motion = RobotState.STOPPED
+            self.state = RobotState.STOPPED
+            escort.status = "ARRIVED"
+            self.log_event(f"Escort successfully arrived at {escort.target_name}")
+            self.oled.update_state(RobotState.READY, {"ip": self.ip_address})
 
     def _schedule_async(self, coro):
         if self.async_loop and self.async_loop.is_running():
