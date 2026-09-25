@@ -83,11 +83,43 @@ export class RobotSocket {
   }
 
   public connect(host: string, port: number, token: string) {
-    this.disconnect();
+    const targetHost = host || window.location.hostname || 'localhost';
+    const targetPort = port || 8765;
+    const targetToken = token || 'guest';
 
-    this.host = host || window.location.hostname || 'localhost';
-    this.port = port || 8765;
-    this.token = token || '';
+    // If already connected or connecting to the exact same host & token, do not reconnect
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING) &&
+      this.host === targetHost &&
+      this.port === targetPort &&
+      this.token === targetToken
+    ) {
+      return;
+    }
+
+    // Clean up existing socket without triggering state events
+    if (this.ws) {
+      try {
+        this.ws.onopen = null;
+        this.ws.onmessage = null;
+        this.ws.onerror = null;
+        this.ws.onclose = null;
+        this.ws.close();
+      } catch (e) {}
+      this.ws = null;
+    }
+
+    this.stopHeartbeat();
+    this.stopDriveLoop();
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+    this.host = targetHost;
+    this.port = targetPort;
+    this.token = targetToken;
     this.setStatus('CONNECTING');
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';

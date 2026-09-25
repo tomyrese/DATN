@@ -68,7 +68,7 @@ class RobotConfig:
     DRIVE_COMMAND_TIMEOUT: float = float(os.getenv("DRIVE_COMMAND_TIMEOUT", "0.35"))
     DRIVE_COMMAND_INTERVAL: float = float(os.getenv("DRIVE_COMMAND_INTERVAL", "0.10"))
     HEARTBEAT_INTERVAL: float = float(os.getenv("HEARTBEAT_INTERVAL", "0.50"))
-    CONNECTION_TIMEOUT: float = float(os.getenv("CONNECTION_TIMEOUT", "1.20"))
+    CONNECTION_TIMEOUT: float = float(os.getenv("CONNECTION_TIMEOUT", "3.50"))
     TELEMETRY_INTERVAL: float = float(os.getenv("TELEMETRY_INTERVAL", "0.25"))
     CAMERA_STREAM_FPS: float = float(os.getenv("CAMERA_STREAM_FPS", "8.0"))
     CAMERA_STREAM_WIDTH: int = int(os.getenv("CAMERA_STREAM_WIDTH", "640"))

@@ -1,7 +1,7 @@
 import asyncio
 import json
 import time
-from typing import Optional, Any
+from typing import Optional, Any, Set
 from fastapi import WebSocket, WebSocketDisconnect
 from src.config import RobotConfig, config
 from src.network.auth_manager import AuthManager
@@ -19,47 +19,52 @@ class WebSocketManager:
         self.robot = robot_controller
         self.auth = auth_manager
         self.cfg = cfg or config
-        self.active_websocket: Optional[WebSocket] = None
+        self.active_websockets: Set[WebSocket] = set()
         self.connection_watchdog = ConnectionWatchdog(self.cfg)
         self.lock = asyncio.Lock()
         self.last_seq: Optional[int] = None
 
     def is_client_connected(self) -> bool:
-        return self.active_websocket is not None and self.connection_watchdog.is_connected
+        return len(self.active_websockets) > 0 and self.connection_watchdog.is_connected
 
     async def connect(self, websocket: WebSocket, token: Optional[str]) -> bool:
         await websocket.accept()
 
-        if not self.auth.validate_token(token):
-            err = ErrorMessage(code="AUTH_INVALID", message="Invalid or missing session token")
+        # Token validation: Allow guest/anonymous/empty if pairing is disabled or guest access
+        is_token_valid = (
+            not self.cfg.PAIRING_ENABLED or
+            not token or
+            token in ("guest", "anonymous", "") or
+            self.auth.validate_token(token)
+        )
+
+        if not is_token_valid:
+            err = ErrorMessage(code="AUTH_INVALID", message="Invalid session token")
             await websocket.send_text(err.model_dump_json())
             await websocket.close(code=4003)
             logger.warning("WebSocket connection rejected: invalid token")
             return False
 
         async with self.lock:
-            if self.active_websocket is not None and self.active_websocket != websocket:
-                try:
-                    await self.active_websocket.close(code=1000)
-                except Exception:
-                    pass
-
-            self.active_websocket = websocket
+            self.active_websockets.add(websocket)
             self.connection_watchdog.on_connected()
-            logger.info("WebSocket controller connected and authenticated")
+            logger.info(f"WebSocket client connected and authenticated (total active: {len(self.active_websockets)})")
             return True
 
     async def disconnect(self, websocket: WebSocket):
         async with self.lock:
-            if self.active_websocket == websocket:
-                self.active_websocket = None
+            if websocket in self.active_websockets:
+                self.active_websockets.remove(websocket)
+                logger.info(f"WebSocket client disconnected (remaining active: {len(self.active_websockets)})")
+
+            if len(self.active_websockets) == 0:
                 self.connection_watchdog.on_disconnected()
                 self.robot.handle_remote_disconnect()
-                logger.info("WebSocket controller disconnected")
 
     async def send_message(self, message: Any):
-        if self.active_websocket is None:
+        if not self.active_websockets:
             return
+
         try:
             if hasattr(message, "model_dump_json"):
                 text = message.model_dump_json()
@@ -67,9 +72,24 @@ class WebSocketManager:
                 text = json.dumps(message)
             else:
                 text = str(message)
-            await self.active_websocket.send_text(text)
-        except Exception as e:
-            logger.warning(f"Failed to send message over WebSocket: {e}")
+        except Exception:
+            return
+
+        dead_sockets = []
+        for ws in list(self.active_websockets):
+            try:
+                await ws.send_text(text)
+            except Exception:
+                dead_sockets.append(ws)
+
+        if dead_sockets:
+            async with self.lock:
+                for ws in dead_sockets:
+                    if ws in self.active_websockets:
+                        self.active_websockets.remove(ws)
+                if len(self.active_websockets) == 0:
+                    self.connection_watchdog.on_disconnected()
+                    self.robot.handle_remote_disconnect()
 
     async def broadcast_safety_event(self, event_type: str, confidence: Optional[float] = None):
         msg = SafetyEventMessage(event=event_type, confidence=confidence)
