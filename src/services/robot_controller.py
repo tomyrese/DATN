@@ -58,6 +58,7 @@ class RobotController:
         self.async_loop: Optional[asyncio.AbstractEventLoop] = None
         self.last_perf_log_time = time.monotonic()
         self.last_telemetry_time = 0.0
+        self.last_delivery_db_update = 0.0
         self.was_person_active = False
         self.cli_motion_active = False
 
@@ -324,8 +325,9 @@ class RobotController:
             progress = min(100, int((elapsed / transit_duration) * 100))
             if progress != order.current_progress:
                 order.current_progress = progress
-                if int(elapsed * 2) % 3 == 0:
+                if now - self.last_delivery_db_update >= 0.8:
                     self.mall.update_order_progress(order.order_id, progress)
+                    self.last_delivery_db_update = now
 
             if progress < 100:
                 delivery_speed = min(0.30, self.cfg.DEFAULT_SPEED)
@@ -357,8 +359,9 @@ class RobotController:
             progress = min(100, int((elapsed / transit_duration) * 100))
             if progress != order.current_progress:
                 order.current_progress = progress
-                if int(elapsed * 2) % 3 == 0:
+                if now - self.last_delivery_db_update >= 0.8:
                     self.mall.update_order_progress(order.order_id, progress)
+                    self.last_delivery_db_update = now
 
             if progress < 100:
                 delivery_speed = min(0.30, self.cfg.DEFAULT_SPEED)

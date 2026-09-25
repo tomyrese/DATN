@@ -294,134 +294,296 @@ export const DeliveryOrdersTab: React.FC = () => {
 
       {/* TAB 1: ACTIVE ORDER */}
       {activeSubTab === 'active' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {activeOrders.length === 0 ? (
             <div className="card-clean" style={{ textAlign: 'center', padding: '36px 16px' }}>
-              <Package size={42} color="#94A3B8" style={{ marginBottom: '10px' }} />
-              <h3 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#334155' }}>Không Có Đơn Đang Chạy</h3>
-              <p style={{ fontSize: '0.82rem', color: '#94A3B8', marginTop: '4px' }}>
-                Robot đang rảnh. Hãy bấm nút "+ Tạo Đơn" để giao hàng mới.
+              <Package size={44} color="#94A3B8" style={{ marginBottom: '10px' }} />
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#1E293B', margin: '0 0 4px 0' }}>Robot Đang Rảnh</h3>
+              <p style={{ fontSize: '0.84rem', color: '#64748B', margin: 0 }}>
+                Hiện không có đơn hàng nào đang thực hiện. Bấm <strong>"+ Tạo đơn"</strong> ở trên để giao hàng mới.
               </p>
             </div>
           ) : (
-            activeOrders.map(order => (
-              <div key={order.order_id} className="card-clean" style={{ padding: '16px', border: '2px solid #3B82F6' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 800, background: '#DBEAFE', color: '#1E40AF', padding: '3px 8px', borderRadius: '5px' }}>
-                      #{order.order_id}
-                    </span>
-                    <span style={{ fontSize: '0.8rem', color: '#64748B' }}>
-                      Tạo bởi: <strong>{order.creator_name}</strong>
-                    </span>
+            activeOrders.map(order => {
+              // Detailed task breakdown based on active phase
+              let phaseNumber = 1;
+              let phaseTitle = 'Đang di chuyển đến điểm lấy';
+              let phaseTarget = order.pickup_poi_name;
+              let phaseActionText = 'Robot đang tự hành di chuyển đến điểm lấy, quét vật cản và duy trì tốc độ an toàn.';
+              let phaseGuideText = `Quầy "${order.pickup_poi_name}" vui lòng chuẩn bị sẵn hàng hóa. Khi robot đỗ, xếp hàng lên xe rồi xác nhận.`;
+              let phaseThemeColor = '#2563EB';
+              let phaseBgColor = '#EFF6FF';
+              let phaseBorderColor = '#BFDBFE';
+
+              if (order.status === 'ARRIVED_AT_PICKUP') {
+                phaseNumber = 2;
+                phaseTitle = 'Đã đến điểm lấy — Chờ xếp hàng';
+                phaseTarget = order.pickup_poi_name;
+                phaseActionText = 'Robot đã dừng đỗ an toàn tại quầy lấy hàng. Màn hình OLED hiển thị thông báo mời xếp hàng.';
+                phaseGuideText = `Nhân viên quầy vui lòng đặt "${order.item_description}" lên khoang xe, sau đó nhấn "🚀 Đã Xếp Hàng • Bắt Đầu Giao".`;
+                phaseThemeColor = '#D97706';
+                phaseBgColor = '#FFFBEB';
+                phaseBorderColor = '#FDE68A';
+              } else if (order.status === 'DELIVERING') {
+                phaseNumber = 3;
+                phaseTitle = 'Đang vận chuyển đến điểm giao';
+                phaseTarget = order.dropoff_poi_name;
+                phaseActionText = 'Robot đang tự hành chở hàng trên hành lang T1, cảnh báo chướng ngại vật và hướng tới điểm đích.';
+                phaseGuideText = `Người nhận tại quầy "${order.dropoff_poi_name}" chuẩn bị đón robot để nhận kiện hàng.`;
+                phaseThemeColor = '#2563EB';
+                phaseBgColor = '#EFF6FF';
+                phaseBorderColor = '#BFDBFE';
+              } else if (order.status === 'ARRIVED_AT_DROPOFF') {
+                phaseNumber = 4;
+                phaseTitle = 'Đã đến điểm giao — Chờ nhận hàng';
+                phaseTarget = order.dropoff_poi_name;
+                phaseActionText = 'Robot đã đến đúng vị trí giao hàng. Đang chờ người nhận kiểm tra và lấy kiện hàng khỏi xe.';
+                phaseGuideText = `Người nhận vui lòng lấy "${order.item_description}" ra khỏi xe, sau đó nhấn "✅ Đã Nhận Hàng (Hoàn Tất)".`;
+                phaseThemeColor = '#059669';
+                phaseBgColor = '#ECFDF5';
+                phaseBorderColor = '#A7F3D0';
+              }
+
+              return (
+                <div key={order.order_id} className="card-clean" style={{ padding: '16px', border: `2px solid ${phaseThemeColor}`, borderRadius: '14px', background: '#FFFFFF' }}>
+                  
+                  {/* Top Bar: Order ID & Status Badge */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 800, background: '#1E293B', color: '#FFFFFF', padding: '4px 10px', borderRadius: '6px' }}>
+                        #{order.order_id}
+                      </span>
+                      <span style={{ fontSize: '0.82rem', color: '#64748B' }}>
+                        Tạo bởi: <strong style={{ color: '#0F172A' }}>{order.creator_name}</strong>
+                      </span>
+                    </div>
+                    {getStatusBadge(order.status)}
                   </div>
-                  {getStatusBadge(order.status)}
-                </div>
 
-                <div style={{ marginBottom: '12px' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                    {order.item_description}
-                  </h3>
-                </div>
+                  {/* Item Description Header */}
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      Kiện hàng / Nội dung giao:
+                    </div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0F172A', margin: '2px 0 0 0' }}>
+                      📦 {order.item_description}
+                    </h3>
+                  </div>
 
-                {/* Pickup -> Dropoff Route Card */}
-                <div style={{ background: '#F8FAFC', padding: '10px 12px', borderRadius: '10px', marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <MapPin size={15} color="#2563EB" />
+                  {/* DETAILED MISSION STATUS BOX */}
+                  <div style={{ 
+                    background: phaseBgColor, 
+                    border: `1.5px solid ${phaseBorderColor}`, 
+                    borderRadius: '12px', 
+                    padding: '12px 14px', 
+                    marginBottom: '14px' 
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <div style={{ 
+                        width: '26px', 
+                        height: '26px', 
+                        borderRadius: '50%', 
+                        background: phaseThemeColor, 
+                        color: '#FFFFFF', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        fontSize: '0.8rem', 
+                        fontWeight: 800, 
+                        flexShrink: 0 
+                      }}>
+                        {phaseNumber}
                       </div>
-                      <div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>LẤY HÀNG TẠI</div>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>{order.pickup_poi_name}</div>
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: phaseThemeColor }}>
+                        {phaseTitle}
                       </div>
                     </div>
 
-                    <ArrowRight size={16} color="#94A3B8" />
+                    <div style={{ fontSize: '0.82rem', color: '#1E293B', fontWeight: 600, marginBottom: '6px', lineHeight: 1.4 }}>
+                      📍 <strong>Mục tiêu:</strong> {phaseTarget}
+                    </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <MapPin size={15} color="#10B981" />
+                    <div style={{ fontSize: '0.8rem', color: '#475569', lineHeight: 1.45, marginBottom: '8px' }}>
+                      🤖 <strong>Hoạt động của xe:</strong> {phaseActionText}
+                    </div>
+
+                    <div style={{ 
+                      fontSize: '0.78rem', 
+                      background: 'rgba(255, 255, 255, 0.7)', 
+                      padding: '8px 10px', 
+                      borderRadius: '8px', 
+                      color: '#334155', 
+                      lineHeight: 1.4 
+                    }}>
+                      💡 <strong>Hướng dẫn:</strong> {phaseGuideText}
+                    </div>
+                  </div>
+
+                  {/* 4-STAGE INTERACTIVE VISUAL STEPPER */}
+                  <div style={{ marginBottom: '14px', background: '#F8FAFC', padding: '10px 8px', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: '8px', textAlign: 'center' }}>
+                      Quy trình giao hàng 4 bước
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', textAlign: 'center' }}>
+                      
+                      {/* Step 1 */}
+                      <div style={{
+                        padding: '6px 2px',
+                        borderRadius: '6px',
+                        background: phaseNumber >= 1 ? (phaseNumber === 1 ? '#DBEAFE' : '#DCFCE7') : '#F1F5F9',
+                        color: phaseNumber >= 1 ? (phaseNumber === 1 ? '#1E40AF' : '#166534') : '#94A3B8',
+                        border: phaseNumber === 1 ? '1.5px solid #3B82F6' : '1px solid transparent'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>1. Đi lấy</div>
+                        <div style={{ fontSize: '0.66rem', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {order.pickup_poi_name}
+                        </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: '0.7rem', color: '#64748B', fontWeight: 600 }}>GIAO ĐẾN</div>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>{order.dropoff_poi_name}</div>
+
+                      {/* Step 2 */}
+                      <div style={{
+                        padding: '6px 2px',
+                        borderRadius: '6px',
+                        background: phaseNumber >= 2 ? (phaseNumber === 2 ? '#FEF3C7' : '#DCFCE7') : '#F1F5F9',
+                        color: phaseNumber >= 2 ? (phaseNumber === 2 ? '#92400E' : '#166534') : '#94A3B8',
+                        border: phaseNumber === 2 ? '1.5px solid #F59E0B' : '1px solid transparent'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>2. Xếp hàng</div>
+                        <div style={{ fontSize: '0.66rem', marginTop: '2px', whiteSpace: 'nowrap' }}>
+                          {phaseNumber > 2 ? 'Đã xếp xong' : (phaseNumber === 2 ? 'Đang chờ' : 'Chờ lấy')}
+                        </div>
+                      </div>
+
+                      {/* Step 3 */}
+                      <div style={{
+                        padding: '6px 2px',
+                        borderRadius: '6px',
+                        background: phaseNumber >= 3 ? (phaseNumber === 3 ? '#DBEAFE' : '#DCFCE7') : '#F1F5F9',
+                        color: phaseNumber >= 3 ? (phaseNumber === 3 ? '#1E40AF' : '#166534') : '#94A3B8',
+                        border: phaseNumber === 3 ? '1.5px solid #3B82F6' : '1px solid transparent'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>3. Vận chuyển</div>
+                        <div style={{ fontSize: '0.66rem', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {order.dropoff_poi_name}
+                        </div>
+                      </div>
+
+                      {/* Step 4 */}
+                      <div style={{
+                        padding: '6px 2px',
+                        borderRadius: '6px',
+                        background: phaseNumber >= 4 ? '#FEF3C7' : '#F1F5F9',
+                        color: phaseNumber >= 4 ? '#92400E' : '#94A3B8',
+                        border: phaseNumber === 4 ? '1.5px solid #10B981' : '1px solid transparent'
+                      }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800 }}>4. Nhận hàng</div>
+                        <div style={{ fontSize: '0.66rem', marginTop: '2px', whiteSpace: 'nowrap' }}>
+                          {phaseNumber === 4 ? 'Đang bàn giao' : 'Đích đến'}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Route Summary Card */}
+                  <div style={{ background: '#F8FAFC', padding: '10px 12px', borderRadius: '10px', marginBottom: '14px', border: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <MapPin size={15} color="#2563EB" />
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 700 }}>ĐIỂM LẤY HÀNG</div>
+                          <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.pickup_poi_name}</div>
+                        </div>
+                      </div>
+
+                      <ArrowRight size={16} color="#94A3B8" style={{ flexShrink: 0 }} />
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <MapPin size={15} color="#10B981" />
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 700 }}>ĐIỂM GIAO ĐẾN</div>
+                          <div style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.dropoff_poi_name}</div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Progress Bar */}
-                <div style={{ marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                    <span>Tiến độ vận chuyển</span>
-                    <span>{order.current_progress}%</span>
+                  {/* Progress Bar */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
+                      <span>Tiến độ giai đoạn hiện tại</span>
+                      <span style={{ color: phaseThemeColor }}>{order.current_progress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '8px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div 
+                        style={{ 
+                          width: `${Math.max(6, order.current_progress)}%`, 
+                          height: '100%', 
+                          background: phaseNumber === 4 ? '#10B981' : 'linear-gradient(90deg, #3B82F6, #10B981)', 
+                          borderRadius: '4px',
+                          transition: 'width 0.4s ease'
+                        }} 
+                      />
+                    </div>
                   </div>
-                  <div style={{ width: '100%', height: '8px', background: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div 
-                      style={{ 
-                        width: `${Math.max(5, order.current_progress)}%`, 
-                        height: '100%', 
-                        background: 'linear-gradient(90deg, #3B82F6, #10B981)', 
-                        borderRadius: '4px',
-                        transition: 'width 0.4s ease'
-                      }} 
-                    />
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {order.status === 'MOVING_TO_PICKUP' && (
+                      <button
+                        className="btn-solid-blue"
+                        style={{ flex: 1, padding: '11px 14px', fontSize: '0.88rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+                        onClick={() => handleUpdateStatus(order.order_id, 'ARRIVED_AT_PICKUP', 100)}
+                      >
+                        📍 Đã Đến Điểm Lấy
+                      </button>
+                    )}
+
+                    {order.status === 'ARRIVED_AT_PICKUP' && (
+                      <button
+                        className="btn-solid-emerald"
+                        style={{ flex: 1, padding: '11px 14px', fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap', background: '#10B981', color: '#FFFFFF' }}
+                        onClick={() => handleUpdateStatus(order.order_id, 'DELIVERING', 0)}
+                      >
+                        🚀 Đã Xếp Hàng • Bắt Đầu Giao
+                      </button>
+                    )}
+
+                    {order.status === 'DELIVERING' && (
+                      <button
+                        className="btn-solid-blue"
+                        style={{ flex: 1, padding: '11px 14px', fontSize: '0.88rem', fontWeight: 700, whiteSpace: 'nowrap' }}
+                        onClick={() => handleUpdateStatus(order.order_id, 'ARRIVED_AT_DROPOFF', 100)}
+                      >
+                        📍 Đã Đến Điểm Giao
+                      </button>
+                    )}
+
+                    {order.status === 'ARRIVED_AT_DROPOFF' && (
+                      <button
+                        className="btn-solid-emerald"
+                        style={{ flex: 1, padding: '11px 14px', fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap', background: '#059669', color: '#FFFFFF' }}
+                        onClick={() => handleUpdateStatus(order.order_id, 'COMPLETED', 100)}
+                      >
+                        ✅ Đã Nhận Hàng (Hoàn Tất)
+                      </button>
+                    )}
+
+                    <button
+                      className="btn-outline"
+                      style={{ padding: '11px 12px', fontSize: '0.82rem', color: '#EF4444', borderColor: '#FECACA', whiteSpace: 'nowrap' }}
+                      onClick={() => handleCancelOrder(order.order_id)}
+                    >
+                      Hủy Đơn
+                    </button>
                   </div>
                 </div>
-
-                {/* Compact Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {order.status === 'MOVING_TO_PICKUP' && (
-                    <button
-                      className="btn-solid-blue"
-                      style={{ flex: 1, padding: '10px 14px', fontSize: '0.88rem', fontWeight: 700, whiteSpace: 'nowrap' }}
-                      onClick={() => handleUpdateStatus(order.order_id, 'ARRIVED_AT_PICKUP', 100)}
-                    >
-                      📍 Đã Đến Điểm Lấy
-                    </button>
-                  )}
-
-                  {order.status === 'ARRIVED_AT_PICKUP' && (
-                    <button
-                      className="btn-solid-emerald"
-                      style={{ flex: 1, padding: '11px 14px', fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap' }}
-                      onClick={() => handleUpdateStatus(order.order_id, 'DELIVERING', 0)}
-                    >
-                      🚀 Đã Xếp Hàng • Bắt Đầu Giao
-                    </button>
-                  )}
-
-                  {order.status === 'DELIVERING' && (
-                    <button
-                      className="btn-solid-blue"
-                      style={{ flex: 1, padding: '10px 14px', fontSize: '0.88rem', fontWeight: 700, whiteSpace: 'nowrap' }}
-                      onClick={() => handleUpdateStatus(order.order_id, 'ARRIVED_AT_DROPOFF', 100)}
-                    >
-                      📍 Đã Đến Điểm Giao
-                    </button>
-                  )}
-
-                  {order.status === 'ARRIVED_AT_DROPOFF' && (
-                    <button
-                      className="btn-solid-emerald"
-                      style={{ flex: 1, padding: '11px 14px', fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap' }}
-                      onClick={() => handleUpdateStatus(order.order_id, 'COMPLETED', 100)}
-                    >
-                      ✅ Đã Nhận Hàng (Hoàn Tất)
-                    </button>
-                  )}
-
-                  <button
-                    className="btn-outline"
-                    style={{ padding: '10px 12px', fontSize: '0.82rem', color: '#EF4444', borderColor: '#FECACA', whiteSpace: 'nowrap' }}
-                    onClick={() => handleCancelOrder(order.order_id)}
-                  >
-                    Hủy Đơn
-                  </button>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
@@ -431,7 +593,7 @@ export const DeliveryOrdersTab: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', color: '#1E40AF', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Sparkles size={16} />
-            <span>Robot sẽ tự động giao đơn tiếp theo ngay khi đơn hiện tại xong.</span>
+            <span>Robot sẽ tự động bắt đầu đơn tiếp theo theo thứ tự FIFO ngay khi đơn hiện tại xong.</span>
           </div>
 
           {queueOrders.length === 0 ? (
@@ -444,48 +606,48 @@ export const DeliveryOrdersTab: React.FC = () => {
             </div>
           ) : (
             queueOrders.map((order, index) => (
-              <div key={order.order_id} className="order-card-clean" style={{ padding: '12px 14px' }}>
-                <div className="order-card-top">
+              <div key={order.order_id} className="order-card-clean" style={{ padding: '12px 14px', borderRadius: '10px' }}>
+                <div className="order-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ background: '#3B82F6', color: '#FFF', fontWeight: 800, fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px' }}>
-                      #{index + 1}
+                    <span style={{ background: '#3B82F6', color: '#FFF', fontWeight: 800, fontSize: '0.75rem', padding: '2px 8px', borderRadius: '4px' }}>
+                      Thứ tự #{index + 1}
                     </span>
-                    <span className="order-code">#{order.order_id}</span>
+                    <span className="order-code" style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B' }}>#{order.order_id}</span>
                   </div>
                   {getStatusBadge(order.status)}
                 </div>
 
-                <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', margin: '0 0 2px 0' }}>
-                    {order.item_description}
+                <div style={{ marginBottom: '8px' }}>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0F172A', margin: '0 0 2px 0' }}>
+                    📦 {order.item_description}
                   </h4>
                   <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                    Người tạo: {order.creator_name}
+                    Người tạo: <strong>{order.creator_name}</strong>
                   </div>
                 </div>
 
-                <div style={{ background: '#F8FAFC', padding: '8px 10px', borderRadius: '8px', fontSize: '0.8rem' }}>
+                <div style={{ background: '#F8FAFC', padding: '8px 10px', borderRadius: '8px', fontSize: '0.8rem', marginBottom: '10px', border: '1px solid #E2E8F0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 600 }}>
                     <MapPin size={13} color="#2563EB" />
-                    <span>Lấy: <strong>{order.pickup_poi_name}</strong></span>
+                    <span>Lấy hàng: <strong>{order.pickup_poi_name}</strong></span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 600, marginTop: '2px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155', fontWeight: 600, marginTop: '4px' }}>
                     <ArrowRight size={13} color="#10B981" />
-                    <span>Giao: <strong>{order.dropoff_poi_name}</strong></span>
+                    <span>Giao đến: <strong>{order.dropoff_poi_name}</strong></span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     className="btn-solid-blue"
-                    style={{ flex: 1, padding: '7px 10px', fontSize: '0.8rem' }}
+                    style={{ flex: 1, padding: '8px 12px', fontSize: '0.82rem', fontWeight: 700 }}
                     onClick={() => handleUpdateStatus(order.order_id, 'MOVING_TO_PICKUP', 0)}
                   >
-                    🚀 Ưu Tiên Giao Ngay
+                    🚀 Ưu Tiên Chạy Ngay
                   </button>
                   <button
                     className="btn-outline"
-                    style={{ padding: '7px 10px', fontSize: '0.8rem', color: '#EF4444', borderColor: '#FECACA' }}
+                    style={{ padding: '8px 12px', fontSize: '0.82rem', color: '#EF4444', borderColor: '#FECACA' }}
                     onClick={() => handleCancelOrder(order.order_id)}
                   >
                     Hủy
@@ -510,18 +672,18 @@ export const DeliveryOrdersTab: React.FC = () => {
             </div>
           ) : (
             historyOrders.map(order => (
-              <div key={order.order_id} className="order-card-clean" style={{ padding: '10px 12px', opacity: 0.9 }}>
-                <div className="order-card-top">
-                  <span className="order-code">#{order.order_id}</span>
+              <div key={order.order_id} className="order-card-clean" style={{ padding: '12px 14px', opacity: 0.95, borderRadius: '10px' }}>
+                <div className="order-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <span className="order-code" style={{ fontSize: '0.8rem', fontWeight: 800, color: '#475569' }}>#{order.order_id}</span>
                   {getStatusBadge(order.status)}
                 </div>
 
                 <div>
-                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A', margin: '0 0 2px 0' }}>
-                    {order.item_description}
+                  <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0F172A', margin: '0 0 2px 0' }}>
+                    📦 {order.item_description}
                   </h4>
-                  <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
-                    {order.creator_name} • {order.pickup_poi_name} ➔ {order.dropoff_poi_name}
+                  <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                    {order.creator_name} • Lộ trình: <strong>{order.pickup_poi_name}</strong> ➔ <strong>{order.dropoff_poi_name}</strong>
                   </div>
                 </div>
               </div>

@@ -2,6 +2,7 @@ import os
 import time
 import uuid
 import sqlite3
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -48,6 +49,7 @@ class MallService:
     """
     Manages Shopping Mall Points of Interest (POIs), SQLite Persistent Delivery Orders,
     FIFO Delivery Queue for Multi-User concurrency, and Customer Escort Navigation.
+    Thread-safe with WAL mode and in-memory state caching.
     """
 
     def __init__(self, db_path: Optional[str] = None):
@@ -58,9 +60,11 @@ class MallService:
         else:
             self.db_path = db_path
 
+        self._lock = threading.RLock()
         self.pois: Dict[str, PointOfInterest] = self._init_default_pois()
         self.current_escort: Optional[EscortTask] = None
         self.active_order_id: Optional[str] = None
+        self.active_order: Optional[DeliveryOrder] = None
         self.robot_pos = {"x": 50.0, "y": 68.0, "floor": "T1", "heading": 0.0}
 
         self._init_db()
@@ -68,41 +72,53 @@ class MallService:
 
     @contextmanager
     def _get_conn(self):
-        conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        conn = sqlite3.connect(self.db_path, timeout=30.0, check_same_thread=False)
         conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute("PRAGMA busy_timeout=10000;")
+            conn.execute("PRAGMA synchronous=NORMAL;")
+        except Exception:
+            pass
         try:
             yield conn
         finally:
             conn.close()
 
     def _init_db(self):
-        with self._get_conn() as conn:
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS delivery_orders (
-                    order_id TEXT PRIMARY KEY,
-                    creator_name TEXT,
-                    pickup_poi_id TEXT,
-                    pickup_poi_name TEXT,
-                    dropoff_poi_id TEXT,
-                    dropoff_poi_name TEXT,
-                    item_description TEXT,
-                    status TEXT,
-                    created_at REAL,
-                    updated_at REAL,
-                    current_progress INTEGER DEFAULT 0,
-                    phase_started_at REAL DEFAULT 0.0
-                )
-            """)
-            conn.commit()
+        with self._lock:
+            with self._get_conn() as conn:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS delivery_orders (
+                        order_id TEXT PRIMARY KEY,
+                        creator_name TEXT,
+                        pickup_poi_id TEXT,
+                        pickup_poi_name TEXT,
+                        dropoff_poi_id TEXT,
+                        dropoff_poi_name TEXT,
+                        item_description TEXT,
+                        status TEXT,
+                        created_at REAL,
+                        updated_at REAL,
+                        current_progress INTEGER DEFAULT 0,
+                        phase_started_at REAL DEFAULT 0.0
+                    )
+                """)
+                conn.commit()
 
     def _load_active_order(self):
-        with self._get_conn() as conn:
-            cursor = conn.execute(
-                "SELECT order_id FROM delivery_orders WHERE status IN ('MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF') ORDER BY created_at ASC LIMIT 1"
-            )
-            row = cursor.fetchone()
-            if row:
-                self.active_order_id = row["order_id"]
+        with self._lock:
+            with self._get_conn() as conn:
+                cursor = conn.execute(
+                    "SELECT * FROM delivery_orders WHERE status IN ('MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF') ORDER BY created_at ASC LIMIT 1"
+                )
+                row = cursor.fetchone()
+                if row:
+                    self.active_order = DeliveryOrder(**dict(row))
+                    self.active_order_id = self.active_order.order_id
+                else:
+                    self.active_order = None
+                    self.active_order_id = None
 
     def _init_default_pois(self) -> Dict[str, PointOfInterest]:
         default_list = [
@@ -150,124 +166,154 @@ class MallService:
         pickup_name = pickup.name if pickup else pickup_poi_id
         dropoff_name = dropoff.name if dropoff else dropoff_poi_id
 
-        order_id = f"ORD-{int(time.time() * 1000) % 100000:05d}"
+        order_id = f"ORD-{int(time.time()) % 10000:04d}-{uuid.uuid4().hex[:4].upper()}"
         now = time.time()
 
-        # Check if robot is currently idle to start immediately, or place in queue
-        should_start_now = self.active_order_id is None and (self.current_escort is None or self.current_escort.status != "NAVIGATING")
-        initial_status = "MOVING_TO_PICKUP" if should_start_now else "PENDING"
-        initial_progress = 0 if should_start_now else 0
+        with self._lock:
+            # Check if robot is currently idle to start immediately, or place in queue
+            should_start_now = self.active_order is None and (self.current_escort is None or self.current_escort.status != "NAVIGATING")
+            initial_status = "MOVING_TO_PICKUP" if should_start_now else "PENDING"
+            initial_progress = 0
 
-        order = DeliveryOrder(
-            order_id=order_id,
-            creator_name=creator_name or "Nhân viên",
-            pickup_poi_id=pickup_poi_id,
-            pickup_poi_name=pickup_name,
-            dropoff_poi_id=dropoff_poi_id,
-            dropoff_poi_name=dropoff_name,
-            item_description=item_description or "Kiện hàng nội bộ",
-            status=initial_status,
-            created_at=now,
-            updated_at=now,
-            current_progress=initial_progress,
-            phase_started_at=now if should_start_now else 0.0
-        )
+            order = DeliveryOrder(
+                order_id=order_id,
+                creator_name=creator_name or "Nhân viên",
+                pickup_poi_id=pickup_poi_id,
+                pickup_poi_name=pickup_name,
+                dropoff_poi_id=dropoff_poi_id,
+                dropoff_poi_name=dropoff_name,
+                item_description=item_description or "Kiện hàng nội bộ",
+                status=initial_status,
+                created_at=now,
+                updated_at=now,
+                current_progress=initial_progress,
+                phase_started_at=now if should_start_now else 0.0
+            )
 
-        with self._get_conn() as conn:
-            conn.execute("""
-                INSERT OR REPLACE INTO delivery_orders
-                (order_id, creator_name, pickup_poi_id, pickup_poi_name, dropoff_poi_id, dropoff_poi_name, item_description, status, created_at, updated_at, current_progress, phase_started_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                order.order_id, order.creator_name, order.pickup_poi_id, order.pickup_poi_name,
-                order.dropoff_poi_id, order.dropoff_poi_name, order.item_description,
-                order.status, order.created_at, order.updated_at, order.current_progress, order.phase_started_at
-            ))
-            conn.commit()
+            with self._get_conn() as conn:
+                conn.execute("""
+                    INSERT OR REPLACE INTO delivery_orders
+                    (order_id, creator_name, pickup_poi_id, pickup_poi_name, dropoff_poi_id, dropoff_poi_name, item_description, status, created_at, updated_at, current_progress, phase_started_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    order.order_id, order.creator_name, order.pickup_poi_id, order.pickup_poi_name,
+                    order.dropoff_poi_id, order.dropoff_poi_name, order.item_description,
+                    order.status, order.created_at, order.updated_at, order.current_progress, order.phase_started_at
+                ))
+                conn.commit()
 
-        if should_start_now:
-            self.active_order_id = order_id
+            if should_start_now:
+                self.active_order_id = order_id
+                self.active_order = order
 
-        return order
+            return order
 
     def get_order(self, order_id: str) -> Optional[DeliveryOrder]:
-        with self._get_conn() as conn:
-            row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
-            if row:
-                return DeliveryOrder(**dict(row))
-        return None
-
-    def get_active_order(self) -> Optional[DeliveryOrder]:
-        if not self.active_order_id:
-            # Try to fetch next in queue
-            self._try_dispatch_next_in_queue()
-        if self.active_order_id:
-            return self.get_order(self.active_order_id)
-        return None
-
-    def _try_dispatch_next_in_queue(self) -> Optional[DeliveryOrder]:
-        if self.current_escort and self.current_escort.status == "NAVIGATING":
+        with self._lock:
+            if self.active_order and self.active_order.order_id == order_id:
+                return self.active_order
+            with self._get_conn() as conn:
+                row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
+                if row:
+                    return DeliveryOrder(**dict(row))
             return None
 
-        with self._get_conn() as conn:
-            cursor = conn.execute(
-                "SELECT * FROM delivery_orders WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 1"
-            )
-            row = cursor.fetchone()
-            if row:
-                order = DeliveryOrder(**dict(row))
-                now = time.time()
-                order.status = "MOVING_TO_PICKUP"
-                order.updated_at = now
-                order.phase_started_at = now
-                order.current_progress = 0
+    def get_active_order(self) -> Optional[DeliveryOrder]:
+        with self._lock:
+            if self.active_order and self.active_order.status in ('MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF'):
+                return self.active_order
+            return self._try_dispatch_next_in_queue()
 
+    def _try_dispatch_next_in_queue(self) -> Optional[DeliveryOrder]:
+        with self._lock:
+            if self.current_escort and self.current_escort.status == "NAVIGATING":
+                return None
+
+            with self._get_conn() as conn:
+                cursor = conn.execute(
+                    "SELECT * FROM delivery_orders WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 1"
+                )
+                row = cursor.fetchone()
+                if row:
+                    order = DeliveryOrder(**dict(row))
+                    now = time.time()
+                    order.status = "MOVING_TO_PICKUP"
+                    order.updated_at = now
+                    order.phase_started_at = now
+                    order.current_progress = 0
+
+                    conn.execute(
+                        "UPDATE delivery_orders SET status = ?, updated_at = ?, phase_started_at = ?, current_progress = ? WHERE order_id = ?",
+                        (order.status, order.updated_at, order.phase_started_at, order.current_progress, order.order_id)
+                    )
+                    conn.commit()
+
+                    self.active_order_id = order.order_id
+                    self.active_order = order
+                    return order
+
+            self.active_order_id = None
+            self.active_order = None
+            return None
+
+    def update_order_progress(self, order_id: str, progress: int):
+        now = time.time()
+        with self._lock:
+            if self.active_order and self.active_order.order_id == order_id:
+                self.active_order.current_progress = progress
+                self.active_order.updated_at = now
+
+            with self._get_conn() as conn:
                 conn.execute(
-                    "UPDATE delivery_orders SET status = ?, updated_at = ?, phase_started_at = ?, current_progress = ? WHERE order_id = ?",
-                    (order.status, order.updated_at, order.phase_started_at, order.current_progress, order.order_id)
+                    "UPDATE delivery_orders SET current_progress = ?, updated_at = ? WHERE order_id = ?",
+                    (progress, now, order_id)
                 )
                 conn.commit()
 
-                self.active_order_id = order.order_id
-                return order
-        return None
-
-    def update_order_progress(self, order_id: str, progress: int):
-        with self._get_conn() as conn:
-            conn.execute(
-                "UPDATE delivery_orders SET current_progress = ?, updated_at = ? WHERE order_id = ?",
-                (progress, time.time(), order_id)
-            )
-            conn.commit()
-
     def update_order_status(self, order_id: str, new_status: str, progress: Optional[int] = None) -> bool:
         now = time.time()
-        with self._get_conn() as conn:
-            row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
-            if not row:
-                return False
+        with self._lock:
+            with self._get_conn() as conn:
+                row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
+                if not row:
+                    return False
 
-            old_order = DeliveryOrder(**dict(row))
-            prog = progress if progress is not None else old_order.current_progress
-            phase_start = now if new_status != old_order.status else old_order.phase_started_at
+                old_order = DeliveryOrder(**dict(row))
+                prog = progress if progress is not None else old_order.current_progress
+                phase_start = now if new_status != old_order.status else old_order.phase_started_at
 
-            conn.execute(
-                "UPDATE delivery_orders SET status = ?, updated_at = ?, current_progress = ?, phase_started_at = ? WHERE order_id = ?",
-                (new_status, now, prog, phase_start, order_id)
-            )
-            conn.commit()
+                conn.execute(
+                    "UPDATE delivery_orders SET status = ?, updated_at = ?, current_progress = ?, phase_started_at = ? WHERE order_id = ?",
+                    (new_status, now, prog, phase_start, order_id)
+                )
+                conn.commit()
 
-        if new_status in ["COMPLETED", "CANCELLED"] and self.active_order_id == order_id:
-            self.active_order_id = None
-            # Dispatch next pending order in queue
-            self._try_dispatch_next_in_queue()
+                if self.active_order and self.active_order.order_id == order_id:
+                    self.active_order.status = new_status
+                    self.active_order.updated_at = now
+                    self.active_order.current_progress = prog
+                    self.active_order.phase_started_at = phase_start
 
-        return True
+            if new_status in ["COMPLETED", "CANCELLED"] and self.active_order_id == order_id:
+                self.active_order_id = None
+                self.active_order = None
+                # Dispatch next pending order in queue
+                self._try_dispatch_next_in_queue()
+
+            return True
 
     def get_orders(self) -> List[Dict[str, Any]]:
-        with self._get_conn() as conn:
-            rows = conn.execute("SELECT * FROM delivery_orders ORDER BY created_at DESC LIMIT 50").fetchall()
-            return [dict(r) for r in rows]
+        with self._lock:
+            with self._get_conn() as conn:
+                rows = conn.execute("SELECT * FROM delivery_orders ORDER BY created_at DESC LIMIT 50").fetchall()
+                orders = [dict(r) for r in rows]
+                if self.active_order:
+                    for o in orders:
+                        if o.get("order_id") == self.active_order.order_id:
+                            o["current_progress"] = self.active_order.current_progress
+                            o["status"] = self.active_order.status
+                            o["updated_at"] = self.active_order.updated_at
+                return orders
 
     # ==================== ESCORT NAVIGATION (CUSTOMERS) ====================
     def request_escort(self, target_poi_id: str) -> Optional[EscortTask]:

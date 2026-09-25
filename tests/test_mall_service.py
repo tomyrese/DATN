@@ -49,3 +49,36 @@ def test_mall_service_db_and_queue():
         active2 = mall.get_active_order()
         assert active2.order_id == order2.order_id
         assert active2.status == "MOVING_TO_PICKUP"
+
+def test_mall_service_concurrency():
+    import threading
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = os.path.join(tmpdir, "test_mall_concurrent.db")
+        mall = MallService(db_path=db_path)
+
+        def worker_writer(idx):
+            for i in range(10):
+                mall.create_delivery_order(
+                    creator_name=f"Worker {idx}",
+                    pickup_poi_id="poi_highlands",
+                    dropoff_poi_id="poi_reception",
+                    item_description=f"Item {idx}-{i}"
+                )
+
+        def worker_reader():
+            for _ in range(30):
+                mall.get_orders()
+                mall.get_active_order()
+
+        threads = []
+        for i in range(5):
+            threads.append(threading.Thread(target=worker_writer, args=(i,)))
+            threads.append(threading.Thread(target=worker_reader))
+
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        orders = mall.get_orders()
+        assert len(orders) == 50
