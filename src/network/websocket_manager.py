@@ -38,12 +38,11 @@ class WebSocketManager:
             return False
 
         async with self.lock:
-            if self.active_websocket is not None:
-                err = ErrorMessage(code="CONTROLLER_BUSY", message="Another controller is currently active")
-                await websocket.send_text(err.model_dump_json())
-                await websocket.close(code=4001)
-                logger.warning("WebSocket connection rejected: CONTROLLER_BUSY")
-                return False
+            if self.active_websocket is not None and self.active_websocket != websocket:
+                try:
+                    await self.active_websocket.close(code=1000)
+                except Exception:
+                    pass
 
             self.active_websocket = websocket
             self.connection_watchdog.on_connected()

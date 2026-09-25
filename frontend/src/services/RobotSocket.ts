@@ -4,6 +4,7 @@ import {
   CommandAckData,
 } from '../types/protocol';
 import { ConnectionStatus } from '../types/robot';
+import { RobotApi } from './RobotApi';
 
 type TelemetryListener = (data: TelemetryData) => void;
 type SafetyEventListener = (data: SafetyEventData) => void;
@@ -242,12 +243,16 @@ export class RobotSocket {
       return;
     }
     this.seq++;
-    this.send({
-      type: 'drive',
-      direction: this.currentDriveDirection,
-      speed: this.currentDriveSpeed,
-      seq: this.seq,
-    });
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.send({
+        type: 'drive',
+        direction: this.currentDriveDirection,
+        speed: this.currentDriveSpeed,
+        seq: this.seq,
+      });
+    } else {
+      RobotApi.directDrive(this.host, this.port, this.currentDriveDirection, this.currentDriveSpeed);
+    }
   }
 
   public updateDriveSpeed(speed: number) {
@@ -268,10 +273,14 @@ export class RobotSocket {
 
   public sendStop() {
     this.seq++;
-    this.send({
-      type: 'stop',
-      seq: this.seq,
-    });
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.send({
+        type: 'stop',
+        seq: this.seq,
+      });
+    } else {
+      RobotApi.directDrive(this.host, this.port, 'stop', 0);
+    }
   }
 
   public sendTankDrive(left: number, right: number) {

@@ -19,16 +19,16 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onSel
   const { userRole } = useRobotStore();
 
   const customerTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'mall-map', label: 'Bản Đồ Dẫn Đường', icon: <Map size={20} /> },
-    { id: 'mall-assistant', label: 'Hỏi Trợ Lý AI', icon: <Bot size={20} /> },
-    { id: 'mall-directory', label: 'Danh Bạ Gian Hàng', icon: <Store size={20} /> },
+    { id: 'mall-map', label: 'Dẫn Đường', icon: <Map size={18} /> },
+    { id: 'mall-assistant', label: 'Trợ Lý AI', icon: <Bot size={18} /> },
+    { id: 'mall-directory', label: 'Gian Hàng', icon: <Store size={18} /> },
   ];
 
   const staffTabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: 'control', label: 'Lái Robot & Camera', icon: <Gamepad2 size={20} /> },
-    { id: 'delivery-orders', label: 'Quản Lý Giao Hàng', icon: <Package size={20} /> },
-    { id: 'mall-map', label: 'Sơ Đồ Robot', icon: <Map size={20} /> },
-    { id: 'settings', label: 'Cài Đặt & Kỹ Thuật', icon: <Settings size={20} /> },
+    { id: 'control', label: 'Lái Robot', icon: <Gamepad2 size={18} /> },
+    { id: 'delivery-orders', label: 'Giao Hàng', icon: <Package size={18} /> },
+    { id: 'mall-map', label: 'Bản Đồ', icon: <Map size={18} /> },
+    { id: 'settings', label: 'Cài Đặt', icon: <Settings size={18} /> },
   ];
 
   const tabs = userRole === 'staff' ? staffTabs : customerTabs;
@@ -43,7 +43,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({ activeTab, onSel
           role="tab"
         >
           {tab.icon}
-          <span>{tab.label}</span>
+          <span className="nav-tab-label">{tab.label}</span>
         </button>
       ))}
     </nav>

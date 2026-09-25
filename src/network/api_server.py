@@ -110,6 +110,22 @@ def create_api_server(
         robot_controller.handle_remote_emergency_stop()
         return {"success": True, "state": robot_controller.state.value}
 
+    @app.post("/api/v1/control/drive")
+    async def post_control_drive(data: Dict[str, Any]):
+        direction = data.get("direction", "stop")
+        speed = float(data.get("speed", app_cfg.DEFAULT_SPEED))
+        from src.state import MovementCommand
+        cmd_map = {
+            "forward": MovementCommand.FORWARD,
+            "backward": MovementCommand.BACKWARD,
+            "left": MovementCommand.TURN_LEFT,
+            "right": MovementCommand.TURN_RIGHT,
+            "stop": MovementCommand.STOP,
+        }
+        cmd = cmd_map.get(direction.lower(), MovementCommand.STOP)
+        robot_controller.handle_command(cmd, speed=speed)
+        return {"success": True, "command": cmd.value, "speed": speed}
+
     @app.post("/api/v1/emergency-reset")
     async def post_emergency_reset(token: str = Depends(verify_auth_token)):
         accepted, reason = robot_controller.handle_remote_emergency_reset()

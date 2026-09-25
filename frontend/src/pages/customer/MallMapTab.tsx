@@ -4,21 +4,16 @@ import { RobotApi } from '../../services/RobotApi';
 import { PointOfInterest } from '../../types/protocol';
 import {
   Navigation,
-  Navigation2,
   XCircle,
   Search,
-  CheckCircle2,
-  Sparkles,
-  Bot,
-  MapPin,
 } from 'lucide-react';
 
 const CATEGORIES = [
   { id: 'all', label: 'Tất Cả' },
-  { id: 'food', label: '🍔 Ăn Uống & Cafe' },
+  { id: 'food', label: '🍔 Ăn Uống' },
   { id: 'fashion', label: '👗 Thời Trang' },
   { id: 'entertainment', label: '🎬 Rạp Phim' },
-  { id: 'utility', label: '🚻 Nhà Vệ Sinh & Tiện Ích' },
+  { id: 'utility', label: '🚻 Tiện Ích' },
 ];
 
 const STORE_EMOJIS: Record<string, string> = {
@@ -39,7 +34,6 @@ export const MallMapTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingEscort, setLoadingEscort] = useState(false);
 
-  // Filter out staff-only POIs for customer view
   const customerPois = pois.filter(p => !p.is_staff_only);
 
   const filteredPois = customerPois.filter(p => {
@@ -50,7 +44,6 @@ export const MallMapTab: React.FC = () => {
     return matchCat && matchSearch;
   });
 
-  // Select first POI by default if none selected
   useEffect(() => {
     if (!selectedPoi && customerPois.length > 0) {
       setSelectedPoi(customerPois[0]);
@@ -69,7 +62,7 @@ export const MallMapTab: React.FC = () => {
         alert(res.message || 'Không thể khởi động dẫn đường lúc này.');
       }
     } catch (e: any) {
-      alert(`Lỗi kết nối: ${e.message}`);
+      alert(`Lỗi: ${e.message}`);
     } finally {
       setLoadingEscort(false);
     }
@@ -84,7 +77,6 @@ export const MallMapTab: React.FC = () => {
     } catch (e) {}
   };
 
-  // Live polling for escort status
   useEffect(() => {
     if (!activeEscort || activeEscort.status !== 'NAVIGATING') return;
 
@@ -97,7 +89,7 @@ export const MallMapTab: React.FC = () => {
         if (task) {
           updateGlobalState(() => ({ activeEscort: task }));
           if (task.status === 'ARRIVED') {
-            alert(`🎉 Robot đã dẫn quý khách đến nơi: ${task.target_name}!`);
+            alert(`🎉 Robot đã dẫn đến nơi: ${task.target_name}!`);
             setTimeout(() => {
               updateGlobalState(() => ({ activeEscort: null }));
             }, 3000);
@@ -109,19 +101,17 @@ export const MallMapTab: React.FC = () => {
     return () => clearInterval(interval);
   }, [activeEscort?.status]);
 
-  // Coordinates for the 1-Floor Map SVG Layout (1100 x 660)
-  const storeCoords: Record<string, { x: number; y: number; w: number; h: number; fill: string; stroke: string; label: string }> = {
-    poi_uniqlo: { x: 80, y: 70, w: 260, h: 140, fill: '#FDF2F8', stroke: '#F472B6', label: 'UNIQLO Fashion' },
-    poi_kura_sushi: { x: 420, y: 70, w: 260, h: 140, fill: '#FFFBEB', stroke: '#FBBF24', label: 'Kura Sushi & Lẩu' },
-    poi_zara: { x: 760, y: 70, w: 260, h: 140, fill: '#F5F3FF', stroke: '#A78BFA', label: 'ZARA Store' },
-    poi_highlands: { x: 80, y: 270, w: 260, h: 140, fill: '#FEF2F2', stroke: '#F87171', label: 'Highlands Coffee' },
-    poi_cgv: { x: 760, y: 270, w: 260, h: 140, fill: '#FAF5FF', stroke: '#C084FC', label: 'CGV Cinemas' },
-    poi_elevator: { x: 80, y: 470, w: 260, h: 130, fill: '#F0FDF4', stroke: '#4ADE80', label: 'Thang Máy & Cửa Ra' },
-    poi_reception: { x: 420, y: 470, w: 260, h: 130, fill: '#EFF6FF', stroke: '#60A5FA', label: 'Lễ Tân & Robot Dock' },
-    poi_wc: { x: 760, y: 470, w: 260, h: 130, fill: '#F0FDFA', stroke: '#2DD4BF', label: 'Khu Vệ Sinh (WC)' },
+  const storeCoords: Record<string, { x: number; y: number; w: number; h: number; fill: string; stroke: string; label: string; sub: string }> = {
+    poi_uniqlo: { x: 70, y: 60, w: 280, h: 145, fill: '#FDF2F8', stroke: '#F472B6', label: 'UNIQLO', sub: 'Thời trang Nhật' },
+    poi_kura_sushi: { x: 410, y: 60, w: 280, h: 145, fill: '#FFFBEB', stroke: '#FBBF24', label: 'Kura Sushi', sub: 'Ẩm thực Nhật Bản' },
+    poi_zara: { x: 750, y: 60, w: 280, h: 145, fill: '#F5F3FF', stroke: '#A78BFA', label: 'ZARA', sub: 'Thời trang Quốc tế' },
+    poi_highlands: { x: 70, y: 260, w: 280, h: 145, fill: '#FEF2F2', stroke: '#F87171', label: 'Highlands Coffee', sub: 'Cà phê & Bánh' },
+    poi_cgv: { x: 750, y: 260, w: 280, h: 145, fill: '#FAF5FF', stroke: '#C084FC', label: 'CGV Cinemas', sub: 'Rạp chiếu phim' },
+    poi_elevator: { x: 70, y: 460, w: 280, h: 140, fill: '#F0FDF4', stroke: '#4ADE80', label: 'Thang Máy', sub: 'Lên xuống tầng' },
+    poi_reception: { x: 410, y: 460, w: 280, h: 140, fill: '#EFF6FF', stroke: '#60A5FA', label: 'Lễ Tân & Trạm Sạc', sub: 'Điểm đỗ Robot' },
+    poi_wc: { x: 750, y: 460, w: 280, h: 140, fill: '#F0FDFA', stroke: '#2DD4BF', label: 'Nhà Vệ Sinh (WC)', sub: 'Tiện ích chung' },
   };
 
-  // Calculate live robot marker position along corridor
   const activeCoord = activeEscort ? storeCoords[activeEscort.target_poi_id] : null;
   const progressRatio = (activeEscort?.current_progress || 0) / 100.0;
   const robotCenter = { x: 550, y: 430 };
@@ -136,7 +126,7 @@ export const MallMapTab: React.FC = () => {
   const currentTargetId = activeEscort?.target_poi_id || selectedPoi?.id;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       
       {/* Active Escort Banner */}
       {activeEscort && (
@@ -144,38 +134,36 @@ export const MallMapTab: React.FC = () => {
           <div className="escort-left">
             <div className="escort-robot-icon">🤖</div>
             <div className="escort-info">
-              <h3>ROBOT ĐANG DẪN ĐƯỜNG ĐẾN: {activeEscort.target_name}</h3>
-              <p>
-                Quý khách vui lòng đi theo sau robot • Tiến độ: {activeEscort.current_progress}% • Tốc độ: {telemetry?.speed?.toFixed(2) || '0.35'} m/s
-              </p>
+              <h3>ĐANG DẪN ĐƯỜNG: {activeEscort.target_name}</h3>
+              <p>Quý khách vui lòng đi theo sau robot • Tiến độ: {activeEscort.current_progress}%</p>
             </div>
           </div>
           <button className="btn-cancel-escort-clean" onClick={handleCancelEscort}>
-            <XCircle size={18} />
-            <span>HỦY DẪN ĐƯỜNG</span>
+            <XCircle size={16} />
+            <span>HỦY</span>
           </button>
         </div>
       )}
 
-      {/* Main 2-Column Map Layout */}
+      {/* Main Map Layout */}
       <div className="map-view-layout">
         
-        {/* Left Side: Interactive 1-Floor Map */}
+        {/* SVG Map Card */}
         <div className="map-card-wrapper">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <div>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>SƠ ĐỒ TẦNG 1 (TRUNG TÂM THƯƠNG MẠI)</h2>
-              <p style={{ fontSize: '0.85rem', color: '#64748B' }}>Chạm vào bất kỳ cửa hàng nào trên bản đồ để xem và yêu cầu Robot dẫn đường</p>
+              <h2 style={{ fontSize: '1.05rem', fontWeight: 800 }}>SƠ ĐỒ TRUNG TÂM TẦNG 1</h2>
+              <p style={{ fontSize: '0.8rem', color: '#64748B' }}>Chạm vào gian hàng để xem và yêu cầu dẫn đường</p>
             </div>
             {selectedPoi && (
               <button
                 className="btn-solid-blue"
                 onClick={() => handleStartEscort(selectedPoi)}
                 disabled={loadingEscort || activeEscort?.target_poi_id === selectedPoi.id}
-                style={{ padding: '10px 18px', fontSize: '0.9rem' }}
+                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
               >
-                <Navigation size={16} />
-                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'Đang Dẫn Đường' : `Dẫn Tôi Đến ${selectedPoi.name}`}</span>
+                <Navigation size={14} />
+                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'Đang Dẫn' : 'Dẫn Tôi Đến Đây'}</span>
               </button>
             )}
           </div>
@@ -188,30 +176,26 @@ export const MallMapTab: React.FC = () => {
                 </pattern>
               </defs>
 
-              {/* Floor Background */}
               <rect width="1100" height="660" fill="#FFFFFF" />
               <rect width="1100" height="660" fill="url(#mall-tile)" />
 
-              {/* Main Corridors (Hành Lang Đi Bộ) */}
-              <rect x="360" y="40" width="380" height="580" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
-              <rect x="40" y="230" width="1020" height="220" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
+              {/* Main Corridors */}
+              <rect x="360" y="30" width="380" height="600" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
+              <rect x="30" y="220" width="1040" height="230" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
 
-              {/* Corridor Labels */}
-              <text x="550" y="255" textAnchor="middle" fill="#94A3B8" fontSize="13" fontWeight="700" letterSpacing="1">
-                HÀNH LANG TRUNG TÂM (MAIN CONCOURSE)
+              <text x="550" y="245" textAnchor="middle" fill="#94A3B8" fontSize="13" fontWeight="700" letterSpacing="1">
+                HÀNH LANG CHÍNH
               </text>
 
-              {/* Navigation Route Path (if a target is selected) */}
+              {/* Route */}
               {currentTargetId && storeCoords[currentTargetId] && (
-                <g>
-                  <path
-                    d={`M 550 430 Q 550 ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2} ${storeCoords[currentTargetId].x + storeCoords[currentTargetId].w / 2} ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2}`}
-                    fill="none"
-                    stroke="#2563EB"
-                    strokeWidth="4"
-                    strokeDasharray="8 6"
-                  />
-                </g>
+                <path
+                  d={`M 550 430 Q 550 ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2} ${storeCoords[currentTargetId].x + storeCoords[currentTargetId].w / 2} ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2}`}
+                  fill="none"
+                  stroke="#2563EB"
+                  strokeWidth="5"
+                  strokeDasharray="10 6"
+                />
               )}
 
               {/* Store Blocks */}
@@ -235,78 +219,70 @@ export const MallMapTab: React.FC = () => {
                       fill={isTarget ? '#EFF6FF' : box.fill}
                       stroke={isTarget ? '#2563EB' : (isSelected ? '#2563EB' : box.stroke)}
                       strokeWidth={isSelected || isTarget ? '3' : '1.5'}
-                      filter={isSelected || isTarget ? 'drop-shadow(0 4px 12px rgba(37,99,235,0.25))' : 'none'}
                     />
-                    {/* Store Emoji */}
-                    <text x={box.x + 24} y={box.y + 40} fontSize="26">
+                    <text x={box.x + 20} y={box.y + 44} fontSize="28">
                       {STORE_EMOJIS[poiId] || '🏪'}
                     </text>
-                    {/* Store Name */}
                     <text
-                      x={box.x + 60}
-                      y={box.y + 38}
-                      fontSize="16"
+                      x={box.x + 64}
+                      y={box.y + 40}
+                      fontSize="17"
                       fontWeight="800"
                       fill="#0F172A"
                     >
-                      {box.label.split(' ')[0]}
+                      {box.label}
                     </text>
-                    {/* Sub description */}
                     <text
-                      x={box.x + 24}
-                      y={box.y + 70}
-                      fontSize="12"
+                      x={box.x + 20}
+                      y={box.y + 76}
+                      fontSize="13"
                       fontWeight="500"
                       fill="#64748B"
                     >
-                      {matchingPoi?.description?.substring(0, 26) || box.label}
+                      {box.sub}
                     </text>
 
-                    {/* Touch to Select Button Inside Box */}
+                    {/* Touch Box Button */}
                     <rect
-                      x={box.x + 24}
-                      y={box.y + 90}
-                      width={box.w - 48}
-                      height="30"
+                      x={box.x + 20}
+                      y={box.y + 96}
+                      width={box.w - 40}
+                      height="34"
                       rx="8"
                       fill={isSelected ? '#2563EB' : '#FFFFFF'}
                       stroke={isSelected ? '#2563EB' : '#E2E8F0'}
                     />
                     <text
                       x={box.x + box.w / 2}
-                      y={box.y + 110}
+                      y={box.y + 118}
                       textAnchor="middle"
-                      fontSize="12"
+                      fontSize="13"
                       fontWeight="700"
                       fill={isSelected ? '#FFFFFF' : '#2563EB'}
                     >
-                      {isTarget ? 'Đang Dẫn Tới Đây 📍' : (isSelected ? 'Đã Chọn • Dẫn Đường 👉' : 'Chạm để Chọn')}
+                      {isTarget ? 'Đang Dẫn Đường 📍' : (isSelected ? 'Đã Chọn • Bấm Dẫn 👉' : 'Chạm Để Chọn')}
                     </text>
                   </g>
                 );
               })}
 
-              {/* Robot Live Marker */}
+              {/* Robot Marker */}
               <g transform={`translate(${liveRobotPos.x}, ${liveRobotPos.y})`}>
-                <circle r="22" fill="#2563EB" opacity="0.25">
-                  <animate attributeName="r" values="22;30;22" dur="2s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.25;0;0.25" dur="2s" repeatCount="indefinite" />
-                </circle>
-                <circle r="18" fill="#2563EB" stroke="#FFFFFF" strokeWidth="3" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.2))" />
+                <circle r="22" fill="#2563EB" opacity="0.3" />
+                <circle r="18" fill="#2563EB" stroke="#FFFFFF" strokeWidth="3" />
                 <text x="0" y="6" textAnchor="middle" fontSize="14">🤖</text>
-                <rect x="-35" y="-36" width="70" height="20" rx="6" fill="#0F172A" />
-                <text x="0" y="-22" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="700">ROBOT AI</text>
+                <rect x="-32" y="-34" width="64" height="18" rx="6" fill="#0F172A" />
+                <text x="0" y="-21" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="800">ROBOT</text>
               </g>
             </svg>
           </div>
         </div>
 
-        {/* Right Side: Quick Shop Directory & Escort Triggers */}
+        {/* Right / Bottom Sidebar */}
         <div className="shop-sidebar">
           
-          {/* Quick Search */}
           <div className="quick-search-box">
-            <Search size={18} />
+            <Search size={16} />
             <input
               type="text"
               className="quick-search-input"
@@ -316,7 +292,6 @@ export const MallMapTab: React.FC = () => {
             />
           </div>
 
-          {/* Category Filter Pills */}
           <div className="category-pill-row">
             {CATEGORIES.map(cat => (
               <button
@@ -329,32 +304,30 @@ export const MallMapTab: React.FC = () => {
             ))}
           </div>
 
-          {/* Selected POI Spotlight Card */}
           {selectedPoi && (
-            <div className="card-clean" style={{ padding: '18px', border: '1.5px solid #2563EB' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '24px' }}>{STORE_EMOJIS[selectedPoi.id] || '📍'}</span>
+            <div className="card-clean" style={{ padding: '14px', border: '1.5px solid #2563EB' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '22px' }}>{STORE_EMOJIS[selectedPoi.id] || '📍'}</span>
                 <div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>{selectedPoi.name}</h3>
-                  <span style={{ fontSize: '0.78rem', color: '#2563EB', fontWeight: 700 }}>Tầng 1 • Khu Mua Sắm</span>
+                  <h3 style={{ fontSize: '0.98rem', fontWeight: 800 }}>{selectedPoi.name}</h3>
+                  <span style={{ fontSize: '0.75rem', color: '#2563EB', fontWeight: 700 }}>Tầng 1</span>
                 </div>
               </div>
-              <p style={{ fontSize: '0.85rem', color: '#64748B', marginBottom: '14px' }}>
+              <p style={{ fontSize: '0.82rem', color: '#64748B', marginBottom: '10px' }}>
                 {selectedPoi.description}
               </p>
               <button
                 className="btn-solid-blue"
-                style={{ width: '100%' }}
+                style={{ width: '100%', padding: '10px' }}
                 onClick={() => handleStartEscort(selectedPoi)}
                 disabled={loadingEscort || activeEscort?.target_poi_id === selectedPoi.id}
               >
-                <Navigation size={16} />
-                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'ROBOT ĐANG DẪN ĐƯỜNG' : 'DẪN TÔI ĐẾN ĐÂY'}</span>
+                <Navigation size={15} />
+                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'ĐANG DẪN ĐƯỜNG' : 'DẪN TÔI ĐẾN ĐÂY'}</span>
               </button>
             </div>
           )}
 
-          {/* POI List */}
           <div className="poi-cards-list">
             {filteredPois.map(poi => {
               const isSelected = selectedPoi?.id === poi.id;
@@ -363,15 +336,18 @@ export const MallMapTab: React.FC = () => {
                   key={poi.id}
                   className={`poi-list-item ${isSelected ? 'selected' : ''}`}
                   onClick={() => setSelectedPoi(poi)}
+                  style={{ padding: '10px 12px' }}
                 >
                   <div className="poi-item-left">
-                    <div className="poi-item-emoji">{STORE_EMOJIS[poi.id] || '🏬'}</div>
+                    <div className="poi-item-emoji" style={{ width: '32px', height: '32px', fontSize: '18px' }}>
+                      {STORE_EMOJIS[poi.id] || '🏬'}
+                    </div>
                     <div className="poi-item-text">
-                      <h4>{poi.name}</h4>
-                      <p>{poi.description.substring(0, 32)}...</p>
+                      <h4 style={{ fontSize: '0.9rem' }}>{poi.name}</h4>
+                      <p style={{ fontSize: '0.74rem' }}>{poi.description.substring(0, 24)}...</p>
                     </div>
                   </div>
-                  <Navigation size={16} color={isSelected ? '#2563EB' : '#94A3B8'} />
+                  <Navigation size={14} color={isSelected ? '#2563EB' : '#94A3B8'} />
                 </div>
               );
             })}

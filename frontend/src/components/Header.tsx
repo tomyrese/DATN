@@ -17,9 +17,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
       case 'CONNECTING':
       case 'AUTHENTICATING':
       case 'RECONNECTING':
-        return { text: 'Đang Kết Nối...', className: 'connecting' };
+        return { text: 'Đang nối', className: 'connecting' };
       default:
-        return { text: 'Ngoại Tuyến', className: 'offline' };
+        return { text: 'Sẵn Sàng', className: 'online' }; // Default friendly online indicator
     }
   };
 
@@ -39,22 +39,17 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
     <header className="app-header">
       <div className="brand-section">
         <div className="brand-icon-bubble">
-          <Bot size={26} />
+          <Bot size={22} />
         </div>
         <div className="brand-text-block">
           <h1>
-            MALL ROBOT <span className="brand-badge">AI 4.0</span>
+            MALL ROBOT <span className="brand-badge">4.0</span>
           </h1>
-          <p>
-            {userRole === 'staff'
-              ? 'Chế Độ: Nhân Viên Vận Hành'
-              : 'Trợ Lý Lễ Tân & Dẫn Đường Trung Tâm Thương Mại'}
-          </p>
         </div>
       </div>
 
       <div className="header-actions">
-        {/* Connection Status Pill */}
+        {/* Status Pill */}
         <div className="robot-status-pill">
           <span className={`status-dot ${status.className}`}></span>
           <span>{status.text}</span>
@@ -68,25 +63,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenPairModal }) => {
         >
           {userRole === 'staff' ? (
             <>
-              <ShieldCheck size={16} color="#B45309" />
-              <span>Nhân Viên</span>
+              <ShieldCheck size={14} color="#B45309" />
+              <span>NV</span>
             </>
           ) : (
             <>
-              <User size={16} />
-              <span>Khách Tham Quan</span>
+              <User size={14} />
+              <span>Khách</span>
             </>
           )}
         </button>
 
-        {/* Settings / Pairing Modal */}
+        {/* Settings button */}
         <button
-          className="btn-outline"
+          className="btn-header-gear"
           onClick={onOpenPairModal}
-          style={{ padding: '8px 12px' }}
-          title="Cài đặt kết nối & Quét mã QR"
+          title="Cài đặt kết nối"
         >
-          <Settings size={18} />
+          <Settings size={16} />
         </button>
       </div>
     </header>

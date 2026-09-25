@@ -86,8 +86,11 @@ export const App: React.FC = () => {
 
   // Auto-connect on startup
   useEffect(() => {
-    if (pairedRobot && connectionStatus === 'DISCONNECTED') {
-      RobotSocket.getInstance().connect(pairedRobot.host, pairedRobot.port, pairedRobot.token);
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : (window.location.protocol === 'https:' ? 443 : 8765));
+    const token = pairedRobot?.token || 'guest';
+    if (connectionStatus === 'DISCONNECTED') {
+      RobotSocket.getInstance().connect(host, port, token);
     }
   }, [pairedRobot, connectionStatus]);
 

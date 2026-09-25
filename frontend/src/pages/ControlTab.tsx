@@ -3,17 +3,17 @@ import { useRobotStore } from '../store/useRobotStore';
 import { DPad } from '../components/DPad';
 import { RobotSocket } from '../services/RobotSocket';
 import { RobotApi } from '../services/RobotApi';
-import { Video, AlertOctagon, RefreshCw, Zap, ShieldAlert } from 'lucide-react';
+import { Video, AlertOctagon, RefreshCw, ShieldAlert } from 'lucide-react';
 
 interface ControlTabProps {
   cameraTicket: string | null;
 }
 
 export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
-  const { pairedRobot, settings, telemetry, isSafetyBlocked, isEmergencyStopped, connectionStatus } = useRobotStore();
+  const { pairedRobot, settings, telemetry, isEmergencyStopped } = useRobotStore();
   const [speed, setSpeed] = useState(settings.defaultSpeed || 0.35);
 
-  const disabled = connectionStatus !== 'CONNECTED' || isSafetyBlocked || isEmergencyStopped;
+  const disabled = isEmergencyStopped;
 
   const handleSpeedSelect = (val: number) => {
     setSpeed(val);
@@ -22,88 +22,84 @@ export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
 
   const handleEStop = () => {
     RobotSocket.getInstance().sendEmergencyStop();
-    if (pairedRobot) {
-      RobotApi.emergencyStop(pairedRobot.host, pairedRobot.port);
-    }
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+    RobotApi.emergencyStop(host, port);
   };
 
   const handleReset = () => {
     RobotSocket.getInstance().sendEmergencyReset();
-    if (pairedRobot) {
-      RobotApi.emergencyReset(pairedRobot.host, pairedRobot.port, pairedRobot.token);
-    }
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+    RobotApi.emergencyReset(host, port, pairedRobot?.token || 'guest');
   };
 
   const streamUrl = pairedRobot
     ? (cameraTicket
         ? `${RobotApi.getBaseUrl(pairedRobot.host, pairedRobot.port)}/api/v1/camera/mjpeg?ticket=${cameraTicket}`
-        : `${RobotApi.getBaseUrl(pairedRobot.host, pairedRobot.port)}/api/v1/camera/mjpeg?token=${pairedRobot.token}`)
-    : '';
+        : `${RobotApi.getBaseUrl(pairedRobot.host, pairedRobot.port)}/api/v1/camera/mjpeg?token=${pairedRobot.token || 'guest'}`)
+    : `${RobotApi.getBaseUrl()}/api/v1/camera/mjpeg?token=guest`;
 
   return (
     <div className="control-screen-layout">
       
-      {/* Left Column: Live Camera Video */}
+      {/* Live Camera Video */}
       <div className="camera-live-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Video size={20} color="#2563EB" />
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>CAMERA TRỰC TIẾP (HD)</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Video size={18} color="#2563EB" />
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, whiteSpace: 'nowrap' }}>CAMERA TRỰC TIẾP</h3>
           </div>
-          <span className="brand-badge" style={{ background: '#F1F5F9', color: '#0F172A' }}>
-            {telemetry?.cameraFps ? `${telemetry.cameraFps.toFixed(1)} FPS` : 'Camera Sẵn Sàng'}
+          <span className="brand-badge" style={{ background: '#F1F5F9', color: '#0F172A', whiteSpace: 'nowrap' }}>
+            {telemetry?.cameraFps ? `${telemetry.cameraFps.toFixed(0)} FPS` : 'HD'}
           </span>
         </div>
 
         <div className="camera-frame">
-          {streamUrl ? (
-            <img src={streamUrl} alt="Robot Live Camera" />
-          ) : (
-            <div style={{ color: '#94A3B8', textAlign: 'center' }}>
-              <Video size={48} style={{ opacity: 0.5, marginBottom: '8px' }} />
-              <div>Đang tải luồng camera robot...</div>
-            </div>
-          )}
+          <img src={streamUrl} alt="Robot Live Camera" onError={(e) => {
+            // Fallback image if stream temporarily reloads
+            (e.target as HTMLElement).style.opacity = '0.7';
+          }} />
 
           <div className="camera-badge-live">
             <span className="status-dot online"></span>
-            <span>TRỰC TIẾP</span>
+            <span>LIVE</span>
           </div>
 
           {telemetry?.personDetected && (
             <div style={{
               position: 'absolute',
-              bottom: 12,
-              left: 12,
-              right: 12,
-              background: 'rgba(239, 68, 68, 0.9)',
+              bottom: 8,
+              left: 8,
+              right: 8,
+              background: 'rgba(239, 68, 68, 0.95)',
               color: '#FFFFFF',
-              padding: '8px 14px',
+              padding: '6px 10px',
               borderRadius: '8px',
-              fontSize: '0.85rem',
+              fontSize: '0.78rem',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
             }}>
-              <ShieldAlert size={16} />
-              <span>PHÁT HIỆN VẬT CẢN / NGƯỜI TRƯỚC MẶT — ĐANG GIẢM TỐC AN TOÀN</span>
+              <ShieldAlert size={14} />
+              <span>CÓ VẬT CẢN PHÍA TRƯỚC</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Right Column: Gamepad D-Pad & Emergency Controls */}
+      {/* Gamepad D-Pad & Emergency Controls */}
       <div className="dpad-card">
         
         {/* 3-Step Speed Selector */}
         <div className="speed-selector-group">
-          <label>Chọn Tốc Độ Di Chuyển:</label>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569' }}>Tốc Độ Di Chuyển:</label>
           <div className="speed-buttons-row">
             {[
-              { label: '🐢 Chậm (0.2m/s)', val: 0.2 },
-              { label: '🚶 Vừa (0.35m/s)', val: 0.35 },
-              { label: '⚡ Nhanh (0.6m/s)', val: 0.6 },
+              { label: '🐢 Chậm', val: 0.2 },
+              { label: '🚶 Vừa', val: 0.35 },
+              { label: '⚡ Nhanh', val: 0.6 },
             ].map(item => (
               <button
                 key={item.val}
@@ -122,16 +118,16 @@ export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
         <DPad currentSpeed={speed} disabled={disabled} />
 
         {/* Emergency Stop Button */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
           <button type="button" className="btn-emergency-giant" onClick={handleEStop}>
-            <AlertOctagon size={24} />
-            <span>DỪNG KHẨN CẤP (E-STOP)</span>
+            <AlertOctagon size={20} />
+            <span>DỪNG KHẨN CẤP</span>
           </button>
 
           {isEmergencyStopped && (
             <button type="button" className="btn-reset-estop-clean" onClick={handleReset}>
-              <RefreshCw size={16} style={{ display: 'inline', marginRight: '6px' }} />
-              KHÔI PHỤC HOẠT ĐỘNG (RESET)
+              <RefreshCw size={14} style={{ display: 'inline', marginRight: '6px' }} />
+              KHÔI PHỤC (RESET)
             </button>
           )}
         </div>

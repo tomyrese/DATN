@@ -50,6 +50,20 @@ export class RobotApi {
     return res.json();
   }
 
+  static async directDrive(host: string, port: number, direction: string, speed: number = 0.35): Promise<boolean> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/control/drive`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ direction, speed }),
+      }, 1500);
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
   static async getHealth(host: string, port: number): Promise<HealthResponse> {
     const url = `${this.getBaseUrl(host, port)}/api/v1/health`;
     const res = await this.fetchWithTimeout(url);
