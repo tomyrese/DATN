@@ -132,19 +132,6 @@ export const MallMapTab: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '100%' }}>
       
-      {/* Category Pills Header */}
-      <div className="category-pill-row">
-        {CATEGORIES.map(cat => (
-          <button
-            key={cat.id}
-            className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat.id)}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
       {/* Active Escort Banner */}
       {activeEscort && (
         <div className="active-escort-card">
@@ -313,21 +300,21 @@ export const MallMapTab: React.FC = () => {
 
           <button
             className="btn-solid-blue"
-            style={{ width: '100%', padding: '12px', fontSize: '0.95rem' }}
+            style={{ width: '100%', padding: '11px 14px', fontSize: '0.9rem', fontWeight: 800 }}
             onClick={() => handleStartEscort(selectedPoi)}
             disabled={loadingEscort || activeEscort?.target_poi_id === selectedPoi.id}
           >
-            <Navigation size={18} />
+            <Navigation size={16} />
             <span>
               {activeEscort?.target_poi_id === selectedPoi.id
-                ? 'ROBOT ĐANG DẪN ĐƯỜNG ĐẾN ĐÂY'
-                : `DẪN TÔI ĐẾN ${selectedPoi.name.toUpperCase()}`}
+                ? 'ĐANG DẪN ĐƯỜNG ĐẾN ĐÂY'
+                : `DẪN ĐƯỜNG ĐẾN ĐÂY`}
             </span>
           </button>
         </div>
       )}
 
-      {/* Store Directory Quick List */}
+      {/* Unified Search & Category Filters */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div className="quick-search-box">
           <Search size={16} />
@@ -338,6 +325,19 @@ export const MallMapTab: React.FC = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm kiếm gian hàng, đồ ăn, rạp phim..."
           />
+        </div>
+
+        {/* Category Pills directly under Search Bar */}
+        <div className="category-pill-row">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.id}
+              className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
 
         <div className="poi-cards-list">

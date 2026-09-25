@@ -126,13 +126,29 @@ export const MallAssistantTab: React.FC = () => {
 
                 {/* 1-Touch Escort Trigger */}
                 {isBot && msg.suggestedPoiId && (
-                  <div>
+                  <div style={{ marginTop: '6px' }}>
                     <button
-                      className="btn-msg-escort"
+                      className="btn-solid-emerald"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        fontSize: '0.82rem',
+                        fontWeight: 700,
+                        borderRadius: '20px',
+                        border: 'none',
+                        color: '#FFFFFF',
+                        background: '#10B981',
+                        cursor: 'pointer',
+                        maxWidth: '100%',
+                        boxSizing: 'border-box',
+                        whiteSpace: 'nowrap'
+                      }}
                       onClick={() => handleEscortToSuggested(msg.suggestedPoiId!)}
                     >
-                      <Navigation size={14} />
-                      <span>Dẫn tôi đến {msg.suggestedPoiName || 'đây'} ngay 👉</span>
+                      <Navigation size={13} />
+                      <span>Dẫn đường đến đây 👉</span>
                     </button>
                   </div>
                 )}
