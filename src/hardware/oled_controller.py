@@ -1,10 +1,21 @@
 import threading
 import time
-from typing import Optional, Dict, Any
+import unicodedata
+from typing import Optional, Dict, Any, List
 from PIL import Image, ImageDraw, ImageFont
+import qrcode
 from src.config import RobotConfig, config
 from src.state import RobotState
 from src.services.logging_service import logger
+
+def remove_accents(input_str: str) -> str:
+    """Removes Vietnamese diacritics and converts to plain ASCII for bitmap OLED display."""
+    if not input_str:
+        return ""
+    s = str(input_str).replace("đ", "d").replace("Đ", "D")
+    nfkd_form = unicodedata.normalize('NFKD', s)
+    ascii_bytes = nfkd_form.encode('ASCII', 'ignore')
+    return ascii_bytes.decode('utf-8')
 
 class OLEDController:
     def __init__(self, cfg: Optional[RobotConfig] = None):
@@ -13,9 +24,9 @@ class OLEDController:
         self.available = False
         self.lock = threading.Lock()
         self.font = ImageFont.load_default()
-        self.last_state: Optional[RobotState] = None
-        self.last_info: Dict[str, Any] = {}
         self.last_render_time = 0.0
+        self.qr_image: Optional[Image.Image] = None
+        self.current_ip: str = ""
 
         if self.cfg.OLED_ENABLED and not self.cfg.SIMULATION_MODE:
             self._init_hardware()
@@ -40,6 +51,24 @@ class OLEDController:
             self.available = False
             logger.warning(f"OLED display not detected or failed to initialize: {e}. Robot will continue without OLED.")
 
+    def set_qr_url(self, url: str, target_size: int = 56):
+        """Generates and caches a high-contrast QR code for continuous on-screen display."""
+        if not url:
+            return
+        try:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=1,
+                border=1,
+            )
+            qr.add_data(url)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white").convert("1")
+            self.qr_image = img.resize((target_size, target_size), resample=Image.NEAREST)
+        except Exception as e:
+            logger.warning(f"Failed to generate OLED QR code: {e}")
+
     def _render_image(self, img: Image.Image):
         if not self.available or self.device is None:
             return
@@ -56,103 +85,113 @@ class OLEDController:
                 logger.warning(f"Error rendering to OLED: {e}")
                 self.available = False
 
-    def _draw_lines(self, title: str, lines: list):
+    def draw_interactive_screen(self, title: str, lines: List[str], custom_qr: Optional[Image.Image] = None):
+        """
+        Renders a user-friendly split display:
+        - Left: Persistent QR code so anyone can scan and connect at any moment.
+        - Right: Clean, unaccented human-readable Vietnamese interaction messages.
+        """
         img = Image.new("1", (self.cfg.OLED_WIDTH, self.cfg.OLED_HEIGHT), 0)
         draw = ImageDraw.Draw(img)
 
-        draw.text((0, 0), title[:20], font=self.font, fill=255)
-        draw.line([(0, 11), (self.cfg.OLED_WIDTH, 11)], fill=255)
+        qr = custom_qr or self.qr_image
 
-        y = 14
-        for line in lines:
-            if y >= self.cfg.OLED_HEIGHT:
-                break
-            draw.text((0, y), str(line)[:21], font=self.font, fill=255)
-            y += 11
+        if qr is not None:
+            # Paste QR on the left side
+            qr_w, qr_h = qr.size
+            pos_x = 1
+            pos_y = max(0, (self.cfg.OLED_HEIGHT - qr_h) // 2)
+            img.paste(qr, (pos_x, pos_y))
+
+            # Vertical separator line
+            draw.line([(58, 2), (58, 62)], fill=255)
+
+            # Right Side: Header + Interactive Lines
+            text_x = 61
+            clean_title = remove_accents(title)[:11].upper()
+            draw.text((text_x, 2), clean_title, font=self.font, fill=255)
+            draw.line([(text_x, 13), (self.cfg.OLED_WIDTH, 13)], fill=255)
+
+            y = 16
+            for line in lines:
+                if y >= self.cfg.OLED_HEIGHT:
+                    break
+                clean_line = remove_accents(str(line))[:11]
+                draw.text((text_x, y), clean_line, font=self.font, fill=255)
+                y += 11
+        else:
+            # Full width fallback
+            clean_title = remove_accents(title)[:20].upper()
+            draw.text((0, 2), clean_title, font=self.font, fill=255)
+            draw.line([(0, 13), (self.cfg.OLED_WIDTH, 13)], fill=255)
+
+            y = 16
+            for line in lines:
+                if y >= self.cfg.OLED_HEIGHT:
+                    break
+                clean_line = remove_accents(str(line))[:21]
+                draw.text((0, y), clean_line, font=self.font, fill=255)
+                y += 11
 
         self._render_image(img)
 
     def show_boot(self):
-        self._draw_lines("ROBOT BOOTING...", ["CAM: INIT", "MOTOR: INIT", "SERVER: INIT"])
+        self.draw_interactive_screen("KHOI DONG", ["Vui long doi", "Dang khoi tao", "He thong..."])
 
     def show_ready(self, ip: str = ""):
-        lines = ["CAM: OK", "MOTOR: OK", "WAITING APP"]
-        if ip:
-            lines.append(f"IP:{ip}")
-        self._draw_lines("ROBOT READY", lines)
-
-    def show_pairing(self, qr_image: Optional[Image.Image], code: str, ip: str, remaining_sec: int):
-        img = Image.new("1", (self.cfg.OLED_WIDTH, self.cfg.OLED_HEIGHT), 0)
-        draw = ImageDraw.Draw(img)
-
-        if qr_image is not None:
-            qr_w, qr_h = qr_image.size
-            pos_x = 2
-            pos_y = max(0, (self.cfg.OLED_HEIGHT - qr_h) // 2)
-            img.paste(qr_image, (pos_x, pos_y))
-
-        text_x = 64
-        draw.text((text_x, 2), "SCAN WEB", font=self.font, fill=255)
-        draw.line([(text_x, 13), (self.cfg.OLED_WIDTH, 13)], fill=255)
-        draw.text((text_x, 16), f"PIN:{code}", font=self.font, fill=255)
-        draw.text((text_x, 28), f"EXP:{remaining_sec}s", font=self.font, fill=255)
-        if ip:
-            draw.text((text_x, 40), ip[-11:], font=self.font, fill=255)
-        draw.text((text_x, 52), f":{self.cfg.SERVER_PORT}", font=self.font, fill=255)
-
-        self._render_image(img)
+        self.draw_interactive_screen("ROBOT TTTM", ["SAN SANG", "Quet ma QR", "De su dung", ip[-11:] if ip else ""])
 
     def show_connected(self, ip: str = "", speed: float = 0.35):
-        lines = [f"CLIENT: CONNECTED", f"SPD: {int(speed * 100)}%", "PERSON: CLEAR"]
-        if ip:
-            lines.append(f"IP:{ip}")
-        self._draw_lines("APP CONNECTED", lines)
-
-    def show_disconnected(self):
-        self._draw_lines("APP LOST", ["ROBOT STOPPED", "SAFE MODE", "WAIT RECONNECT"])
+        self.draw_interactive_screen("ROBOT TTTM", ["DA KET NOI", "San sang", f"Toc do:{int(speed*100)}%", "Chuc vui ve!"])
 
     def show_moving(self, direction: str, speed: float):
-        self._draw_lines(f"{direction.upper()}", [f"SPD: {int(speed * 100)}%", "CAM: OK", "PERSON: CLEAR"])
+        self.draw_interactive_screen("DI CHUYEN", [f"{direction.upper()}", f"Toc do:{int(speed*100)}%", "Chu y", "An toan"])
 
     def show_person_detected(self, confidence: float = 0.0):
-        conf_str = f"CONF: {int(confidence * 100)}%" if confidence > 0 else "PERSON"
-        self._draw_lines("PERSON DETECTED", ["STOPPING", conf_str, "MOTOR: 0%"])
+        self.draw_interactive_screen("CANH BAO", ["CO NGUOI", "Phia truoc", "Tam dung xe", "Nhuong duong"])
 
     def show_safety_stop(self):
-        self._draw_lines("SAFETY STOP", ["OBSTACLE AHEAD", "MOTOR STOP", "WAITING CLEAR"])
+        self.draw_interactive_screen("TAM DUNG", ["CO VAT CAN", "Phia truoc", "Xe tam dung", "Cho duong trong"])
 
     def show_camera_error(self):
-        self._draw_lines("CAM ERROR", ["ROBOT STOPPED", "NO FRAME / TIMEOUT", "CHECK CAMERA"])
+        self.draw_interactive_screen("TAM DUNG", ["KIEM TRA", "Cam bien", "Tam dung an toan"])
 
     def show_motor_error(self):
-        self._draw_lines("MOTOR ERROR", ["ROBOT STOPPED", "DRIVER FAULT", "CHECK HARDWARE"])
+        self.draw_interactive_screen("TAM DUNG", ["DONG CO", "Kiem tra", "Phan cung"])
 
     def show_system_error(self, err: str = ""):
-        self._draw_lines("SYSTEM ERROR", ["ROBOT STOPPED", err[:20] if err else "FAIL-SAFE"])
+        self.draw_interactive_screen("SU CO", ["HE THONG", "Dang khoi phuc", "Vui long doi"])
 
     def show_shutdown(self):
-        self._draw_lines("ROBOT SHUTDOWN", ["SYSTEM STOPPED", "POWER SAFE TO OFF"])
+        self.draw_interactive_screen("TAT MAY", ["ROBOT NGHI", "Tam biet", "Quy khach!"])
 
     def show_custom(self, title: str, lines: list):
-        self._draw_lines(title, lines)
+        self.draw_interactive_screen(title, lines)
 
     def update_state(self, state: RobotState, info: Optional[Dict[str, Any]] = None):
         info_dict = info or {}
+        ip = info_dict.get("ip", self.current_ip)
+        if ip and ip != self.current_ip:
+            self.current_ip = ip
+            self.set_qr_url(f"http://{ip}:{self.cfg.SERVER_PORT}")
+
+        if "qr_image" in info_dict and info_dict["qr_image"] is not None:
+            self.qr_image = info_dict["qr_image"]
+
         if state == RobotState.BOOTING:
             self.show_boot()
         elif state == RobotState.PAIRING:
-            self.show_pairing(
-                info_dict.get("qr_image"),
-                info_dict.get("pair_code", ""),
-                info_dict.get("ip", ""),
-                info_dict.get("remaining_sec", 0)
+            self.draw_interactive_screen(
+                "QUET MA",
+                ["QUET QR WEB", f"PIN:{info_dict.get('pair_code', '')}", f"EXP:{info_dict.get('remaining_sec', 0)}s", ip[-11:] if ip else ""],
+                custom_qr=info_dict.get("qr_image")
             )
-        elif state == RobotState.READY or state == RobotState.STOPPED:
-            self.show_ready(info_dict.get("ip", ""))
+        elif state in (RobotState.READY, RobotState.STOPPED):
+            self.show_ready(ip)
         elif state == RobotState.CONNECTED:
-            self.show_connected(info_dict.get("ip", ""), info_dict.get("speed", self.cfg.DEFAULT_SPEED))
+            self.show_connected(ip, info_dict.get("speed", self.cfg.DEFAULT_SPEED))
         elif state == RobotState.DISCONNECTED:
-            self.show_disconnected()
+            self.show_ready(ip)
         elif state in (RobotState.FORWARD, RobotState.BACKWARD, RobotState.TURN_LEFT, RobotState.TURN_RIGHT):
             self.show_moving(state.value, info_dict.get("speed", self.cfg.DEFAULT_SPEED))
         elif state == RobotState.PERSON_DETECTED:

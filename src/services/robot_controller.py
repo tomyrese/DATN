@@ -103,6 +103,10 @@ class RobotController:
         self.state = RobotState.READY
         self.current_motion = RobotState.STOPPED
 
+        # Set default persistent QR URL
+        qr_url = self.cfg.PUBLIC_URL.rstrip('/') if self.cfg.PUBLIC_URL else f"http://{self.ip_address}:{self.cfg.SERVER_PORT}"
+        self.oled.set_qr_url(qr_url)
+
         if self.cfg.PAIRING_ENABLED and not self.auth_manager.has_paired_clients():
             self.trigger_pairing_mode()
         else:
@@ -283,13 +287,24 @@ class RobotController:
                 self.motor.forward(escort_speed)
                 self.current_motion = RobotState.FORWARD
                 self.state = RobotState.FORWARD
+            self.oled.show_custom("DAN DUONG", [
+                "DI THEO XE",
+                f"{escort.target_name[:11]}",
+                f"Tien do:{progress}%",
+                "Chuc vui ve"
+            ])
         else:
             self.motor.stop()
             self.current_motion = RobotState.STOPPED
             self.state = RobotState.STOPPED
             escort.status = "ARRIVED"
             self.log_event(f"Escort successfully arrived at {escort.target_name}")
-            self.oled.update_state(RobotState.READY, {"ip": self.ip_address})
+            self.oled.show_custom("DAN DUONG", [
+                "DA DEN NOI!",
+                f"{escort.target_name[:11]}",
+                "MUA SAM",
+                "VUI VE!"
+            ])
 
     def _update_delivery_step(self, order: Any):
         if not order or order.status not in ("MOVING_TO_PICKUP", "DELIVERING"):
@@ -318,10 +333,11 @@ class RobotController:
                     self.motor.forward(delivery_speed)
                     self.current_motion = RobotState.FORWARD
                     self.state = RobotState.FORWARD
-                self.oled.show_custom("DEN DIEM LAY HANG", [
-                    f"DIEM: {order.pickup_poi_name[:14]}",
-                    f"TIEN DO: {progress}%",
-                    f"DON: {order.order_id}"
+                self.oled.show_custom("GIAO HANG", [
+                    "DI LAY HANG",
+                    f"{order.pickup_poi_name[:11]}",
+                    f"Tien do:{progress}%",
+                    f"#{order.order_id[-5:]}"
                 ])
             else:
                 self.motor.stop()
@@ -329,10 +345,11 @@ class RobotController:
                 self.state = RobotState.STOPPED
                 self.mall.update_order_status(order.order_id, "ARRIVED_AT_PICKUP", progress=100)
                 self.log_event(f"Robot arrived at pickup: {order.pickup_poi_name} (Order: {order.order_id})")
-                self.oled.show_custom("DA DEN DIEM LAY", [
-                    f"TAI: {order.pickup_poi_name[:14]}",
-                    "DAT HANG LEN XE",
-                    "XAC NHAN TREN WEB"
+                self.oled.show_custom("GIAO HANG", [
+                    "DA DEN NOI",
+                    f"{order.pickup_poi_name[:11]}",
+                    "MOI XEP HANG",
+                    "XAC NHAN WEB"
                 ])
 
         elif order.status == "DELIVERING":
@@ -349,10 +366,11 @@ class RobotController:
                     self.motor.forward(delivery_speed)
                     self.current_motion = RobotState.FORWARD
                     self.state = RobotState.FORWARD
-                self.oled.show_custom("DANG GIAO HANG", [
-                    f"DEN: {order.dropoff_poi_name[:14]}",
-                    f"TIEN DO: {progress}%",
-                    f"DON: {order.order_id}"
+                self.oled.show_custom("GIAO HANG", [
+                    "DANG GIAO",
+                    f"{order.dropoff_poi_name[:11]}",
+                    f"Tien do:{progress}%",
+                    f"#{order.order_id[-5:]}"
                 ])
             else:
                 self.motor.stop()
@@ -360,10 +378,11 @@ class RobotController:
                 self.state = RobotState.STOPPED
                 self.mall.update_order_status(order.order_id, "ARRIVED_AT_DROPOFF", progress=100)
                 self.log_event(f"Robot arrived at dropoff: {order.dropoff_poi_name} (Order: {order.order_id})")
-                self.oled.show_custom("DA DEN DIEM GIAO", [
-                    f"TAI: {order.dropoff_poi_name[:14]}",
+                self.oled.show_custom("GIAO HANG", [
+                    "DA DEN NOI",
+                    f"{order.dropoff_poi_name[:11]}",
                     "MOI NHAN HANG",
-                    "HOAN TAT TREN WEB"
+                    "XAC NHAN WEB"
                 ])
 
     def _schedule_async(self, coro):
