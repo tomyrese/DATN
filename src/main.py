@@ -44,9 +44,32 @@ def get_key_reader():
 def main():
     robot = RobotController(config)
     shutdown_requested = False
+    is_posix_tty = os.name != "nt" and sys.stdin.isatty()
+    old_term_settings = None
+
+    def restore_terminal():
+        nonlocal old_term_settings
+        if is_posix_tty and old_term_settings is not None:
+            try:
+                import termios
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
+            except Exception:
+                pass
+
+    if is_posix_tty:
+        try:
+            import termios
+            import tty
+            import atexit
+            old_term_settings = termios.tcgetattr(sys.stdin)
+            tty.setcbreak(sys.stdin.fileno())
+            atexit.register(restore_terminal)
+        except Exception:
+            old_term_settings = None
 
     def handle_signal(sig, frame):
         nonlocal shutdown_requested
+        restore_terminal()
         if shutdown_requested:
             os._exit(0)
         shutdown_requested = True
@@ -54,7 +77,8 @@ def main():
         try:
             robot.shutdown()
         finally:
-            os._exit(0)
+            restore_terminal()
+            sys.exit(0)
 
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
@@ -62,18 +86,11 @@ def main():
     success = robot.start()
     if not success and not config.SIMULATION_MODE:
         logger.error("Initialization failed. Exiting.")
+        restore_terminal()
         robot.shutdown()
         sys.exit(1)
 
     key_reader = get_key_reader()
-    is_posix_tty = os.name != "nt" and sys.stdin.isatty()
-    old_term_settings = None
-
-    if is_posix_tty:
-        import termios
-        import tty
-        old_term_settings = termios.tcgetattr(sys.stdin)
-        tty.setcbreak(sys.stdin.fileno())
 
     print("\n--- ROBOT CONTROL CLI & SERVER ---")
     print(f"  Server: http://{config.SERVER_HOST}:{config.SERVER_PORT}")
@@ -115,9 +132,7 @@ def main():
     except KeyboardInterrupt:
         logger.warning("KeyboardInterrupt caught in main loop")
     finally:
-        if is_posix_tty and old_term_settings is not None:
-            import termios
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_term_settings)
+        restore_terminal()
         robot.shutdown()
 
 if __name__ == "__main__":
