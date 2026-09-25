@@ -263,7 +263,6 @@ def create_api_server(
     from pathlib import Path
     from fastapi.responses import HTMLResponse
 
-    web_dir = Path(__file__).resolve().parent.parent.parent / "web"
     dist_dir = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
 
     @app.get("/", response_class=HTMLResponse)
@@ -271,11 +270,7 @@ def create_api_server(
         if dist_dir.exists() and (dist_dir / "index.html").exists():
             with open(dist_dir / "index.html", "r", encoding="utf-8") as f:
                 return HTMLResponse(content=f.read())
-        index_file = web_dir / "index.html"
-        if index_file.exists():
-            with open(index_file, "r", encoding="utf-8") as f:
-                return HTMLResponse(content=f.read())
-        return HTMLResponse(content="<h1>Pi Robot Server</h1><p>Web UI not found.</p>")
+        return HTMLResponse(content="<h1>PI ROBOT Central Command</h1><p>Run 'npm run build' in frontend/ to generate UI.</p>")
 
     @app.get("/{file_path:path}")
     async def serve_static_file(file_path: str):
@@ -289,11 +284,7 @@ def create_api_server(
                 with open(target_path, "rb") as f:
                     return Response(content=f.read(), media_type=mime_type or "application/octet-stream")
 
-        target_path = (web_dir / file_path).resolve()
-        if target_path.is_file() and str(target_path).startswith(str(web_dir.resolve())):
-            mime_type, _ = mimetypes.guess_type(str(target_path))
-            with open(target_path, "rb") as f:
-                return Response(content=f.read(), media_type=mime_type or "application/octet-stream")
         raise HTTPException(status_code=404, detail="File Not Found")
 
     return app
+

@@ -99,10 +99,6 @@ def test_web_index_and_static_files(client):
     assert res.status_code == 200
     assert "PI ROBOT" in res.text
 
-    css_res = tc.get("/css/style.css")
-    assert css_res.status_code == 200
-    assert "app-layout" in css_res.text
-
 def test_mall_apis(client):
     tc, robot = client
     token = robot.auth_manager.create_session_token()
