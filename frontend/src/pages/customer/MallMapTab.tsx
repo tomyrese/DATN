@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRobotStore, updateGlobalState } from '../../store/useRobotStore';
 import { RobotApi } from '../../services/RobotApi';
 import { PointOfInterest } from '../../types/protocol';
@@ -6,16 +6,31 @@ import {
   Navigation,
   Navigation2,
   XCircle,
-  Coffee,
-  ShoppingBag,
-  Film,
-  Sparkles,
-  MapPin,
-  Clock,
-  Compass,
   Search,
   CheckCircle2,
+  Sparkles,
+  Bot,
+  MapPin,
 } from 'lucide-react';
+
+const CATEGORIES = [
+  { id: 'all', label: 'Tất Cả' },
+  { id: 'food', label: '🍔 Ăn Uống & Cafe' },
+  { id: 'fashion', label: '👗 Thời Trang' },
+  { id: 'entertainment', label: '🎬 Rạp Phim' },
+  { id: 'utility', label: '🚻 Nhà Vệ Sinh & Tiện Ích' },
+];
+
+const STORE_EMOJIS: Record<string, string> = {
+  poi_uniqlo: '👕',
+  poi_kura_sushi: '🍣',
+  poi_zara: '👗',
+  poi_highlands: '☕',
+  poi_cgv: '🎬',
+  poi_elevator: '🛗',
+  poi_reception: '💁',
+  poi_wc: '🚻',
+};
 
 export const MallMapTab: React.FC = () => {
   const { pois, activeEscort, pairedRobot, telemetry } = useRobotStore();
@@ -24,14 +39,23 @@ export const MallMapTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingEscort, setLoadingEscort] = useState(false);
 
-  // Customer POIs on single floor
+  // Filter out staff-only POIs for customer view
   const customerPois = pois.filter(p => !p.is_staff_only);
 
   const filteredPois = customerPois.filter(p => {
     const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
-    const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchSearch =
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;
   });
+
+  // Select first POI by default if none selected
+  useEffect(() => {
+    if (!selectedPoi && customerPois.length > 0) {
+      setSelectedPoi(customerPois[0]);
+    }
+  }, [customerPois, selectedPoi]);
 
   const handleStartEscort = async (poi: PointOfInterest) => {
     const host = pairedRobot?.host || window.location.hostname || 'localhost';
@@ -42,7 +66,7 @@ export const MallMapTab: React.FC = () => {
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
       } else {
-        alert(res.message || 'Không thể khởi động chế độ dẫn đường lúc này.');
+        alert(res.message || 'Không thể khởi động dẫn đường lúc này.');
       }
     } catch (e: any) {
       alert(`Lỗi kết nối: ${e.message}`);
@@ -60,8 +84,8 @@ export const MallMapTab: React.FC = () => {
     } catch (e) {}
   };
 
-  // Escort live polling effect
-  React.useEffect(() => {
+  // Live polling for escort status
+  useEffect(() => {
     if (!activeEscort || activeEscort.status !== 'NAVIGATING') return;
 
     const host = pairedRobot?.host || window.location.hostname || 'localhost';
@@ -73,7 +97,7 @@ export const MallMapTab: React.FC = () => {
         if (task) {
           updateGlobalState(() => ({ activeEscort: task }));
           if (task.status === 'ARRIVED') {
-            alert(`🎉 Robot đã dẫn quý khách đến đúng vị trí: ${task.target_name}!`);
+            alert(`🎉 Robot đã dẫn quý khách đến nơi: ${task.target_name}!`);
             setTimeout(() => {
               updateGlobalState(() => ({ activeEscort: null }));
             }, 3000);
@@ -85,81 +109,219 @@ export const MallMapTab: React.FC = () => {
     return () => clearInterval(interval);
   }, [activeEscort?.status]);
 
-  // Store coordinates mapping for SVG Route calculation
-  const storeCoordinates: Record<string, { x: number; y: number }> = {
-    poi_uniqlo: { x: 200, y: 130 },
-    poi_kura_sushi: { x: 550, y: 130 },
-    poi_zara: { x: 900, y: 130 },
-    poi_highlands: { x: 200, y: 340 },
-    poi_cgv: { x: 900, y: 340 },
-    poi_elevator: { x: 200, y: 540 },
-    poi_reception: { x: 550, y: 540 },
-    poi_wc: { x: 900, y: 540 },
+  // Coordinates for the 1-Floor Map SVG Layout (1100 x 660)
+  const storeCoords: Record<string, { x: number; y: number; w: number; h: number; fill: string; stroke: string; label: string }> = {
+    poi_uniqlo: { x: 80, y: 70, w: 260, h: 140, fill: '#FDF2F8', stroke: '#F472B6', label: 'UNIQLO Fashion' },
+    poi_kura_sushi: { x: 420, y: 70, w: 260, h: 140, fill: '#FFFBEB', stroke: '#FBBF24', label: 'Kura Sushi & Lẩu' },
+    poi_zara: { x: 760, y: 70, w: 260, h: 140, fill: '#F5F3FF', stroke: '#A78BFA', label: 'ZARA Store' },
+    poi_highlands: { x: 80, y: 270, w: 260, h: 140, fill: '#FEF2F2', stroke: '#F87171', label: 'Highlands Coffee' },
+    poi_cgv: { x: 760, y: 270, w: 260, h: 140, fill: '#FAF5FF', stroke: '#C084FC', label: 'CGV Cinemas' },
+    poi_elevator: { x: 80, y: 470, w: 260, h: 130, fill: '#F0FDF4', stroke: '#4ADE80', label: 'Thang Máy & Cửa Ra' },
+    poi_reception: { x: 420, y: 470, w: 260, h: 130, fill: '#EFF6FF', stroke: '#60A5FA', label: 'Lễ Tân & Robot Dock' },
+    poi_wc: { x: 760, y: 470, w: 260, h: 130, fill: '#F0FDFA', stroke: '#2DD4BF', label: 'Khu Vệ Sinh (WC)' },
   };
 
-  // Dynamically calculate robot position based on escort progress
-  const targetCoord = activeEscort ? storeCoordinates[activeEscort.target_poi_id] : null;
+  // Calculate live robot marker position along corridor
+  const activeCoord = activeEscort ? storeCoords[activeEscort.target_poi_id] : null;
   const progressRatio = (activeEscort?.current_progress || 0) / 100.0;
-  const currentRobotPos = targetCoord
-    ? {
-        x: 550 + (targetCoord.x - 550) * progressRatio,
-        y: 430 + (targetCoord.y - 430) * progressRatio,
-      }
-    : { x: 550, y: 430 };
+  const robotCenter = { x: 550, y: 430 };
 
-  const getRoutePath = (targetPoiId: string) => {
-    const target = storeCoordinates[targetPoiId];
-    if (!target) return `M 550 430 L 550 340`;
-    // Corridor waypoint routing
-    if (target.y < 200) {
-      return `M 550 430 L 550 220 L ${target.x} 220 L ${target.x} ${target.y + 70}`;
-    } else if (target.y > 500) {
-      return `M 550 430 L 550 450 L ${target.x} 450 L ${target.x} ${target.y - 60}`;
-    } else {
-      return `M 550 430 L 550 340 L ${target.x} 340`;
-    }
-  };
+  const liveRobotPos = activeCoord
+    ? {
+        x: robotCenter.x + (activeCoord.x + activeCoord.w / 2 - robotCenter.x) * progressRatio,
+        y: robotCenter.y + (activeCoord.y + activeCoord.h / 2 - robotCenter.y) * progressRatio,
+      }
+    : robotCenter;
+
+  const currentTargetId = activeEscort?.target_poi_id || selectedPoi?.id;
 
   return (
-    <div className="tab-pane active">
-      <div className="mall-map-container">
-        
-        {/* Active Escort Status Banner */}
-        {activeEscort && (
-          <div className="escort-banner">
-            <div className="escort-banner-content">
-              <div className="escort-spinner">
-                <Navigation2 size={24} className="spin-pulse" />
-              </div>
-              <div>
-                <div className="escort-title">
-                  ROBOT ĐANG DẪN ĐƯỜNG ĐẾN: {activeEscort.target_name}
-                </div>
-                <div className="escort-sub">
-                  Vui lòng đi theo sau Robot • Tốc độ an toàn: {telemetry?.speed?.toFixed(2) || '0.35'} m/s • Thời gian dự kiến: ~{activeEscort.estimated_seconds}s
-                </div>
-              </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      
+      {/* Active Escort Banner */}
+      {activeEscort && (
+        <div className="active-escort-card">
+          <div className="escort-left">
+            <div className="escort-robot-icon">🤖</div>
+            <div className="escort-info">
+              <h3>ROBOT ĐANG DẪN ĐƯỜNG ĐẾN: {activeEscort.target_name}</h3>
+              <p>
+                Quý khách vui lòng đi theo sau robot • Tiến độ: {activeEscort.current_progress}% • Tốc độ: {telemetry?.speed?.toFixed(2) || '0.35'} m/s
+              </p>
             </div>
-            <button className="btn-cancel-escort" onClick={handleCancelEscort}>
-              <XCircle size={16} style={{ display: 'inline', marginRight: 6 }} />
-              HỦY DẪN ĐƯỜNG
-            </button>
           </div>
-        )}
+          <button className="btn-cancel-escort-clean" onClick={handleCancelEscort}>
+            <XCircle size={18} />
+            <span>HỦY DẪN ĐƯỜNG</span>
+          </button>
+        </div>
+      )}
 
-        {/* Top Filter & Search Toolbar */}
-        <div className="map-toolbar">
-          <div className="category-filters" style={{ flex: 1, margin: 0 }}>
-            {[
-              { id: 'all', label: 'Tất Cả Gian Hàng' },
-              { id: 'fashion', label: '👗 Thời Trang' },
-              { id: 'food', label: '🍔 Ẩm Thực & Cafe' },
-              { id: 'entertainment', label: '🎬 Rạp Chiếu Phim' },
-              { id: 'utility', label: '🚻 Tiện Ích & WC' },
-            ].map(cat => (
+      {/* Main 2-Column Map Layout */}
+      <div className="map-view-layout">
+        
+        {/* Left Side: Interactive 1-Floor Map */}
+        <div className="map-card-wrapper">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>SƠ ĐỒ TẦNG 1 (TRUNG TÂM THƯƠNG MẠI)</h2>
+              <p style={{ fontSize: '0.85rem', color: '#64748B' }}>Chạm vào bất kỳ cửa hàng nào trên bản đồ để xem và yêu cầu Robot dẫn đường</p>
+            </div>
+            {selectedPoi && (
+              <button
+                className="btn-solid-blue"
+                onClick={() => handleStartEscort(selectedPoi)}
+                disabled={loadingEscort || activeEscort?.target_poi_id === selectedPoi.id}
+                style={{ padding: '10px 18px', fontSize: '0.9rem' }}
+              >
+                <Navigation size={16} />
+                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'Đang Dẫn Đường' : `Dẫn Tôi Đến ${selectedPoi.name}`}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="map-svg-container">
+            <svg viewBox="0 0 1100 660" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <pattern id="mall-tile" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+                </pattern>
+              </defs>
+
+              {/* Floor Background */}
+              <rect width="1100" height="660" fill="#FFFFFF" />
+              <rect width="1100" height="660" fill="url(#mall-tile)" />
+
+              {/* Main Corridors (Hành Lang Đi Bộ) */}
+              <rect x="360" y="40" width="380" height="580" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
+              <rect x="40" y="230" width="1020" height="220" fill="#F8FAFC" rx="16" stroke="#E2E8F0" strokeWidth="1.5" />
+
+              {/* Corridor Labels */}
+              <text x="550" y="255" textAnchor="middle" fill="#94A3B8" fontSize="13" fontWeight="700" letterSpacing="1">
+                HÀNH LANG TRUNG TÂM (MAIN CONCOURSE)
+              </text>
+
+              {/* Navigation Route Path (if a target is selected) */}
+              {currentTargetId && storeCoords[currentTargetId] && (
+                <g>
+                  <path
+                    d={`M 550 430 Q 550 ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2} ${storeCoords[currentTargetId].x + storeCoords[currentTargetId].w / 2} ${storeCoords[currentTargetId].y + storeCoords[currentTargetId].h / 2}`}
+                    fill="none"
+                    stroke="#2563EB"
+                    strokeWidth="4"
+                    strokeDasharray="8 6"
+                  />
+                </g>
+              )}
+
+              {/* Store Blocks */}
+              {Object.entries(storeCoords).map(([poiId, box]) => {
+                const isSelected = selectedPoi?.id === poiId;
+                const isTarget = activeEscort?.target_poi_id === poiId;
+                const matchingPoi = pois.find(p => p.id === poiId);
+
+                return (
+                  <g
+                    key={poiId}
+                    onClick={() => matchingPoi && setSelectedPoi(matchingPoi)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <rect
+                      x={box.x}
+                      y={box.y}
+                      width={box.w}
+                      height={box.h}
+                      rx="16"
+                      fill={isTarget ? '#EFF6FF' : box.fill}
+                      stroke={isTarget ? '#2563EB' : (isSelected ? '#2563EB' : box.stroke)}
+                      strokeWidth={isSelected || isTarget ? '3' : '1.5'}
+                      filter={isSelected || isTarget ? 'drop-shadow(0 4px 12px rgba(37,99,235,0.25))' : 'none'}
+                    />
+                    {/* Store Emoji */}
+                    <text x={box.x + 24} y={box.y + 40} fontSize="26">
+                      {STORE_EMOJIS[poiId] || '🏪'}
+                    </text>
+                    {/* Store Name */}
+                    <text
+                      x={box.x + 60}
+                      y={box.y + 38}
+                      fontSize="16"
+                      fontWeight="800"
+                      fill="#0F172A"
+                    >
+                      {box.label.split(' ')[0]}
+                    </text>
+                    {/* Sub description */}
+                    <text
+                      x={box.x + 24}
+                      y={box.y + 70}
+                      fontSize="12"
+                      fontWeight="500"
+                      fill="#64748B"
+                    >
+                      {matchingPoi?.description?.substring(0, 26) || box.label}
+                    </text>
+
+                    {/* Touch to Select Button Inside Box */}
+                    <rect
+                      x={box.x + 24}
+                      y={box.y + 90}
+                      width={box.w - 48}
+                      height="30"
+                      rx="8"
+                      fill={isSelected ? '#2563EB' : '#FFFFFF'}
+                      stroke={isSelected ? '#2563EB' : '#E2E8F0'}
+                    />
+                    <text
+                      x={box.x + box.w / 2}
+                      y={box.y + 110}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fontWeight="700"
+                      fill={isSelected ? '#FFFFFF' : '#2563EB'}
+                    >
+                      {isTarget ? 'Đang Dẫn Tới Đây 📍' : (isSelected ? 'Đã Chọn • Dẫn Đường 👉' : 'Chạm để Chọn')}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Robot Live Marker */}
+              <g transform={`translate(${liveRobotPos.x}, ${liveRobotPos.y})`}>
+                <circle r="22" fill="#2563EB" opacity="0.25">
+                  <animate attributeName="r" values="22;30;22" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.25;0;0.25" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle r="18" fill="#2563EB" stroke="#FFFFFF" strokeWidth="3" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.2))" />
+                <text x="0" y="6" textAnchor="middle" fontSize="14">🤖</text>
+                <rect x="-35" y="-36" width="70" height="20" rx="6" fill="#0F172A" />
+                <text x="0" y="-22" textAnchor="middle" fill="#FFFFFF" fontSize="10" fontWeight="700">ROBOT AI</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        {/* Right Side: Quick Shop Directory & Escort Triggers */}
+        <div className="shop-sidebar">
+          
+          {/* Quick Search */}
+          <div className="quick-search-box">
+            <Search size={18} />
+            <input
+              type="text"
+              className="quick-search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm quán cafe, rạp phim, WC..."
+            />
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="category-pill-row">
+            {CATEGORIES.map(cat => (
               <button
                 key={cat.id}
-                className={`cat-btn ${selectedCategory === cat.id ? 'active' : ''}`}
+                className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
                 onClick={() => setSelectedCategory(cat.id)}
               >
                 {cat.label}
@@ -167,262 +329,54 @@ export const MallMapTab: React.FC = () => {
             ))}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', fontWeight: 700, color: '#059669', background: '#ECFDF5', padding: '6px 14px', borderRadius: 20, border: '1px solid #A7F3D0' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 6px #10B981' }}></span>
-              Sảnh TTTM Tầng 1 (Live)
-            </span>
-          </div>
-        </div>
-
-        {/* Unified Single-Floor Architectural Floorplan Viewport */}
-        <div className="map-viewport-card">
-          <div className="floorplan-wrapper">
-            <svg viewBox="0 0 1100 660" className="floorplan-svg">
-              <defs>
-                <pattern id="mallTile" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" strokeWidth="0.8" />
-                </pattern>
-
-                <linearGradient id="hallwayAvenue" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#FFFFFF" />
-                  <stop offset="100%" stopColor="#F8FAFC" />
-                </linearGradient>
-
-                <linearGradient id="glassAtriumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#E0F2FE" />
-                  <stop offset="100%" stopColor="#BAE6FD" />
-                </linearGradient>
-
-                <filter id="softCardShadow" x="-10%" y="-10%" width="120%" height="120%">
-                  <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#0F172A" floodOpacity="0.07" />
-                </filter>
-                <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#2563EB" floodOpacity="0.6" />
-                </filter>
-                <filter id="robotRadar" x="-50%" y="-50%" width="200%" height="200%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#10B981" floodOpacity="0.5" />
-                </filter>
-              </defs>
-
-              {/* Floor Background Grid */}
-              <rect width="1100" height="660" fill="url(#mallTile)" />
-
-              {/* Mall Outer Boundary */}
-              <rect
-                x="30"
-                y="20"
-                width="1040"
-                height="620"
-                rx="24"
-                fill="url(#hallwayAvenue)"
-                stroke="#CBD5E1"
-                strokeWidth="2.5"
-              />
-
-              {/* Central Skylight Atrium & Fountain */}
-              <circle
-                cx="550"
-                cy="340"
-                r="70"
-                fill="url(#glassAtriumGrad)"
-                stroke="#38BDF8"
-                strokeWidth="2"
-                strokeDasharray="6 4"
-              />
-              <circle cx="550" cy="340" r="28" fill="#FFFFFF" stroke="#0284C7" strokeWidth="1.5" />
-              <text x="550" y="336" fill="#0284C7" fontSize="10" fontWeight="900" textAnchor="middle">GIẾNG TRỜI</text>
-              <text x="550" y="350" fill="#64748B" fontSize="9" fontWeight="700" textAnchor="middle">VÒM KÍNH</text>
-
-              {/* Main Corridors Direction Guides */}
-              <line x1="350" y1="340" x2="470" y2="340" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 4" />
-              <line x1="630" y1="340" x2="750" y2="340" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 4" />
-              <line x1="550" y1="220" x2="550" y2="260" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 4" />
-              <line x1="550" y1="420" x2="550" y2="460" stroke="#CBD5E1" strokeWidth="1.5" strokeDasharray="4 4" />
-
-              {/* ================= TOP ROW STORES ================= */}
-              {/* 1. UNIQLO LifeWear */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_uniqlo') || null)}
-              >
-                <rect x="60" y="50" width="280" height="160" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_uniqlo' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_uniqlo' ? '3' : '1.5'} />
-                <rect x="60" y="50" width="280" height="7" rx="3.5" fill="#EF4444" />
-                <rect x="80" y="75" width="40" height="40" rx="6" fill="#EF4444" />
-                <text x="100" y="94" fill="#FFFFFF" fontSize="10" fontWeight="900" textAnchor="middle">UNI</text>
-                <text x="100" y="106" fill="#FFFFFF" fontSize="10" fontWeight="900" textAnchor="middle">QLO</text>
-                <text x="135" y="92" fill="#0F172A" fontSize="14" fontWeight="800">UNIQLO LifeWear</text>
-                <text x="135" y="110" fill="#64748B" fontSize="10" fontWeight="600">Thời Trang Nhật Bản</text>
-                <rect x="80" y="135" width="90" height="24" rx="6" fill="#FEF2F2" />
-                <text x="125" y="151" fill="#DC2626" fontSize="10" fontWeight="700" textAnchor="middle">Cánh Tây Bắc</text>
-              </g>
-
-              {/* 2. Kura Sushi */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_kura_sushi') || null)}
-              >
-                <rect x="410" y="50" width="280" height="160" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_kura_sushi' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_kura_sushi' ? '3' : '1.5'} />
-                <rect x="410" y="50" width="280" height="7" rx="3.5" fill="#F97316" />
-                <circle cx="440" cy="95" r="18" fill="#FFF7ED" stroke="#F97316" strokeWidth="1.5" />
-                <text x="440" y="100" fill="#EA580C" fontSize="15" textAnchor="middle">🍣</text>
-                <text x="470" y="92" fill="#0F172A" fontSize="14" fontWeight="800">KURA SUSHI</text>
-                <text x="470" y="110" fill="#64748B" fontSize="10" fontWeight="600">Sushi Băng Chuyền Nhật</text>
-                <rect x="430" y="135" width="90" height="24" rx="6" fill="#FFF7ED" />
-                <text x="475" y="151" fill="#EA580C" fontSize="10" fontWeight="700" textAnchor="middle">Khu Ẩm Thực</text>
-              </g>
-
-              {/* 3. ZARA */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_zara') || null)}
-              >
-                <rect x="760" y="50" width="280" height="160" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_zara' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_zara' ? '3' : '1.5'} />
-                <rect x="760" y="50" width="280" height="7" rx="3.5" fill="#0F172A" />
-                <text x="900" y="95" fill="#0F172A" fontSize="18" fontWeight="900" textAnchor="middle" letterSpacing="3">Z A R A</text>
-                <text x="900" y="115" fill="#64748B" fontSize="10" fontWeight="600" textAnchor="middle">Thời Trang Quốc Tế Nam & Nữ</text>
-                <rect x="855" y="135" width="90" height="24" rx="6" fill="#F1F5F9" />
-                <text x="900" y="151" fill="#0F172A" fontSize="10" fontWeight="700" textAnchor="middle">Cánh Đông Bắc</text>
-              </g>
-
-              {/* ================= MIDDLE ROW STORES ================= */}
-              {/* 4. Highlands Coffee */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_highlands') || null)}
-              >
-                <rect x="60" y="260" width="280" height="160" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_highlands' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_highlands' ? '3' : '1.5'} />
-                <rect x="60" y="260" width="280" height="7" rx="3.5" fill="#B91C1C" />
-                <circle cx="95" cy="305" r="18" fill="#FEF2F2" stroke="#B91C1C" strokeWidth="1.5" />
-                <text x="95" y="310" fill="#B91C1C" fontSize="15" textAnchor="middle">☕</text>
-                <text x="125" y="302" fill="#B91C1C" fontSize="13" fontWeight="900">HIGHLANDS COFFEE</text>
-                <text x="125" y="320" fill="#64748B" fontSize="10" fontWeight="600">Cà Phê, Trà & Freeze</text>
-                <rect x="80" y="345" width="90" height="24" rx="6" fill="#FEF2F2" />
-                <text x="125" y="361" fill="#B91C1C" fontSize="10" fontWeight="700" textAnchor="middle">Cánh Tây Nam</text>
-              </g>
-
-              {/* 5. CGV Cinemas */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_cgv') || null)}
-              >
-                <rect x="760" y="260" width="280" height="160" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_cgv' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_cgv' ? '3' : '1.5'} />
-                <rect x="760" y="260" width="280" height="7" rx="3.5" fill="#DC2626" />
-                <text x="900" y="300" fill="#DC2626" fontSize="18" fontWeight="900" textAnchor="middle" letterSpacing="1">CGV CINEMAS</text>
-                <text x="900" y="320" fill="#64748B" fontSize="10" fontWeight="600" textAnchor="middle">Rạp Chiếu Phim IMAX & 4DX</text>
-                <rect x="850" y="345" width="100" height="24" rx="6" fill="#FEF2F2" />
-                <text x="900" y="361" fill="#DC2626" fontSize="10" fontWeight="700" textAnchor="middle">Cánh Đông</text>
-              </g>
-
-              {/* ================= BOTTOM ROW AMENITIES ================= */}
-              {/* 6. Thang Máy & Bãi Xe */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_elevator') || null)}
-              >
-                <rect x="60" y="470" width="280" height="130" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_elevator' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_elevator' ? '3' : '1.5'} />
-                <rect x="60" y="470" width="280" height="7" rx="3.5" fill="#64748B" />
-                <circle cx="95" cy="515" r="16" fill="#F1F5F9" stroke="#64748B" strokeWidth="1.5" />
-                <text x="95" y="520" fill="#64748B" fontSize="14" textAnchor="middle">🛗</text>
-                <text x="125" y="512" fill="#0F172A" fontSize="13" fontWeight="800">THANG MÁY & BÃI XE</text>
-                <text x="125" y="530" fill="#64748B" fontSize="10">Lối xuống bãi đỗ xe</text>
-              </g>
-
-              {/* 7. Quầy Lễ Tân & CSKH */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_reception') || null)}
-              >
-                <rect x="410" y="470" width="280" height="130" rx="14" fill="#EFF6FF" stroke={selectedPoi?.id === 'poi_reception' ? '#2563EB' : '#BFDBFE'} strokeWidth={selectedPoi?.id === 'poi_reception' ? '3' : '1.5'} />
-                <rect x="410" y="470" width="280" height="7" rx="3.5" fill="#2563EB" />
-                <text x="550" y="512" fill="#1D4ED8" fontSize="13" fontWeight="900" textAnchor="middle">ℹ️ QUẦY LỄ TÂN & CSKH</text>
-                <text x="550" y="530" fill="#3B82F6" fontSize="10" fontWeight="600" textAnchor="middle">Sảnh Chính Cửa Nam</text>
-                <rect x="495" y="550" width="110" height="22" rx="6" fill="#DBEAFE" />
-                <text x="550" y="565" fill="#1D4ED8" fontSize="9.5" fontWeight="800" textAnchor="middle">ĐIỂM XUẤT PHÁT</text>
-              </g>
-
-              {/* 8. Restroom / WC */}
-              <g
-                filter="url(#softCardShadow)"
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPoi(pois.find(p => p.id === 'poi_wc') || null)}
-              >
-                <rect x="760" y="470" width="280" height="130" rx="14" fill="#FFFFFF" stroke={selectedPoi?.id === 'poi_wc' ? '#2563EB' : '#E2E8F0'} strokeWidth={selectedPoi?.id === 'poi_wc' ? '3' : '1.5'} />
-                <rect x="760" y="470" width="280" height="7" rx="3.5" fill="#0284C7" />
-                <circle cx="795" cy="515" r="16" fill="#E0F2FE" stroke="#0284C7" strokeWidth="1.5" />
-                <text x="795" y="520" fill="#0284C7" fontSize="14" textAnchor="middle">🚻</text>
-                <text x="825" y="512" fill="#0F172A" fontSize="13" fontWeight="800">KHU VỆ SINH (WC)</text>
-                <text x="825" y="530" fill="#64748B" fontSize="10">Nam • Nữ • Em Bé</text>
-              </g>
-
-              {/* Animated Laser Route Path */}
-              {activeEscort && (
-                <g filter="url(#laserGlow)">
-                  <path
-                    d={getRoutePath(activeEscort.target_poi_id)}
-                    fill="none"
-                    stroke="#2563EB"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="route-animated"
-                  />
-                  {storeCoordinates[activeEscort.target_poi_id] && (
-                    <circle
-                      cx={storeCoordinates[activeEscort.target_poi_id].x}
-                      cy={storeCoordinates[activeEscort.target_poi_id].y}
-                      r="16"
-                      fill="#2563EB"
-                    />
-                  )}
-                </g>
-              )}
-
-              {/* Robot Position Indicator (In Open Promenade) */}
-              <g transform={`translate(${currentRobotPos.x}, ${currentRobotPos.y})`} filter="url(#robotRadar)">
-                <circle cx="0" cy="0" r="28" fill="rgba(16, 185, 129, 0.2)" className="spin-pulse" />
-                <circle cx="0" cy="0" r="15" fill="#10B981" stroke="#FFFFFF" strokeWidth="3" />
-                <polygon points="0,-8 6,5 0,2 -6,5" fill="#FFFFFF" />
-                <rect x="-38" y="20" width="76" height="22" rx="6" fill="#0F172A" />
-                <text x="0" y="35" fill="#10B981" fontSize="10" fontWeight="900" textAnchor="middle">
-                  ROBOT
-                </text>
-              </g>
-            </svg>
-          </div>
-
-          {/* POI Details Card */}
+          {/* Selected POI Spotlight Card */}
           {selectedPoi && (
-            <div className="poi-detail-card">
-              <div className="poi-card-header">
+            <div className="card-clean" style={{ padding: '18px', border: '1.5px solid #2563EB' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '24px' }}>{STORE_EMOJIS[selectedPoi.id] || '📍'}</span>
                 <div>
-                  <h3 className="poi-title">{selectedPoi.name}</h3>
-                  <span className="poi-floor-badge">{selectedPoi.category.toUpperCase()} • SẢNH CHÍNH</span>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>{selectedPoi.name}</h3>
+                  <span style={{ fontSize: '0.78rem', color: '#2563EB', fontWeight: 700 }}>Tầng 1 • Khu Mua Sắm</span>
                 </div>
-                <button className="btn-close-sm" onClick={() => setSelectedPoi(null)}>✕</button>
               </div>
-
-              <p className="poi-desc">{selectedPoi.description}</p>
-
+              <p style={{ fontSize: '0.85rem', color: '#64748B', marginBottom: '14px' }}>
+                {selectedPoi.description}
+              </p>
               <button
-                className="btn-primary btn-block"
-                disabled={loadingEscort || (activeEscort?.target_poi_id === selectedPoi.id)}
+                className="btn-solid-blue"
+                style={{ width: '100%' }}
                 onClick={() => handleStartEscort(selectedPoi)}
+                disabled={loadingEscort || activeEscort?.target_poi_id === selectedPoi.id}
               >
-                <Navigation size={16} style={{ display: 'inline', marginRight: 6 }} />
-                {activeEscort?.target_poi_id === selectedPoi.id
-                  ? 'ROBOT ĐANG DẪN ĐƯỜNG ĐẾN ĐÂY'
-                  : 'YÊU CẦU ROBOT DẪN TÔI ĐẾN ĐÂY'}
+                <Navigation size={16} />
+                <span>{activeEscort?.target_poi_id === selectedPoi.id ? 'ROBOT ĐANG DẪN ĐƯỜNG' : 'DẪN TÔI ĐẾN ĐÂY'}</span>
               </button>
             </div>
           )}
+
+          {/* POI List */}
+          <div className="poi-cards-list">
+            {filteredPois.map(poi => {
+              const isSelected = selectedPoi?.id === poi.id;
+              return (
+                <div
+                  key={poi.id}
+                  className={`poi-list-item ${isSelected ? 'selected' : ''}`}
+                  onClick={() => setSelectedPoi(poi)}
+                >
+                  <div className="poi-item-left">
+                    <div className="poi-item-emoji">{STORE_EMOJIS[poi.id] || '🏬'}</div>
+                    <div className="poi-item-text">
+                      <h4>{poi.name}</h4>
+                      <p>{poi.description.substring(0, 32)}...</p>
+                    </div>
+                  </div>
+                  <Navigation size={16} color={isSelected ? '#2563EB' : '#94A3B8'} />
+                </div>
+              );
+            })}
+          </div>
+
         </div>
 
       </div>

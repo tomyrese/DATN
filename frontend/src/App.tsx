@@ -9,30 +9,26 @@ import { SafetyBanner } from './components/SafetyBanner';
 import { NavigationTabs, TabType } from './components/NavigationTabs';
 import { PairingModal } from './components/PairingModal';
 
-// Customer Tabs
+// Customer Views
 import { MallMapTab } from './pages/customer/MallMapTab';
 import { MallAssistantTab } from './pages/customer/MallAssistantTab';
 import { MallDirectoryTab } from './pages/customer/MallDirectoryTab';
 
-// Staff Tabs
-import { DeliveryOrdersTab } from './pages/staff/DeliveryOrdersTab';
-import { DashboardTab } from './pages/DashboardTab';
+// Staff Views
 import { ControlTab } from './pages/ControlTab';
-import { CameraTab } from './pages/CameraTab';
-import { DiagnosticsTab } from './pages/DiagnosticsTab';
-import { MotorTestTab } from './pages/MotorTestTab';
+import { DeliveryOrdersTab } from './pages/staff/DeliveryOrdersTab';
 import { SettingsTab } from './pages/SettingsTab';
 
-// Initialize the store listeners once on load
+// Initialize store listeners
 initializeStore();
 
 export const App: React.FC = () => {
   const { pairedRobot, settings, connectionStatus, isSafetyBlocked, isEmergencyStopped, userRole } = useRobotStore();
-  const [activeTab, setActiveTab] = useState<TabType>(userRole === 'staff' ? 'delivery-orders' : 'mall-map');
+  const [activeTab, setActiveTab] = useState<TabType>(userRole === 'staff' ? 'control' : 'mall-map');
   const [isPairingOpen, setIsPairingOpen] = useState(false);
   const [cameraTicket, setCameraTicket] = useState<string | null>(null);
 
-  // Auto-pair from URL query param when scanning OLED QR code (e.g. http://pi-ip:8765/?code=ABC123)
+  // Auto-pair from URL query param when scanning OLED QR code
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codeParam = params.get('code') || params.get('pairCode');
@@ -60,7 +56,6 @@ export const App: React.FC = () => {
           updateGlobalState(() => ({ pairedRobot: robotInfo }));
           RobotSocket.getInstance().connect(host, port, res.token);
 
-          // Clean URL without reloading page
           const cleanUrl = window.location.pathname;
           window.history.replaceState({}, document.title, cleanUrl);
         }
@@ -68,7 +63,6 @@ export const App: React.FC = () => {
         console.warn('Auto pairing via QR code URL failed:', err);
       });
     } else {
-      // Auto-load POIs & info from current origin if hosted directly on Raspberry Pi
       RobotApi.getMallPois(host, port, false).then(pois => {
         if (pois && pois.length > 0) {
           updateGlobalState(() => ({ pois }));
@@ -80,24 +74,24 @@ export const App: React.FC = () => {
   // Sync tab when userRole switches
   useEffect(() => {
     if (userRole === 'customer') {
-      if (['delivery-orders', 'control', 'camera', 'dashboard', 'diagnostics', 'motor-test'].includes(activeTab)) {
+      if (['control', 'delivery-orders'].includes(activeTab)) {
         setActiveTab('mall-map');
       }
     } else if (userRole === 'staff') {
       if (['mall-assistant', 'mall-directory'].includes(activeTab)) {
-        setActiveTab('delivery-orders');
+        setActiveTab('control');
       }
     }
   }, [userRole]);
 
-  // Auto-connect on startup if robot info is saved
+  // Auto-connect on startup
   useEffect(() => {
     if (pairedRobot && connectionStatus === 'DISCONNECTED') {
       RobotSocket.getInstance().connect(pairedRobot.host, pairedRobot.port, pairedRobot.token);
     }
   }, [pairedRobot, connectionStatus]);
 
-  // Periodic camera ticket refresh (tickets expire in 5 minutes)
+  // Periodic camera ticket refresh
   const refreshCameraTicket = useCallback(async () => {
     if (pairedRobot && connectionStatus === 'CONNECTED') {
       try {
@@ -113,14 +107,13 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     refreshCameraTicket();
-    const interval = setInterval(refreshCameraTicket, 3 * 60 * 1000); // every 3 mins
+    const interval = setInterval(refreshCameraTicket, 3 * 60 * 1000);
     return () => clearInterval(interval);
   }, [refreshCameraTicket]);
 
-  // Global Keyboard Navigation & Control shortcuts (Staff mode only)
+  // Keyboard drive controls (Staff mode only)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't capture when typing in inputs or textareas
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
@@ -130,7 +123,7 @@ export const App: React.FC = () => {
       const speed = settings.defaultSpeed || 0.35;
       const key = e.key.toLowerCase();
 
-      // Emergency Controls (always available)
+      // Emergency Controls
       if (key === 'e' || key === 'x') {
         socket.sendEmergencyStop();
         if (pairedRobot) {
@@ -147,7 +140,7 @@ export const App: React.FC = () => {
         return;
       }
 
-      // Drive Controls (only for Staff if connected & safety clear)
+      // Drive Controls
       if (userRole === 'staff' && connectionStatus === 'CONNECTED' && !isSafetyBlocked && !isEmergencyStopped) {
         switch (key) {
           case 'w':
@@ -211,14 +204,10 @@ export const App: React.FC = () => {
         {activeTab === 'mall-directory' && <MallDirectoryTab />}
 
         {/* Staff Views */}
-        {activeTab === 'delivery-orders' && <DeliveryOrdersTab />}
-        {activeTab === 'dashboard' && <DashboardTab onSelectTab={setActiveTab} />}
         {activeTab === 'control' && <ControlTab cameraTicket={cameraTicket} />}
-        {activeTab === 'camera' && <CameraTab cameraTicket={cameraTicket} />}
-        {activeTab === 'diagnostics' && <DiagnosticsTab />}
-        {activeTab === 'motor-test' && <MotorTestTab />}
+        {activeTab === 'delivery-orders' && <DeliveryOrdersTab />}
 
-        {/* Common Settings */}
+        {/* Settings & Config */}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
 

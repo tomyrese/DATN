@@ -5,23 +5,23 @@ import { ChatMessage } from '../../types/robot';
 import { Bot, Send, Sparkles, Navigation, User } from 'lucide-react';
 
 const QUICK_PROMPTS = [
-  'Nhà vệ sinh ở đâu?',
-  'Quán cà phê gần đây',
-  'Cửa hàng thời trang ZARA',
-  'Rạp chiếu phim CGV',
-  'Giờ mở cửa TTTM',
-  'Mật khẩu WiFi miễn phí',
+  '🚻 Nhà vệ sinh gần nhất ở đâu?',
+  '☕ Tìm quán cà phê Highlands',
+  '👕 Cửa hàng thời trang Uniqlo',
+  '🎬 Rạp chiếu phim CGV',
+  '📶 Mật khẩu WiFi miễn phí',
+  '🕒 Giờ đóng cửa TTTM',
 ];
 
 export const MallAssistantTab: React.FC = () => {
-  const { chatMessages, pairedRobot, pois } = useRobotStore();
+  const { chatMessages, pairedRobot } = useRobotStore();
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
+  }, [chatMessages, loading]);
 
   const handleSend = async (questionText: string) => {
     const query = questionText.trim();
@@ -62,7 +62,7 @@ export const MallAssistantTab: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: `msg-${Date.now() + 1}`,
         sender: 'assistant',
-        text: 'Xin lỗi quý khách, hệ thống AI tạm thời gián đoạn kết nối. Quý khách có thể xem bản đồ hoặc thử lại!',
+        text: 'Xin lỗi quý khách, hệ thống AI đang bận một chút. Quý khách có thể xem bản đồ hoặc bấm thử lại nhé!',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       updateGlobalState(prev => ({
@@ -80,7 +80,7 @@ export const MallAssistantTab: React.FC = () => {
       const res = await RobotApi.requestEscort(host, port, poiId);
       if (res.success && res.task) {
         updateGlobalState(() => ({ activeEscort: res.task }));
-        alert(`Robot đã bắt đầu dẫn đường đến: ${res.task.target_name}!`);
+        alert(`🎉 Robot đã nhận lệnh và bắt đầu dẫn đường đến: ${res.task.target_name}!`);
       }
     } catch (e: any) {
       alert(`Lỗi: ${e.message}`);
@@ -88,104 +88,102 @@ export const MallAssistantTab: React.FC = () => {
   };
 
   return (
-    <div className="tab-pane active">
-      <div className="assistant-container">
-        
-        {/* Assistant Header Card */}
-        <div className="assistant-hero">
-          <div className="assistant-avatar">
-            <Bot size={28} color="#00E5FF" />
-          </div>
-          <div>
-            <h2 className="assistant-title">TRỢ LÝ ẢO ROBOT TTTM (AI CONCIERGE)</h2>
-            <p className="assistant-sub">Hỏi đáp thông tin gian hàng, tiện ích, sự kiện và yêu cầu robot dẫn đường tức thì.</p>
-          </div>
+    <div className="chat-container-card">
+      
+      {/* Friendly AI Concierge Welcome Header */}
+      <div className="chat-welcome-banner">
+        <div className="chat-welcome-avatar">🤖</div>
+        <div>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>TRỢ LÝ ẢO ROBOT (AI CONCIERGE)</h2>
+          <p style={{ fontSize: '0.85rem', color: '#64748B' }}>
+            Hỏi tôi bất cứ điều gì về các gian hàng, ẩm thực, rạp phim hoặc yêu cầu tôi dẫn đường trực tiếp!
+          </p>
         </div>
+      </div>
 
-        {/* Quick Suggestion Chips */}
-        <div className="quick-chips-row">
-          <Sparkles size={16} color="#00E5FF" style={{ flexShrink: 0 }} />
-          <div className="chips-scroll">
-            {QUICK_PROMPTS.map((prompt, idx) => (
-              <button
-                key={idx}
-                className="chip-btn"
-                onClick={() => handleSend(prompt)}
-                disabled={loading}
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* Quick Suggestion Chips */}
+      <div className="chat-suggestions-bar">
+        {QUICK_PROMPTS.map((prompt, idx) => (
+          <button
+            key={idx}
+            className="suggestion-chip"
+            onClick={() => handleSend(prompt)}
+            disabled={loading}
+          >
+            {prompt}
+          </button>
+        ))}
+      </div>
 
-        {/* Chat Message Stream */}
-        <div className="chat-thread-box">
-          {chatMessages.map(msg => {
-            const isBot = msg.sender === 'assistant';
-            return (
-              <div key={msg.id} className={`chat-bubble-row ${isBot ? 'bot-row' : 'user-row'}`}>
-                <div className={`chat-bubble ${isBot ? 'bot-bubble' : 'user-bubble'}`}>
-                  <div className="bubble-header">
-                    <span className="bubble-sender">{isBot ? 'ROBOT CONCIERGE' : 'QUÝ KHÁCH'}</span>
-                    <span className="bubble-time">{msg.time}</span>
+      {/* Chat Messages Stream */}
+      <div className="chat-messages-area">
+        {chatMessages.map(msg => {
+          const isBot = msg.sender === 'assistant';
+          return (
+            <div key={msg.id} className={`chat-msg-row ${isBot ? 'bot' : 'user'}`}>
+              <div className="chat-bubble-clean">
+                <div>{msg.text}</div>
+
+                {/* 1-Touch Escort Trigger */}
+                {isBot && msg.suggestedPoiId && (
+                  <div>
+                    <button
+                      className="btn-msg-escort"
+                      onClick={() => handleEscortToSuggested(msg.suggestedPoiId!)}
+                    >
+                      <Navigation size={14} />
+                      <span>Dẫn tôi đến {msg.suggestedPoiName || 'đây'} ngay 👉</span>
+                    </button>
                   </div>
-
-                  <div className="bubble-text">{msg.text}</div>
-
-                  {/* Action button if bot suggested a location */}
-                  {isBot && msg.suggestedPoiId && (
-                    <div className="bubble-action-box">
-                      <button
-                        className="btn-escort-chip"
-                        onClick={() => handleEscortToSuggested(msg.suggestedPoiId!)}
-                      >
-                        <Navigation size={14} style={{ display: 'inline', marginRight: 6 }} />
-                        Dẫn đường tới {msg.suggestedPoiName || 'địa điểm này'}
-                      </button>
-                    </div>
-                  )}
+                )}
+                
+                <div style={{ fontSize: '0.72rem', opacity: 0.6, marginTop: '4px', textAlign: isBot ? 'left' : 'right' }}>
+                  {msg.time}
                 </div>
               </div>
-            );
-          })}
-
-          {loading && (
-            <div className="chat-bubble-row bot-row">
-              <div className="chat-bubble bot-bubble typing-bubble">
-                <span className="typing-dot"></span>
-                <span className="typing-dot"></span>
-                <span className="typing-dot"></span>
-                <span style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>Robot đang suy nghĩ câu trả lời...</span>
-              </div>
             </div>
-          )}
+          );
+        })}
 
-          <div ref={messagesEndRef} />
-        </div>
+        {loading && (
+          <div className="chat-msg-row bot">
+            <div className="chat-bubble-clean" style={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="spin-pulse">⏳</span>
+              <span>Robot AI đang tìm câu trả lời tốt nhất cho quý khách...</span>
+            </div>
+          </div>
+        )}
 
-        {/* Input Bar */}
-        <form
-          className="chat-input-bar"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend(inputText);
-          }}
-        >
-          <input
-            type="text"
-            className="input-text chat-input-field"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Hỏi vị trí gian hàng, rạp phim, nhà vệ sinh, ẩm thực..."
-            disabled={loading}
-          />
-          <button type="submit" className="btn-primary btn-chat-send" disabled={loading || !inputText.trim()}>
-            <Send size={16} />
-          </button>
-        </form>
-
+        <div ref={messagesEndRef} />
       </div>
+
+      {/* Chat Input Bar */}
+      <form
+        className="chat-input-bar"
+        onSubmit={e => {
+          e.preventDefault();
+          handleSend(inputText);
+        }}
+      >
+        <input
+          type="text"
+          className="chat-input-field"
+          value={inputText}
+          onChange={e => setInputText(e.target.value)}
+          placeholder="Nhập câu hỏi của bạn (VD: Tìm quán ăn ngon, nhà vệ sinh ở đâu...)"
+          disabled={loading}
+        />
+        <button
+          type="submit"
+          className="btn-solid-blue"
+          disabled={loading || !inputText.trim()}
+          style={{ borderRadius: '9999px', padding: '12px 24px' }}
+        >
+          <Send size={18} />
+          <span>Gửi</span>
+        </button>
+      </form>
+
     </div>
   );
 };

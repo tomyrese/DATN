@@ -98,23 +98,23 @@ export const DashboardTab: React.FC<DashboardTabProps> = ({ onSelectTab }) => {
         <div className="tiles-grid">
           <div className="menu-tile tile-primary" onClick={() => onSelectTab('control')}>
             <div className="tile-top"><span className="tile-pill">DRIVE</span><span className="tile-badge">WASD</span></div>
-            <h3 className="tile-title">DRIVE CONTROLLER</h3>
-            <p className="tile-desc">Tactile D-Pad, Throttle slider, Hotkeys & Live PIP camera.</p>
+            <h3 className="tile-title">LÁI ROBOT & CAMERA</h3>
+            <p className="tile-desc">Cụm phím D-Pad, Camera trực tiếp và nút dừng khẩn cấp.</p>
           </div>
-          <div className="menu-tile tile-cyan" onClick={() => onSelectTab('camera')}>
-            <div className="tile-top"><span className="tile-pill">VISION</span><span className="tile-badge">CSI</span></div>
-            <h3 className="tile-title">CSI CAMERA FEED</h3>
-            <p className="tile-desc">High-framerate MJPEG stream & real-time AI bounding boxes.</p>
+          <div className="menu-tile tile-cyan" onClick={() => onSelectTab('delivery-orders')}>
+            <div className="tile-top"><span className="tile-pill">DISPATCH</span><span className="tile-badge">DELIVERY</span></div>
+            <h3 className="tile-title">GIAO HÀNG TỰ HÀNH</h3>
+            <p className="tile-desc">Điều phối robot vận chuyển kiện hàng giữa các trạm POI.</p>
           </div>
-          <div className="menu-tile" onClick={() => onSelectTab('diagnostics')}>
-            <div className="tile-top"><span className="tile-pill">STATS</span></div>
-            <h3 className="tile-title">SYSTEM DIAGNOSTICS</h3>
-            <p className="tile-desc">System vitals, thermal charts, and real-time terminal logs.</p>
+          <div className="menu-tile" onClick={() => onSelectTab('mall-map')}>
+            <div className="tile-top"><span className="tile-pill">MAP</span></div>
+            <h3 className="tile-title">SƠ ĐỒ TRUNG TÂM</h3>
+            <p className="tile-desc">Xem vị trí hiện tại và tuyến đường di chuyển của robot.</p>
           </div>
-          <div className="menu-tile" onClick={() => onSelectTab('motor-test')}>
-            <div className="tile-top"><span className="tile-pill">BENCH</span></div>
-            <h3 className="tile-title">MOTOR BENCH TEST</h3>
-            <p className="tile-desc">Individual directional testing for all 4 DC motor channels.</p>
+          <div className="menu-tile" onClick={() => onSelectTab('settings')}>
+            <div className="tile-top"><span className="tile-pill">SETTINGS</span></div>
+            <h3 className="tile-title">CÀI ĐẶT & KỸ THUẬT</h3>
+            <p className="tile-desc">Kiểm tra kết nối mạng, pin và cấu hình hệ thống.</p>
           </div>
         </div>
 
