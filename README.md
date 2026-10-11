@@ -124,28 +124,54 @@ Chi tiết sơ đồ chân, cảnh báo điện áp và kết nối: xem tại [
 
 ### 4.1. Chế độ Mô phỏng trên Máy tính (PC / Simulation Mode)
 
-1. **Cài đặt môi trường Python (Python 3.10+):**
+> [!IMPORTANT]
+> **CÔ LẬP MÔI TRƯỜNG (.VENV):** Tuyệt đối không cài đặt trực tiếp vào Python / pip toàn cục của hệ điều hành. Dự án đã cấu hình môi trường ảo `.venv` cô lập 100%.
+
+#### Cách nhanh nhất trên Windows:
+Chỉ cần nhấp đúp hoặc chạy script tự động:
+```bash
+# 1. Khởi tạo .venv, cài đặt thư viện cô lập và nạp database
+setup_venv.bat
+
+# 2. Khởi động Backend Server bằng chính .venv
+run_backend.bat
+
+# 3. Chạy 53 test cases kiểm thử tự động
+run_tests.bat
+```
+
+#### Hoặc thực hiện thủ công từng bước:
+1. **Khởi tạo môi trường ảo `.venv`:**
    ```bash
+   python -m venv .venv
+   ```
+2. **Kích hoạt môi trường ảo:**
+   - Trên Windows PowerShell:
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+   - Trên Windows CMD:
+     ```cmd
+     call .\.venv\Scripts\activate.bat
+     ```
+   - Trên Linux / macOS / Raspberry Pi:
+     ```bash
+     source .venv/bin/activate
+     ```
+3. **Cài đặt thư viện vào riêng `.venv` (không chạm vào pip hệ thống):**
+   ```bash
+   pip install --upgrade pip
    pip install -r requirements.txt
    ```
-2. **Tạo file cấu hình môi trường:**
+4. **Cấu hình môi trường & Khởi tạo Database:**
    ```bash
    copy .env.example .env
-   ```
-3. **Khởi tạo và Seed cơ sở dữ liệu:**
-   ```bash
    python -m src.database.migrator
    python -m src.database.seed
    ```
-4. **Build Frontend Web App:**
+5. **Biên dịch Frontend Web & Khởi động Server:**
    ```bash
-   cd frontend
-   npm install
-   npm run build
-   cd ..
-   ```
-5. **Chạy Backend Server:**
-   ```bash
+   cd frontend && npm install && npm run build && cd ..
    python src/main.py
    ```
    *Truy cập Web Dashboard tại:* `http://localhost:8765`

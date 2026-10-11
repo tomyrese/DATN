@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== ROBOT PLATFORM INSTALLER ==="
+echo "=== ROBOT PLATFORM INSTALLER (ISOLATED VENV) ==="
 
 UNAME_M=$(uname -m)
 echo "System Architecture: $UNAME_M"
@@ -26,16 +26,27 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$ROOT_DIR"
 
-if [ ! -d "venv" ]; then
-    echo "Creating virtual environment with system site packages..."
-    python3 -m venv --system-site-packages venv
+VENV_DIR=".venv"
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating isolated Python virtual environment: $VENV_DIR..."
+    python3 -m venv --system-site-packages "$VENV_DIR"
 fi
 
-source venv/bin/activate
+echo "Activating virtual environment..."
+source "$VENV_DIR/bin/activate"
+
+echo "Upgrading pip and installing dependencies into $VENV_DIR (no global pip pollution)..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-python3 scripts/download_model.py
+if [ ! -f ".env" ]; then
+    echo "Creating .env from .env.example..."
+    cp .env.example .env
+fi
+
+echo "Initializing SQLite v2 schema and seeding data..."
+python3 -m src.database.migrator
+python3 -m src.database.seed
 
 echo "Testing I2C bus..."
 if command -v i2cdetect >/dev/null 2>&1; then
@@ -50,4 +61,6 @@ elif command -v libcamera-hello >/dev/null 2>&1; then
 fi
 
 echo "=== INSTALLATION COMPLETE ==="
-echo "If I2C or Camera was just enabled in raspi-config, please reboot the Raspberry Pi."
+echo "Virtual environment ready at $ROOT_DIR/$VENV_DIR"
+echo "To activate: source $VENV_DIR/bin/activate"
+echo "To run server: python3 src/main.py"
