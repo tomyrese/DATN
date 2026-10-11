@@ -227,7 +227,7 @@ class RobotController:
                 # Autonomous Mall Escort Navigation
                 is_escorting = self.mall.current_escort and self.mall.current_escort.status == "NAVIGATING"
                 if is_escorting:
-                    self._update_escort_step()
+                    self._update_escort_step(obs_state)
 
                 # Autonomous Mall Delivery Navigation
                 active_order = self.mall.get_active_order()
@@ -303,7 +303,7 @@ class RobotController:
                     self.log_event(f"Critical system error: {e}")
                 time.sleep(0.05)
 
-    def _update_escort_step(self):
+    def _update_escort_step(self, obs_state: Any):
         escort = self.mall.current_escort
         if not escort or escort.status != "NAVIGATING":
             return
@@ -314,29 +314,34 @@ class RobotController:
                 self.current_motion = RobotState.STOPPED
             return
 
-        now = time.time()
-        elapsed = now - escort.started_at
-        total_time = max(10.0, float(escort.estimated_seconds))
-        progress = min(100, int((elapsed / total_time) * 100))
+        # Drive robot along planned topological path waypoints via navigator
+        nav_l, nav_r, reached = self.navigator.update_navigation_step(obs_state)
+        progress = self.navigator.get_progress_percent()
         escort.current_progress = progress
 
-        if progress < 100:
-            escort_speed = min(0.30, self.cfg.DEFAULT_SPEED)
-            if not self.motor.is_moving() or self.current_motion != RobotState.FORWARD:
-                self.motor.forward(escort_speed)
+        if not reached and (abs(nav_l) > 0.01 or abs(nav_r) > 0.01):
+            self.motor.drive(nav_l, nav_r)
+            if nav_l > 0.05 and nav_r > 0.05:
                 self.current_motion = RobotState.FORWARD
-                self.state = RobotState.FORWARD
+            elif nav_l < -0.05 and nav_r < -0.05:
+                self.current_motion = RobotState.BACKWARD
+            elif nav_l < nav_r:
+                self.current_motion = RobotState.TURN_LEFT
+            else:
+                self.current_motion = RobotState.TURN_RIGHT
+            self.state = self.current_motion
             self.oled.show_custom("DAN DUONG", [
                 "DI THEO XE",
                 f"{escort.target_name[:11]}",
                 f"Tien do:{progress}%",
                 "Chuc vui ve"
             ])
-        else:
+        elif reached:
             self.motor.stop()
             self.current_motion = RobotState.STOPPED
             self.state = RobotState.STOPPED
             escort.status = "ARRIVED"
+            escort.current_progress = 100
             self.log_event(f"Escort successfully arrived at {escort.target_name}")
             self.oled.show_custom("DAN DUONG", [
                 "DA DEN NOI!",

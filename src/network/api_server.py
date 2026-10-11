@@ -294,7 +294,19 @@ def create_api_server(
         return {"success": accepted, "reason": reason, "state": robot_controller.state.value}
 
     @app.post("/api/v1/control/drive")
-    async def post_control_drive(data: Dict[str, Any], session: SessionInfo = Depends(require_staff_or_admin)):
+    async def post_control_drive(
+        data: Dict[str, Any],
+        authorization: Optional[str] = Header(None),
+        token: Optional[str] = Query(None)
+    ):
+        req_token = authorization[7:].strip() if authorization and authorization.startswith("Bearer ") else token
+        sess = robot_controller.auth_service.get_session(req_token) if req_token else None
+        is_paired = auth_manager.validate_token(req_token) if req_token else False
+
+        # In hardware mode, require staff/admin or paired device; allow simulation testing
+        if not app_cfg.SIMULATION_MODE and not is_paired and (not sess or sess.role not in ("staff", "admin")):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="FORBIDDEN: Staff, Admin, or Paired device required to drive")
+
         direction = data.get("direction", "stop")
         speed = float(data.get("speed", app_cfg.DEFAULT_SPEED))
         from src.state import MovementCommand

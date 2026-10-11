@@ -15,21 +15,28 @@ import { AuthUser } from '../types/robot';
 
 export class RobotApi {
   static getBaseUrl(host?: string, port?: number): string {
-    if (!host) {
+    if (host && host.trim()) {
+      let cleanHost = host.trim();
+      if (cleanHost.startsWith('http://') || cleanHost.startsWith('https://')) {
+        return cleanHost.replace(/\/+$/, '');
+      }
+      if (cleanHost.includes(':')) {
+        return `http://${cleanHost}`;
+      }
+      if (cleanHost.includes('trycloudflare.com') || cleanHost.includes('.app') || cleanHost.includes('.com') || cleanHost.includes('.io') || cleanHost.includes('.net')) {
+        return `https://${cleanHost}`;
+      }
+      const currentPort = port || 8765;
+      return `http://${cleanHost}:${currentPort}`;
+    }
+
+    if (typeof window !== 'undefined') {
+      if (window.location.port === '3000' || window.location.port === '5173') {
+        return `http://${window.location.hostname || 'localhost'}:8765`;
+      }
       return window.location.origin;
     }
-    let cleanHost = host.trim();
-    if (cleanHost.startsWith('http://') || cleanHost.startsWith('https://')) {
-      return cleanHost.replace(/\/+$/, '');
-    }
-    if (cleanHost.includes(':')) {
-      return `http://${cleanHost}`;
-    }
-    if (cleanHost.includes('trycloudflare.com') || cleanHost.includes('.app') || cleanHost.includes('.com') || cleanHost.includes('.io') || cleanHost.includes('.net')) {
-      return `https://${cleanHost}`;
-    }
-    const currentPort = port || 8765;
-    return `http://${cleanHost}:${currentPort}`;
+    return 'http://localhost:8765';
   }
 
   private static async fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 5000): Promise<Response> {
@@ -55,12 +62,16 @@ export class RobotApi {
     return res.json();
   }
 
-  static async directDrive(host: string, port: number, direction: string, speed: number = 0.35): Promise<boolean> {
+  static async directDrive(host: string, port: number, direction: string, speed: number = 0.35, token?: string): Promise<boolean> {
     try {
       const url = `${this.getBaseUrl(host, port)}/api/v1/control/drive`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
       const res = await this.fetchWithTimeout(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ direction, speed }),
       }, 1500);
       return res.ok;
