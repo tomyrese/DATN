@@ -1,13 +1,14 @@
 [Unit]
-Description=Mall Robot Platform Service
-After=network.target
+Description=Autonomous Mall Robot Central Platform (Raspberry Pi 4)
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/robot-pi
-ExecStart=/home/pi/robot-pi/venv/bin/python3 -m src.main
-Restart=on-failure
+WorkingDirectory=/home/pi/KLTN/Code
+ExecStart=/home/pi/KLTN/Code/.venv/bin/python3 src/main.py
+Restart=always
 RestartSec=3
 KillSignal=SIGINT
 TimeoutStopSec=5
