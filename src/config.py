@@ -76,4 +76,25 @@ class RobotConfig:
     CAMERA_JPEG_QUALITY: int = int(os.getenv("CAMERA_JPEG_QUALITY", "70"))
     STREAM_TICKET_TTL: float = float(os.getenv("STREAM_TICKET_TTL", "30.0"))
 
+    # HC-SR04 Dual Ultrasonic Sensors
+    # ATTENTION: Echo pins must use a 1k/2k ohm resistor voltage divider or logic level shifter (5V -> 3.3V)
+    ULTRASONIC_ENABLED: bool = os.getenv("ULTRASONIC_ENABLED", "true").lower() in ("true", "1", "yes")
+    ULTRASONIC_1_TRIG: int = int(os.getenv("ULTRASONIC_1_TRIG", "25"))
+    ULTRASONIC_1_ECHO: int = int(os.getenv("ULTRASONIC_1_ECHO", "8"))
+    ULTRASONIC_2_TRIG: int = int(os.getenv("ULTRASONIC_2_TRIG", "7"))
+    ULTRASONIC_2_ECHO: int = int(os.getenv("ULTRASONIC_2_ECHO", "1"))
+    ULTRASONIC_STOP_DISTANCE_CM: float = float(os.getenv("ULTRASONIC_STOP_DISTANCE_CM", "25.0"))
+    ULTRASONIC_SLOW_DISTANCE_CM: float = float(os.getenv("ULTRASONIC_SLOW_DISTANCE_CM", "50.0"))
+    ULTRASONIC_MAX_DISTANCE_CM: float = float(os.getenv("ULTRASONIC_MAX_DISTANCE_CM", "300.0"))
+
+    # OpenRouter AI & LLM Assistant
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
+
+    # Autonomous Navigation & Patrol
+    PATROL_IDLE_TIMEOUT: float = float(os.getenv("PATROL_IDLE_TIMEOUT", "300.0"))
+    ODOMETRY_WHEEL_BASE_M: float = float(os.getenv("ODOMETRY_WHEEL_BASE_M", "0.22"))
+    ODOMETRY_MAX_LINEAR_SPEED_M_S: float = float(os.getenv("ODOMETRY_MAX_LINEAR_SPEED_M_S", "0.55"))
+    ODOMETRY_MAX_ANGULAR_SPEED_RAD_S: float = float(os.getenv("ODOMETRY_MAX_ANGULAR_SPEED_RAD_S", "1.85"))
+
 config = RobotConfig()

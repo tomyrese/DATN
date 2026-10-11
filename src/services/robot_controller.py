@@ -22,6 +22,11 @@ from src.network.api_server import create_api_server
 from src.utils.network import get_ip_address
 from src.services.logging_service import logger
 from src.services.mall_service import MallService
+from src.hardware.ultrasonic_sensor import UltrasonicSensors
+from src.vision.obstacle_avoidance import ObstacleAvoidanceController, ObstacleState
+from src.navigation.navigator import AutonomousNavigator
+from src.ai.openrouter_client import OpenRouterAssistant
+from src.security.auth_service import AuthService
 
 class RobotController:
     def __init__(self, cfg: Optional[RobotConfig] = None):
@@ -37,6 +42,12 @@ class RobotController:
         self.camera = CameraService(self.cfg)
         self.detector = PersonDetector(self.cfg)
         self.safety = SafetyController(self.cfg)
+        self.ultrasonic = UltrasonicSensors(self.cfg)
+        self.navigator = AutonomousNavigator(self.cfg)
+        self.obstacle_controller = ObstacleAvoidanceController(self.cfg)
+        self.ai_assistant = OpenRouterAssistant(self.cfg)
+        self.auth_service = AuthService()
+
         self.camera_watchdog = CameraWatchdog(self.cfg)
         self.system_watchdog = SystemWatchdog(self.cfg)
 
@@ -180,6 +191,23 @@ class RobotController:
                     self.oled.update_state(RobotState.PERSON_DETECTED, {"confidence": detections.max_confidence_in_stop_zone})
                     self.log_event(f"Safety stop: Person detected (conf={detections.max_confidence_in_stop_zone:.2f})")
 
+                # Ultrasonic Distance & Physical Obstacle Check
+                d1, d2 = self.ultrasonic.read_distances()
+                min_dist = self.ultrasonic.get_min_distance()
+                obs_stop, obs_slow = self.safety.update_ultrasonic_safety(min_dist, is_moving)
+                obs_state = self.obstacle_controller.update(d1, d2, self.safety.person_active, self.safety.is_emergency_stopped)
+
+                if obs_stop and is_moving:
+                    self.motor.stop()
+                    self.current_motion = RobotState.STOPPED
+                    self.state = RobotState.SAFETY_STOP
+                    self.oled.update_state(RobotState.PERSON_DETECTED)
+                    self.log_event(f"Safety stop: Obstacle detected within {min_dist:.1f}cm")
+
+                # Kinematic Dead-Reckoning Odometry Integration
+                wheel_l, wheel_r = self.motor.get_wheel_speeds()
+                self.navigator.odometry.update(wheel_l, wheel_r)
+
                 if self.safety.person_active and not self.was_person_active:
                     self.was_person_active = True
                     self._schedule_async(self.websocket_manager.broadcast_safety_event("person_detected", detections.max_confidence_in_stop_zone))
@@ -188,7 +216,7 @@ class RobotController:
                     self._schedule_async(self.websocket_manager.broadcast_safety_event("person_clear"))
                     self.log_event("Person cleared from safety zone")
 
-                if not self.safety.person_active and self.state == RobotState.SAFETY_STOP:
+                if not self.safety.person_active and not self.safety.obstacle_active and self.state == RobotState.SAFETY_STOP:
                     if not self.cfg.AUTO_RESUME_AFTER_PERSON_CLEAR:
                         self.state = RobotState.STOPPED
                         if self.websocket_manager.is_client_connected():
@@ -208,6 +236,16 @@ class RobotController:
                     self._update_delivery_step(active_order)
 
                 is_autonomous = is_escorting or is_delivering
+
+                # Automated 5-Minute Idle Concourse Patrol
+                robot_is_idle = not is_moving and not is_autonomous
+                self.navigator.patrol.check_idle_trigger(robot_is_idle, self.safety.can_move())
+
+                if self.navigator.patrol.is_patrolling and not is_moving and self.safety.can_move():
+                    nav_l, nav_r, reached = self.navigator.update_navigation_step(obs_state)
+                    if not obs_stop:
+                        self.motor.drive(nav_l, nav_r)
+                        self.current_motion = RobotState.FORWARD
 
                 if self.websocket_manager.is_client_connected():
                     conn_alive, drive_valid = self.websocket_manager.connection_watchdog.check()
@@ -412,6 +450,7 @@ class RobotController:
         if detections.detections:
             bbox = list(detections.detections[0].bbox)
 
+        d1, d2 = self.ultrasonic.read_distances()
         telemetry = self.telemetry_service.build_telemetry(
             robot_state=self.state.value,
             safety_state=self.safety.safety_state.value,
@@ -424,12 +463,22 @@ class RobotController:
             oled_ok=self.oled.available,
             motor_ok=self.motor.enabled,
             camera_fps=self.camera.get_fps(),
-            inference_fps=1000.0 / max(1.0, detections.inference_time_ms) if detections.inference_time_ms > 0 else 0.0,
-            person_bbox=bbox
+            inferenceFps=1000.0 / max(1.0, detections.inference_time_ms) if detections.inference_time_ms > 0 else 0.0,
+            person_bbox=bbox,
+            odometry_x=self.navigator.odometry.x,
+            odometry_y=self.navigator.odometry.y,
+            odometry_heading=self.navigator.odometry.heading,
+            odometry_confidence=self.navigator.odometry.confidence,
+            is_estimated=True,
+            ultrasonic_left=d1,
+            ultrasonic_right=d2,
+            obstacle_state=self.obstacle_controller.state.value,
+            nav_status=self.navigator.navigation_status
         )
         self._schedule_async(self.websocket_manager.send_message(telemetry))
 
     def get_telemetry_snapshot(self) -> Dict[str, Any]:
+        d1, d2 = self.ultrasonic.read_distances()
         return {
             "robotState": self.state.value,
             "safetyState": self.safety.safety_state.value,
@@ -440,7 +489,13 @@ class RobotController:
             "oledOk": self.oled.available,
             "motorOk": self.motor.enabled,
             "cameraFps": self.camera.get_fps(),
-            "ip": self.ip_address
+            "ip": self.ip_address,
+            "odometry": self.navigator.odometry.get_state(),
+            "navigation": self.navigator.get_snapshot(),
+            "obstacleState": self.obstacle_controller.state.value,
+            "ultrasonicLeft": d1,
+            "ultrasonicRight": d2,
+            "patrol": self.navigator.patrol.get_status()
         }
 
     def handle_remote_drive(self, direction: str, speed: float) -> Tuple[bool, Optional[str]]:

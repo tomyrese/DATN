@@ -13,17 +13,21 @@ import { MallMapTab } from './pages/customer/MallMapTab';
 import { MallAssistantTab } from './pages/customer/MallAssistantTab';
 import { MallDirectoryTab } from './pages/customer/MallDirectoryTab';
 
-// Staff Views
+// Staff & Admin Views
 import { ControlTab } from './pages/ControlTab';
 import { DeliveryOrdersTab } from './pages/staff/DeliveryOrdersTab';
+import { PromotionsTab } from './pages/staff/PromotionsTab';
+import { AdminTab } from './pages/admin/AdminTab';
 import { SettingsTab } from './pages/SettingsTab';
 
 // Initialize store listeners
 initializeStore();
 
 export const App: React.FC = () => {
-  const { pairedRobot, settings, connectionStatus, isSafetyBlocked, isEmergencyStopped, userRole } = useRobotStore();
-  const [activeTab, setActiveTab] = useState<TabType>(userRole === 'staff' ? 'control' : 'mall-map');
+  const { pairedRobot, settings, connectionStatus, isSafetyBlocked, isEmergencyStopped, userRole, currentUser } = useRobotStore();
+  const [activeTab, setActiveTab] = useState<TabType>(
+    userRole === 'admin' ? 'admin' : (userRole === 'staff' ? 'control' : 'mall-map')
+  );
   const [cameraTicket, setCameraTicket] = useState<string | null>(null);
 
   // Auto-pair from URL query param when scanning OLED QR code
@@ -71,12 +75,12 @@ export const App: React.FC = () => {
 
   // Sync tab when userRole switches
   useEffect(() => {
-    if (userRole === 'customer') {
-      if (['control', 'delivery-orders'].includes(activeTab)) {
+    if (userRole === 'customer' || userRole === 'guest') {
+      if (['control', 'delivery-orders', 'staff-promotions', 'admin', 'settings'].includes(activeTab)) {
         setActiveTab('mall-map');
       }
     } else if (userRole === 'staff') {
-      if (['mall-assistant', 'mall-directory'].includes(activeTab)) {
+      if (['admin', 'mall-directory'].includes(activeTab)) {
         setActiveTab('control');
       }
     }
@@ -86,15 +90,18 @@ export const App: React.FC = () => {
   useEffect(() => {
     const host = pairedRobot?.host || window.location.hostname || 'localhost';
     const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : (window.location.protocol === 'https:' ? 443 : 8765));
-    const token = pairedRobot?.token || 'guest';
+    const token = currentUser?.token || pairedRobot?.token || 'guest';
     RobotSocket.getInstance().connect(host, port, token);
-  }, [pairedRobot]);
+  }, [pairedRobot, currentUser]);
 
-  // Periodic camera ticket refresh
+  // Periodic camera ticket refresh for authenticated staff/admin
   const refreshCameraTicket = useCallback(async () => {
-    if (pairedRobot && connectionStatus === 'CONNECTED') {
+    const token = currentUser?.token || pairedRobot?.token;
+    if (token && (userRole === 'staff' || userRole === 'admin') && connectionStatus === 'CONNECTED') {
       try {
-        const ticket = await RobotApi.getCameraTicket(pairedRobot.host, pairedRobot.port, pairedRobot.token);
+        const host = pairedRobot?.host || window.location.hostname || 'localhost';
+        const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+        const ticket = await RobotApi.getCameraTicket(host, port, token);
         if (ticket) {
           setCameraTicket(ticket);
         }
@@ -102,7 +109,7 @@ export const App: React.FC = () => {
         console.warn('Failed to refresh camera ticket:', err);
       }
     }
-  }, [pairedRobot, connectionStatus]);
+  }, [pairedRobot, currentUser, userRole, connectionStatus]);
 
   useEffect(() => {
     refreshCameraTicket();
@@ -110,7 +117,7 @@ export const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [refreshCameraTicket]);
 
-  // Keyboard drive controls (Staff mode only)
+  // Keyboard drive controls (Staff and Admin modes only)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -125,22 +132,23 @@ export const App: React.FC = () => {
       // Emergency Controls
       if (key === 'e' || key === 'x') {
         socket.sendEmergencyStop();
-        if (pairedRobot) {
-          RobotApi.emergencyStop(pairedRobot.host, pairedRobot.port);
-        }
+        const host = pairedRobot?.host || window.location.hostname || 'localhost';
+        const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+        RobotApi.emergencyStop(host, port);
         return;
       }
 
       if (key === 'r') {
         socket.sendEmergencyReset();
-        if (pairedRobot) {
-          RobotApi.emergencyReset(pairedRobot.host, pairedRobot.port, pairedRobot.token);
-        }
+        const host = pairedRobot?.host || window.location.hostname || 'localhost';
+        const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+        const token = currentUser?.token || pairedRobot?.token || '';
+        RobotApi.emergencyReset(host, port, token);
         return;
       }
 
-      // Drive Controls
-      if (userRole === 'staff' && connectionStatus === 'CONNECTED' && !isSafetyBlocked && !isEmergencyStopped) {
+      // Drive Controls (Staff or Admin only)
+      if ((userRole === 'staff' || userRole === 'admin') && connectionStatus === 'CONNECTED' && !isSafetyBlocked && !isEmergencyStopped) {
         switch (key) {
           case 'w':
           case 'arrowup':
@@ -188,25 +196,29 @@ export const App: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [connectionStatus, isSafetyBlocked, isEmergencyStopped, settings.defaultSpeed, pairedRobot, userRole]);
+  }, [connectionStatus, isSafetyBlocked, isEmergencyStopped, settings.defaultSpeed, pairedRobot, userRole, currentUser]);
 
   return (
     <div className="app-container">
       <Header />
-      {userRole === 'staff' && <SafetyBanner />}
+      {(userRole === 'staff' || userRole === 'admin') && <SafetyBanner />}
       <NavigationTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
       <main className="app-main">
-        {/* Customer Views */}
+        {/* Customer / Guest Views */}
         {activeTab === 'mall-map' && <MallMapTab />}
         {activeTab === 'mall-assistant' && <MallAssistantTab />}
         {activeTab === 'mall-directory' && <MallDirectoryTab />}
 
-        {/* Staff Views */}
+        {/* Staff & Admin Shared Views */}
         {activeTab === 'control' && <ControlTab cameraTicket={cameraTicket} />}
         {activeTab === 'delivery-orders' && <DeliveryOrdersTab />}
+        {activeTab === 'staff-promotions' && <PromotionsTab />}
 
-        {/* Settings & Config */}
+        {/* Admin Views */}
+        {activeTab === 'admin' && <AdminTab />}
+
+        {/* Settings & Diagnostics */}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
     </div>

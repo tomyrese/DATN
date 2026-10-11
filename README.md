@@ -1,300 +1,192 @@
-# Raspberry Pi 4 Robot Foundation Platform (Phase 1)
+# HỆ THỐNG ROBOT TỰ HÀNH HỖ TRỢ TRUNG TÂM THƯƠNG MẠI (V2.0 ENTERPRISE)
 
-Nền tảng robot tự hành công nghiệp/thương mại sử dụng **Raspberry Pi 4 Model B**, trang bị hệ thống an toàn đa tầng với camera CSI, nhận diện người thời gian thực (Person Detection), màn hình trạng thái OLED I2C và điều khiển 4 động cơ DC qua 2 mạch TB6612FNG.
-
----
-
-## 1. Tổng quan Kiến trúc
-
-```
-+-----------------------------------------------------------------------------+
-|                               Raspberry Pi 4                                |
-|                                                                             |
-|  +----------------+     +-------------------+     +----------------------+  |
-|  |  CameraService | --> |   PersonDetector  | --> |   SafetyController   |  |
-|  |  (CSI Camera)  |     | (SSD MobileNet V2)|     | (Priority & Lock)    |  |
-|  +----------------+     +-------------------+     +----------------------+  |
-|         |                         |                           |             |
-|         v                         v                           v             |
-|  +-----------------------------------------------------------------------+  |
-|  |                   Camera & System Watchdog Monitors                   |  |
-|  +-----------------------------------------------------------------------+  |
-|                                                               |             |
-|                                                               v             |
-|  +----------------+                               +----------------------+  |
-|  | OLEDController | <---------------------------- |   MotorController    |  |
-|  |  (SH1106 I2C)  |                               |    (2x TB6612FNG)    |  |
-|  +----------------+                               +----------------------+  |
-+-----------------------------------------------------------------------------+
-```
+Hệ thống robot tự hành phục vụ và hỗ trợ khách hàng, nhân viên và ban quản lý tại Trung Tâm Thương Mại (TTTM) trên nền tảng **Raspberry Pi 4 Model B (8GB RAM)**, kết hợp ứng dụng điều khiển web responsive thời gian thực đa vai trò (**React 18 + TypeScript + Vite**), cơ sở dữ liệu quan hệ chuẩn hóa (**SQLite v2 WAL Mode**), thị giác máy tính cổ điển (**OpenCV Classical Vision** - không dùng mô hình học sâu tải sẵn), định vị đồ thị không gian và điều hướng thông minh.
 
 ---
 
-## 2. Bảng Đấu Nối Phần Cứng (Hardware Wiring)
+## 1. TỔNG QUAN KIẾN TRÚC HỆ THỐNG
 
-> [!CAUTION]
-> **CẢNH BÁO NGUỒN ĐIỆN (POWER WARNING):**
-> 1. **TUYỆT ĐỐI KHÔNG** cấp nguồn động cơ từ chân 3.3V hoặc 5V của Raspberry Pi.
-> 2. Động cơ phải dùng nguồn pin riêng (ví dụ 2S/3S LiPo hoặc 7.4V–12V DC) đấu vào chân **VM** và **GND** của module TB6612FNG.
-> 3. **GND của Raspberry Pi, GND của TB6612 và Cực Âm (-) của khối Pin Motor PHẢI ĐƯỢC NỐI CHUNG (Common Ground)** để logic điều khiển hoạt động chính xác.
-
-### 2.1. Bảng Chân Điều Khiển 4 Motor (2x TB6612FNG)
-
-| Module TB6612 | Chức năng Pin | BCM GPIO | Physical Pin trên Pi 4 | Ghi chú |
-| :--- | :--- | :--- | :--- | :--- |
-| **TB_LEFT (Bên Trái)** | STBY_L | **GPIO 27** | Pin 13 | Bật/tắt cầu H bên trái |
-| | AIN1_L | **GPIO 5** | Pin 29 | Hướng Motor 1 (Trái Trước) |
-| | AIN2_L | **GPIO 6** | Pin 31 | Hướng Motor 1 (Trái Trước) |
-| | PWMA_L | **GPIO 13** | Pin 33 | Tốc độ Motor 1 (Hardware PWM1) |
-| | BIN1_L | **GPIO 26** | Pin 37 | Hướng Motor 2 (Trái Sau) |
-| | BIN2_L | **GPIO 22** | Pin 15 | Hướng Motor 2 (Trái Sau) |
-| | PWMB_L | **GPIO 19** | Pin 35 | Tốc độ Motor 2 (Hardware PWM1) |
-| **TB_RIGHT (Bên Phải)** | STBY_R | **GPIO 21** | Pin 40 | Bật/tắt cầu H bên phải |
-| | PWMA_R | **GPIO 12** | Pin 32 | Tốc độ Motor 3 (Phải Trước - PWM0) |
-| | AIN1_R | **GPIO 16** | Pin 36 | Hướng Motor 3 (Phải Trước) |
-| | AIN2_R | **GPIO 20** | Pin 38 | Hướng Motor 3 (Phải Trước) |
-| | PWMB_R | **GPIO 18** | Pin 12 | Tốc độ Motor 4 (Phải Sau - PWM0) |
-| | BIN1_R | **GPIO 23** | Pin 16 | Hướng Motor 4 (Phải Sau) |
-| | BIN2_R | **GPIO 24** | Pin 18 | Hướng Motor 4 (Phải Sau) |
-
-### 2.2. Bảng Chân Màn Hình OLED (1.3" I2C 128x64 SH1106 / SSD1306)
-
-| Chân OLED | Chức năng | Chân Raspberry Pi 4 | Physical Pin |
-| :--- | :--- | :--- | :--- |
-| **VCC** | Nguồn 3.3V Logic | 3.3V Power | **Pin 1** |
-| **GND** | Nối đất | Ground | **Pin 6** |
-| **SDA** | I2C Data | BCM GPIO 2 (SDA1) | **Pin 3** |
-| **SCK / SCL** | I2C Clock | BCM GPIO 3 (SCL1) | **Pin 5** |
-
----
-
-## 3. Quy Ước Điều Khiển Động Cơ & Chiều Quay
-
-- **Motor 1** = TB_LEFT Channel A (Bánh trước bên trái)
-- **Motor 2** = TB_LEFT Channel B (Bánh sau bên trái)
-- **Motor 3** = TB_RIGHT Channel A (Bánh trước bên phải)
-- **Motor 4** = TB_RIGHT Channel B (Bánh sau bên phải)
-
-### Logic Cầu H TB6612:
-- Tốc độ hợp lệ: `-1.0` đến `+1.0`. Tần số PWM: `1000 Hz`.
-- `Speed > 0`: `IN1 = HIGH`, `IN2 = LOW`, `PWM = Speed * 100%`
-- `Speed < 0`: `IN1 = LOW`, `IN2 = HIGH`, `PWM = |Speed| * 100%`
-- `Speed == 0`: `IN1 = LOW`, `IN2 = LOW`, `PWM = 0%` (Coast / Float)
-- `Emergency Stop`: Tất cả `PWM = 0`, `IN1/IN2 = LOW`, `STBY_L = LOW`, `STBY_R = LOW` (Brake & Shutdown)
-
-### Lệnh di chuyển:
-- **Tiến (Forward):** Motor Trái = `+Speed`, Motor Phải = `+Speed`
-- **Lùi (Backward):** Motor Trái = `-Speed`, Motor Phải = `-Speed`
-- **Quay Trái (Turn Left):** Motor Trái = `-Speed`, Motor Phải = `+Speed`
-- **Quay Phải (Turn Right):** Motor Trái = `+Speed`, Motor Phải = `-Speed`
-- **Dừng (Stop):** Toàn bộ Motor = `0.0`
-
----
-
-## 4. Hệ Thống An Toàn (Safety System & Vision Logic)
-
-> [!WARNING]
-> **GIỚI HẠN CỦA CAMERA AI (LIMITATION):**
-> Nhận diện người qua camera thị giác máy tính là phương pháp heuristic giúp phản xạ tránh va chạm. Trong môi trường thực tế, camera có thể bị che khuất hoặc ánh sáng yếu. Trong các phase tiếp theo, cần tích hợp cảm biến tiếp xúc (Bumper), siêu âm (Ultrasonic), ToF hoặc LiDAR để đạt tiêu chuẩn an toàn công nghiệp hoàn chỉnh.
-
-### 4.1. Vùng Dừng Khẩn Cấp (STOP_ZONE) & Lọc Đối Tượng
-- **Vùng trung tâm (STOP_ZONE):** Tọa độ X trục ngang từ `0.20` đến `0.80` (20% đến 80% độ rộng khung hình camera).
-- **Ngưỡng diện tích (PERSON_MIN_AREA_RATIO):** Tối thiểu `0.03` (3% diện tích khung hình) để loại bỏ người ở khoảng cách quá xa không gây nguy hiểm.
-- **Ngưỡng độ tin cậy (PERSON_CONFIDENCE_THRESHOLD):** Mặc định `0.55`.
-
-### 4.2. Trạng Thái An Toàn & Phản Xạ Dừng
-1. **Phát hiện người khi đang di chuyển:**
-   - Khi robot đang chạy (`FORWARD`, `BACKWARD`, `TURN_LEFT`, `TURN_RIGHT`) và camera phát hiện `person` trong `STOP_ZONE`:
-   - `motor.stop()` được thực thi **ngay lập tức** không chờ đợi UI hay render OLED.
-   - Trạng thái chuyển thành `PERSON_DETECTED` / `SAFETY_STOP`.
-2. **Khử rung & trễ an toàn (Hysteresis & Clear Delay):**
-   - Khi người rời khỏi vùng quan sát, robot duy trì trạng thái an toàn trong `PERSON_CLEAR_DELAY` (1.5 giây).
-   - Chỉ sau 1.5s liên tục không có người, hệ thống mới giải phóng cờ an toàn và chuyển về `STOPPED`.
-3. **Chính sách không tự chạy lại (No Auto Resume):**
-   - `AUTO_RESUME_AFTER_PERSON_CLEAR = false`: Khi người đã rời đi, robot **GIỮ NGUYÊN TRẠNG THÁI STOPPED** và không bao giờ tự động chạy lại. Người vận hành bắt buộc phải nhập lệnh di chuyển mới từ CLI.
-4. **Phân cấp ưu tiên (Strict Priority Hierarchy):**
-   `EMERGENCY_STOP` > `SYSTEM_ERROR` > `CAMERA_ERROR` > `PERSON_SAFETY_STOP` > `MANUAL_STOP` > `MOVEMENT_COMMAND`
-5. **Watchdog Giám sát Camera:**
-   - Nếu robot đang di chuyển mà không nhận được frame mới trong `CAMERA_WATCHDOG_TIMEOUT` (2.0 giây), hệ thống tự động kích hoạt `SAFETY_STOP` và báo lỗi `CAMERA_ERROR`.
-
----
-
-## 5. Cài Đặt Hệ Thống Trên Raspberry Pi 4
-
-### 5.1. Bật Giao Tiếp I2C và Camera trên Raspberry Pi OS
-
-Mở terminal trên Raspberry Pi:
-```bash
-sudo raspi-config
 ```
-- Vào **Interface Options** -> **I2C** -> Chọn **Yes** (Enable).
-- Vào **Interface Options** -> **Camera** -> Chọn **Yes** (Enable).
-- Chọn **Finish** và khởi động lại:
-```bash
-sudo reboot
-```
-
-Kiểm tra I2C:
-```bash
-sudo i2cdetect -y 1
-```
-*(Kết quả sẽ thấy địa chỉ `0x3c` của màn hình OLED)*
-
-Kiểm tra Camera CSI:
-```bash
-rpicam-hello --list-cameras
-```
-*(Hoặc `libcamera-hello --list-cameras` nếu dùng Raspberry Pi OS Bullseye/Bookworm)*
-
-### 5.2. Chạy Script Cài Đặt Tự Động
-
-```bash
-cd ~/robot-pi
-chmod +x scripts/*.sh
-./scripts/install.sh
++-----------------------------------------------------------------------------------------+
+|                  GIAO DIỆN WEB ĐIỀU KHIỂN ĐA VAI TRÒ (REACT 18 + VITE)                  |
+|  - Guest: Bản đồ TTTM, Tìm kiếm gian hàng, Khuyến mãi công khai, Hỏi đáp AI, Dẫn đường |
+|  - Staff: Quản lý khuyến mãi theo gian hàng, Giao hàng nội bộ, Lái xe & Camera vé bảo vệ|
+|  - Admin: Dashboard quản trị, Quản lý tài khoản/cửa hàng/bản đồ/tuyến tuần tra, E-Stop  |
++--------------------------------------------+--------------------------------------------+
+                                             | REST (Bearer Session) & WebSocket (/ws/v1/control)
++--------------------------------------------v--------------------------------------------+
+|                              RASPBERRY PI 4 RUNTIME BACKEND                             |
+|                                                                                         |
+|  [ FastApi / Uvicorn Server (Port 8765) ]                                               |
+|  ├── Security & RBAC: Sessions, Scoped Store Access, bcrypt/PBKDF2, Audit Logger       |
+|  ├── AI Concierge: OpenRouter + Defense Prompt Injection + Local Rule-based Fallback   |
+|  └── Mall Services: Stores, Promotions, POI, Graph Routing, Escort & Delivery Queue     |
+|                                                                                         |
+|  [ Autonomous Navigation & Safety Engine ]                                              |
+|  ├── Topological Graph: Node-Edge Network, A* Planner, Dynamic Edge Blocking           |
+|  ├── Odometry: Dead-Reckoning (V_linear, Omega), Runge-Kutta, Confidence Decay Metric   |
+|  ├── Patrol Engine: Tự động tuần tra sau 5 phút nhàn rỗi, ngắt ưu tiên bởi Escort/Task  |
+|  ├── Obstacle Avoidance: State Machine 8 trạng thái (CLEAR -> DETECTED -> AVOIDING...)  |
+|  └── Multi-Tier Safety Controller: E-Stop vật lý/phần mềm, Ultrasonic (<25cm), Watchdog|
+|                                                                                         |
+|  [ Hardware Abstraction Layer & Classical Vision ]                                      |
+|  ├── CameraService: CSI OV5647 Single Source, Shared Frame Buffer                       |
+|  ├── PersonDetector: Classical OpenCV (MOG2 Background Subtraction + Dalal-Triggs HOG)  |
+|  ├── UltrasonicSensors: 2x HC-SR04 (Trig/Echo 3.3V Protected), Median Filter            |
+|  ├── MotorController: 4x DC Motors via 2x TB6612FNG (Hardware PWM + Coast/Brake)       |
+|  └── OLEDController: 1.3" I2C SH1106 / SSD1306 (QR Code pairing & IP status)           |
++--------------------------------------------+--------------------------------------------+
+                                             | SQLite Foreign Key Transactions
++--------------------------------------------v--------------------------------------------+
+|                    PERSISTENCE LAYER (data/mall_delivery.db)                            |
+|  19 bảng chuẩn hóa: users, roles, staff_store_assignments, stores, mall_floors,        |
+|  map_nodes, map_edges, restricted_zones, patrol_routes, promotions, delivery_orders...  |
++-----------------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 6. Hướng Dẫn Kiểm Thử Từng Module (Testing Steps)
+## 2. TÍNH NĂNG NỔI BẬT ĐÃ TRIỂN KHAI
 
-### Bước 1: Kiểm thử Camera
-Chụp 1 ảnh mẫu và đo FPS:
-```bash
-source venv/bin/activate
-python scripts/test_camera.py
-```
+### 2.1. Phân quyền chặt chẽ 3 vai trò (RBAC)
+1. **Khách tham quan (Guest - Công khai):**
+   - Không cần đăng nhập.
+   - Xem bản đồ TTTM theo tầng, tra cứu thông tin gian hàng và tiện ích (WC, thang máy).
+   - Xem danh sách khuyến mãi đang diễn ra.
+   - Hỏi đáp trợ lý AI Concierge về vị trí, giờ mở cửa, Wi-Fi.
+   - Yêu cầu robot dẫn đường (Escort Mission) đến gian hàng mong muốn.
+   - **Bảo mật:** Không xem được camera trực tiếp, không có quyền điều khiển động cơ, không truy cập đơn giao hàng nội bộ.
+2. **Nhân viên gian hàng (Staff - Đăng nhập):**
+   - Đăng nhập bằng tài khoản được cấp.
+   - Xem camera trực tiếp qua cơ chế **Camera Stream Ticket** (thời hạn 30s).
+   - Điều khiển xe thủ công (D-Pad / Bàn phím WASD) với cơ chế an toàn **Press-and-Hold Lease (350ms)**.
+   - Quản lý khuyến mãi **chỉ áp dụng cho gian hàng được phân công** (`staff_store_assignments`).
+   - Theo dõi và điều phối đơn giao hàng nội bộ liên quan đến gian hàng.
+3. **Quản trị viên (Admin - Toàn quyền):**
+   - Quản lý người dùng, tạo tài khoản Staff và phân công quản lý cửa hàng.
+   - Quản lý danh mục cửa hàng, tầng, POI, node bản đồ và vùng cấm di chuyển.
+   - Quản lý và kích hoạt tuyến tuần tra (Patrol Route).
+   - Kích hoạt Dừng khẩn cấp toàn hệ thống (E-Stop) và Reset khi an toàn.
+   - Xem nhật ký kiểm toán hệ thống (`audit_logs`) và sao lưu cơ sở dữ liệu (`/api/v1/admin/backup-db`).
 
-### Bước 2: Kiểm thử Màn hình OLED
-Hiển thị lần lượt các màn hình BOOT, READY, MOVING, SAFETY STOP:
-```bash
-python scripts/test_oled.py
-```
+### 2.2. Thị giác máy tính cổ điển (OpenCV Classical Vision)
+- **Không dùng mô hình AI tiền huấn luyện:** Loại bỏ hoàn toàn sự phụ thuộc vào SSD MobileNet V2 hay model `.tflite`.
+- **Pipeline xử lý ảnh cổ điển:**
+  - Tiền xử lý: Resize `480x360`, làm mờ Gaussian.
+  - Phân tách chuyển động: Background Subtraction MOG2 (`detectShadows=True`).
+  - Lọc hình thái học Morphology (`cv2.MORPH_OPEN` & `CLOSE`) loại bỏ nhiễu rung lắc.
+  - Bộ phân loại HOG + SVM người đi bộ chuẩn mực (Dalal-Triggs `HOGDescriptor_getDefaultPeopleDetector()`).
+  - Hạn chế vùng quan tâm (ROI) và ước lượng độ tin cậy kết hợp cảm biến siêu âm.
+  - Độ trễ xử lý cực thấp: ~9.3 ms/frame, tối ưu hóa triệt để cho CPU Raspberry Pi 4.
 
-### Bước 3: Kiểm thử Từng Động Cơ (Motor Test)
-> [!IMPORTANT]
-> Đặt robot kê bánh lên cao (không chạm đất) trước khi chạy test motor.
+### 2.3. Cảm biến siêu âm & Máy trạng thái tránh vật cản (FSM)
+- Tích hợp 2 cảm biến siêu âm **HC-SR04** (Trái/Phải).
+- **Mạch bảo vệ 5V -> 3.3V:** Chân Echo HC-SR04 bắt buộc đi qua cầu phân áp 1kΩ / 2kΩ để bảo vệ GPIO Raspberry Pi 4.
+- Lọc trung vị (Median Filter) 3 mẫu liên tiếp loại bỏ nhiễu phản xạ sóng âm.
+- Máy trạng thái tránh vật cản 8 bước:
+  `CLEAR` -> `OBSTACLE_DETECTED` -> `SLOWING_DOWN` (<50cm) -> `STOPPED_FOR_OBSTACLE` (<25cm) -> `AVOIDING` -> `REJOINING_ROUTE` -> `BLOCKED` -> `EMERGENCY_STOP`.
 
-```bash
-python scripts/test_motor.py
-```
-*Script sẽ yêu cầu xác nhận 'y', sau đó quay thử Motor 1, 2, 3, 4 ở tốc độ 20% trong 0.4 giây.*
+### 2.4. Bản đồ đồ thị, Ước lượng quãng đường & Tuần tra tự động
+- Đồ thị không gian 2D với các Node và Edge có trọng số khoảng cách thực tế (mét).
+- Thuật toán tìm đường ngắn nhất **A* (A-Star)** với khả năng chặn cạnh động khi có vật cản.
+- **Ước lượng quãng đường (Dead-Reckoning Odometry):**
+  - Động cơ DC không có encoder: Tích phân vận tốc tuyến tính ($v$) và vận tốc góc ($\omega$) theo thời gian điều khiển qua xấp xỉ Runge-Kutta bậc 2.
+  - **Tính trung thực dữ liệu:** Hệ số độ tin cậy (`confidence`) tự động suy giảm theo quãng đường ($0.05/\text{m}$) và thời gian ($0.005/\text{s}$). Giao diện gắn nhãn rõ ràng `[SIMULATED DEAD-RECKONING]`.
+- **Tự động tuần tra sau 5 phút:** Nếu robot ở trạng thái nhàn rỗi (`IDLE`) trong 300 giây, hệ thống tự động kích hoạt tuần tra qua các điểm Waypoint định sẵn. Khi có yêu cầu dẫn đường khách hàng, robot dừng an toàn và nhường quyền ưu tiên lập tức.
 
-### Bước 4: Kiểm thử Nhận Diện Người Thời Gian Thực
-```bash
-# Chạy ở chế độ dòng lệnh
-python scripts/test_person_detection.py
-
-# Nếu cắm màn hình Desktop HDMI, chạy kèm cờ preview để xem khung nhận diện và STOP_ZONE:
-python scripts/test_person_detection.py --preview
-```
-
-### Bước 5: Chạy Toàn Bộ Kịch Bản An Toàn & Unit Tests
-```bash
-python scripts/test_safety.py
-python -m pytest tests/ -v
-```
+### 2.5. Trợ lý AI Concierge OpenRouter & Ngăn chặn Prompt Injection
+- Tích hợp OpenRouter backend, bảo mật API key qua biến môi trường `OPENROUTER_API_KEY`.
+- Tách biệt chỉ thị hệ thống (`System Prompt`) và dữ liệu đầu vào người dùng; lọc các từ khóa chèn lệnh độc hại.
+- Rút trích ngữ cảnh từ cơ sở dữ liệu (`context_retriever.py`): Giờ mở cửa, vị trí, Wi-Fi, khuyến mãi thực tế.
+- Tự động chuyển sang bộ quy tắc luật Tiếng Việt nội bộ khi không có API key hoặc mạng Internet bị ngắt.
 
 ---
 
-## 7. Vận Hành Robot & Giao Diện Điều Khiển Website (Web Dashboard)
+## 3. CẤU HÌNH PHẦN CỨNG & SƠ ĐỒ ĐẤU DÂY
 
-Khởi động hệ thống điều khiển robot và máy chủ Web:
-```bash
-source venv/bin/activate
-python -m src.main
-```
+Chi tiết sơ đồ chân, cảnh báo điện áp và kết nối: xem tại [docs/HARDWARE_SETUP.md](file:///d:/Study/KLTN/Code/docs/HARDWARE_SETUP.md).
 
-Khi robot khởi động, máy chủ FastAPI & WebSocket sẽ tự động phục vụ **Giao diện Điều khiển Website** tại địa chỉ:
-👉 **`http://<IP_ROBOT>:8765/`** *(hoặc `http://localhost:8765/` khi chạy trên máy)*
+### Tóm tắt chân GPIO Raspberry Pi 4 Model B:
+- **TB6612FNG Cụm Trái (Motor 1 & 2):**
+  `PWMA=GPIO 13`, `AIN1=GPIO 5`, `AIN2=GPIO 6`, `PWMB=GPIO 19`, `BIN1=GPIO 26`, `BIN2=GPIO 22`, `STBY=GPIO 27`.
+- **TB6612FNG Cụm Phải (Motor 3 & 4):**
+  `PWMA=GPIO 12`, `AIN1=GPIO 16`, `AIN2=GPIO 20`, `PWMB=GPIO 18`, `BIN1=GPIO 23`, `BIN2=GPIO 24`, `STBY=GPIO 21`.
+- **Cảm biến siêu âm HC-SR04:**
+  - HC-SR04 Trái: `TRIG=GPIO 25`, `ECHO=GPIO 8` *(Qua cầu trở 1kΩ/2kΩ xuống 3.3V)*.
+  - HC-SR04 Phải: `TRIG=GPIO 7`, `ECHO=GPIO 1` *(Qua cầu trở 1kΩ/2kΩ xuống 3.3V)*.
+- **Màn hình OLED 1.3" I2C:**
+  `SDA=GPIO 2`, `SCL=GPIO 3`, `VCC=3.3V`, `GND=GND`.
+- **Camera CSI:** Cáp Ribbon 15-pin cắm vào cổng CSI Raspberry Pi 4.
 
-### 7.1. Các tính năng trên Giao diện Web:
-- **Ghép nối bảo mật (Pairing System)**: Quét mã QR trên màn hình OLED bằng camera trình duyệt hoặc nhập mã PIN 6 ký tự.
-- **Drive Controller**: Điều khiển hướng di chuyển bằng phím ảo D-Pad cảm ứng hoặc bàn phím (`W`, `A`, `S`, `D`, `Space`/`X` để dừng, `1`-`5` để chỉnh tốc độ).
-- **CSI Camera Live Stream**: Xem luồng video MJPEG thời gian thực kèm lớp phủ nhận diện AI và cảnh báo vật cản.
-- **HUD Telemetry & Diagnostics**: Giám sát nhiệt độ CPU, tải CPU/RAM, FPS camera/AI, đồ thị công suất 4 motor DC và nhật ký sự kiện hệ thống (Live Logs).
-- **Motor Bench Test**: Thử nghiệm độc lập chiều quay từng motor (+20% FWD / -20% REV) khi robot đặt trên giá đỡ.
-- **Critical Emergency Stop**: Nút phanh dừng khẩn cấp tức thời (Phím tắt: `E`, Reset: `R`).
+---
 
-### 7.2. Các phím điều khiển qua bàn phím (CLI / Web):
-| Phím | Chức năng | Mô tả hành vi |
+## 4. HƯỚNG DẪN KHỞI CHẠY (QUICK START)
+
+### 4.1. Chế độ Mô phỏng trên Máy tính (PC / Simulation Mode)
+
+1. **Cài đặt môi trường Python (Python 3.10+):**
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Tạo file cấu hình môi trường:**
+   ```bash
+   copy .env.example .env
+   ```
+3. **Khởi tạo và Seed cơ sở dữ liệu:**
+   ```bash
+   python -m src.database.migrator
+   python -m src.database.seed
+   ```
+4. **Build Frontend Web App:**
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   cd ..
+   ```
+5. **Chạy Backend Server:**
+   ```bash
+   python src/main.py
+   ```
+   *Truy cập Web Dashboard tại:* `http://localhost:8765`
+
+### 4.2. Tài khoản thử nghiệm (Test Accounts):
+- **Admin:** `admin` / Mật khẩu: `Admin@123456` (Toàn quyền quản trị).
+- **Staff ZARA:** `staff_zara` / Mật khẩu: `Staff@123456` (Chỉ quản lý ZARA).
+- **Staff UNIQLO:** `staff_uniqlo` / Mật khẩu: `Staff@123456` (Chỉ quản lý UNIQLO).
+- **Khách hàng (Guest):** Không cần đăng nhập, sử dụng trực tiếp trên giao diện.
+
+---
+
+## 5. BỘ TÀI LIỆU KỸ THUẬT CHI TIẾT
+
+| STT | Tài liệu | Nội dung chính |
 | :---: | :--- | :--- |
-| **`w`** / `▲` | Tiến (Forward) | 4 bánh quay tiến theo tốc độ đã chọn |
-| **`s`** / `▼` | Lùi (Backward) | 4 bánh quay lùi theo tốc độ đã chọn |
-| **`a`** / `◀` | Quay trái (Turn Left) | Bánh trái quay lùi, bánh phải quay tiến |
-| **`d`** / `▶` | Quay phải (Turn Right) | Bánh trái quay tiến, bánh phải quay lùi |
-| **`x`** / `Space` | Dừng (Stop) | Ngắt PWM về 0 |
-| **`e`** | Dừng khẩn cấp (E-Stop) | Ngắt PWM, tắt chân STBY cả 2 bên TB6612 |
-| **`r`** | Reset E-Stop | Mở khóa an toàn sau khi đã clear chướng ngại vật |
-| **`1` - `5`** | Tốc độ ga (Throttle) | Chuyển nhanh giữa các mức 20%, 35%, 50%, 75%, 100% |
-| **`q`** | Thoát (Quit) | Dừng motor, tắt camera, dọn dẹp GPIO và thoát sạch sẽ |
+| 1 | [ARCHITECTURE.md](file:///d:/Study/KLTN/Code/docs/ARCHITECTURE.md) | Kiến trúc tổng thể 12 lớp, luồng dữ liệu thời gian thực |
+| 2 | [DATABASE_SCHEMA.md](file:///d:/Study/KLTN/Code/docs/DATABASE_SCHEMA.md) | Sơ đồ ERD, 19 bảng SQLite, khóa chính/ngoại, index, migration |
+| 3 | [PROTOCOL.md](file:///d:/Study/KLTN/Code/docs/PROTOCOL.md) | Đặc tả 18 REST APIs và giao thức WebSocket nhị phân/JSON |
+| 4 | [REMOTE_CONNECTION.md](file:///d:/Study/KLTN/Code/docs/REMOTE_CONNECTION.md) | Hướng dẫn kết nối từ xa qua Cloudflare Tunnel không cần mở Port |
+| 5 | [HARDWARE_SETUP.md](file:///d:/Study/KLTN/Code/docs/HARDWARE_SETUP.md) | Sơ đồ đấu dây chi tiết, bảo vệ điện áp 5V->3.3V, mạch cấp nguồn |
+| 6 | [AUTONOMOUS_NAVIGATION.md](file:///d:/Study/KLTN/Code/docs/AUTONOMOUS_NAVIGATION.md) | Đồ thị bản đồ, thuật toán A*, Odometry dead-reckoning, tuần tra 5p |
+| 7 | [VISION_AND_SAFETY.md](file:///d:/Study/KLTN/Code/docs/VISION_AND_SAFETY.md) | OpenCV cổ điển (MOG2 + HOG/SVM), FSM tránh vật cản, benchmarks |
+| 8 | [SECURITY.md](file:///d:/Study/KLTN/Code/docs/SECURITY.md) | Xác thực Session, phân quyền RBAC, bảo vệ OpenRouter, Audit Log |
+| 9 | [DEPLOYMENT_RASPBERRY_PI.md](file:///d:/Study/KLTN/Code/docs/DEPLOYMENT_RASPBERRY_PI.md) | Triển khai systemd, cấu hình khởi động cùng hệ thống trên Pi 4 |
+| 10 | [SIMULATION_AND_TESTING.md](file:///d:/Study/KLTN/Code/docs/SIMULATION_AND_TESTING.md) | Hướng dẫn chạy test suite tự động và mô phỏng cảm biến trên PC |
+| 11 | [MIGRATION_REPORT.md](file:///d:/Study/KLTN/Code/docs/MIGRATION_REPORT.md) | Báo cáo chuyển đổi dữ liệu, kiểm tra tương thích ngược và rollback |
 
 ---
 
-## 8. Cài Đặt Dịch Vụ Khởi Động Tự Động (Systemd Service)
+## 6. KẾT QUẢ KIỂM THỬ TỰ ĐỘNG
 
-Sau khi kiểm thử thực tế hoàn tất, có thể cấu hình robot chạy dưới dạng background service:
-
-1. Copy file service vào thư mục systemd:
+Dự án sở hữu bộ kiểm thử tự động toàn diện với **53/53 test cases thành công (100% Pass Rate)**:
 ```bash
-sudo cp systemd/robot.service /etc/systemd/system/
-sudo systemctl daemon-reload
+python -m pytest tests/ -v
+# 53 passed, 1 warning in 11.34s
 ```
-
-2. Bật và khởi động service:
-```bash
-sudo systemctl enable robot.service
-sudo systemctl start robot.service
-```
-
-3. Kiểm tra trạng thái và theo dõi logs:
-```bash
-sudo systemctl status robot.service
-journalctl -u robot.service -f
-```
-
-4. Dừng service:
-```bash
-sudo systemctl stop robot.service
-```
-
----
-
-## 9. Cấu Hình Tham Số Tập Trung (.env)
-
-Tất cả các tham số có thể điều chỉnh linh hoạt trong file `.env` mà không cần sửa code:
-
-```env
-# Tốc độ & PWM
-PWM_FREQ=1000
-DEFAULT_SPEED=0.35
-MOTOR_ENABLED=true
-SIMULATION_MODE=false
-
-# Cấu hình Nhận diện & Vùng dừng an toàn
-PERSON_CONFIDENCE_THRESHOLD=0.55
-PERSON_MIN_AREA_RATIO=0.03
-STOP_ZONE_X_MIN=0.20
-STOP_ZONE_X_MAX=0.80
-PERSON_CLEAR_DELAY=1.5
-PERSON_DETECTED_CONFIRM_FRAMES=2
-AUTO_RESUME_AFTER_PERSON_CLEAR=false
-CAMERA_WATCHDOG_TIMEOUT=2.0
-```
-
----
-
-## 10. Xử Lý Sự Cố (Troubleshooting)
-
-1. **Lỗi `Failed to initialize Picamera2`:**
-   - Kiểm tra lại cáp dẹt CSI đã cắm chặt và đúng chiều vào cổng CAMERA của Raspberry Pi 4.
-   - Chạy lệnh `rpicam-hello` kiểm tra xem camera có phản hồi không.
-2. **Lỗi `OLED display not detected`:**
-   - Kiểm tra lại chân VCC (3.3V Pin 1), GND (Pin 6), SDA (Pin 3), SCL (Pin 5).
-   - Chạy `sudo i2cdetect -y 1` xem có xuất hiện địa chỉ `0x3c` không.
-   - Nếu dùng OLED SSD1306 thay vì SH1106, đổi `OLED_DRIVER=ssd1306` trong `.env`.
-3. **Bánh xe quay ngược chiều:**
-   - Đảo vị trí 2 dây motor AIN1/AIN2 hoặc BIN1/BIN2 trên cầu đấu ốc của mạch TB6612 tương ứng.
-4. **Motor không quay dù đèn LED sáng:**
-   - Kiểm tra nguồn cấp vào chân **VM** của TB6612 (phải từ 7V đến 12V DC).
-   - Kiểm tra xem dây GND giữa Pin và Raspberry Pi đã được nối chung chưa.
+Bao gồm:
+- Kiểm thử phân quyền RBAC, kiểm tra rò rỉ dữ liệu giữa các gian hàng.
+- Kiểm thử thuật toán tìm đường A* và chặn cạnh động.
+- Kiểm thử suy giảm độ tin cậy của thuật toán Odometry.
+- Kiểm thử chu trình tuần tra tự động 5 phút và cơ chế ngắt ưu tiên.
+- Kiểm thử thị giác máy tính OpenCV cổ điển và tính toán ma trận tương quan.
+- Kiểm thử máy trạng thái tránh vật cản siêu âm HC-SR04.

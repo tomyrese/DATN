@@ -120,12 +120,22 @@ export const MallMapTab: React.FC = () => {
   const progressRatio = (activeEscort?.current_progress || 0) / 100.0;
   const robotCenter = { x: 550, y: 430 };
 
-  const liveRobotPos = activeCoord
-    ? {
-        x: robotCenter.x + (activeCoord.x + activeCoord.w / 2 - robotCenter.x) * progressRatio,
-        y: robotCenter.y + (activeCoord.y + activeCoord.h / 2 - robotCenter.y) * progressRatio,
-      }
-    : robotCenter;
+  const odomX = telemetry?.odometryX;
+  const odomY = telemetry?.odometryY;
+  const odomHeading = telemetry?.odometryHeading ?? 0;
+  const odomConfidence = telemetry?.odometryConfidence ?? 0.85;
+
+  let liveRobotPos = robotCenter;
+  if (odomX !== undefined && odomX !== null && odomY !== undefined && odomY !== null) {
+    const svgX = Math.max(80, Math.min(1020, (odomX / 20.0) * 940 + 80));
+    const svgY = Math.max(60, Math.min(600, (odomY / 20.0) * 540 + 60));
+    liveRobotPos = { x: svgX, y: svgY };
+  } else if (activeCoord) {
+    liveRobotPos = {
+      x: robotCenter.x + (activeCoord.x + activeCoord.w / 2 - robotCenter.x) * progressRatio,
+      y: robotCenter.y + (activeCoord.y + activeCoord.h / 2 - robotCenter.y) * progressRatio,
+    };
+  }
 
   const currentTargetId = activeEscort?.target_poi_id || selectedPoi?.id;
 
@@ -275,6 +285,56 @@ export const MallMapTab: React.FC = () => {
               <text x="0" y="-21" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="800">ROBOT</text>
             </g>
           </svg>
+        </div>
+
+        {/* Odometry & Physical Sensor Telemetry Info Chip */}
+        <div style={{
+          marginTop: '8px',
+          padding: '8px 12px',
+          background: '#F8FAFC',
+          borderRadius: '8px',
+          border: '1px solid #E2E8F0',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          fontSize: '0.72rem',
+          color: '#475569'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, color: '#0F172A' }}>
+              📍 Tọa Độ Ước Lượng: X={odomX !== undefined && odomX !== null ? odomX.toFixed(2) : '10.00'}m, Y={odomY !== undefined && odomY !== null ? odomY.toFixed(2) : '12.00'}m
+            </span>
+            <span style={{ color: '#94A3B8' }}>•</span>
+            <span>🧭 Hướng: {odomHeading.toFixed(0)}°</span>
+            <span style={{ color: '#94A3B8' }}>•</span>
+            <span>Độ tin cậy: {Math.round(odomConfidence * 100)}%</span>
+            <span style={{
+              background: '#FEF3C7',
+              color: '#B45309',
+              padding: '1px 6px',
+              borderRadius: '4px',
+              fontWeight: 700,
+              fontSize: '0.68rem'
+            }}>
+              [SIMULATED DEAD-RECKONING]
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>Siêu âm: L={telemetry?.ultrasonicLeft !== undefined && telemetry?.ultrasonicLeft !== null ? Math.round(telemetry.ultrasonicLeft) : '—'}cm, R={telemetry?.ultrasonicRight !== undefined && telemetry?.ultrasonicRight !== null ? Math.round(telemetry.ultrasonicRight) : '—'}cm</span>
+            <span style={{
+              padding: '1px 6px',
+              borderRadius: '4px',
+              fontWeight: 800,
+              fontSize: '0.68rem',
+              background: telemetry?.obstacleState && telemetry.obstacleState !== 'CLEAR' ? '#FEE2E2' : '#DCFCE7',
+              color: telemetry?.obstacleState && telemetry.obstacleState !== 'CLEAR' ? '#DC2626' : '#15803D'
+            }}>
+              {telemetry?.obstacleState || 'CLEAR'}
+            </span>
+          </div>
         </div>
       </div>
 

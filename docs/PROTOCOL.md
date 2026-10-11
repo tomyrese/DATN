@@ -1,275 +1,238 @@
-# Pi Robot Protocol Specification (v1.0)
+# ĐẶC TẢ GIAO THỨC TRUYỀN THÔNG ROBOT TTTM (PROTOCOL SPECIFICATION V2.0)
 
-Tài liệu đặc tả toàn bộ giao thức truyền thông giữa robot (Raspberry Pi 4) và ứng dụng điều khiển Web Dashboard / Client.
-
----
-
-## 1. Định Dạng Mã QR Ghép Nối (Pairing QR Format)
-
-Mã QR hiển thị trên màn hình OLED 1.3" 128x64 sử dụng chuỗi văn bản tối giản phân tách bằng dấu gạch đứng `|`:
-
-```
-P1|HOST|PORT|PAIR_CODE
-```
-
-### Các trường dữ liệu:
-- **`P1`**: Phiên bản giao thức (Protocol Version 1).
-- **`HOST`**: Địa chỉ IPv4 mạng cục bộ của Raspberry Pi (ví dụ `192.168.1.50`).
-- **`PORT`**: Cổng dịch vụ Robot Server (mặc định `8765`).
-- **`PAIR_CODE`**: Mã xác thực ngẫu nhiên 6 ký tự gồm chữ in hoa và chữ số (ví dụ `A7K39P`), thời gian sống (TTL) là 120 giây.
+Tài liệu đặc tả toàn bộ giao diện lập trình ứng dụng REST API và kênh truyền thời gian thực hai chiều WebSocket giữa ứng dụng Web Dashboard và hệ thống backend Raspberry Pi 4.
 
 ---
 
-## 2. Danh Sách REST API (Versioned: `/api/v1`)
+## 1. TỔNG QUAN XÁC THỰC VÀ PHÂN QUYỀN (RBAC AUTHENTICATION)
 
-### 2.1. `GET /api/v1/health`
-Kiểm tra sức khỏe hệ thống phần cứng và server.
-- **Yêu cầu xác thực:** Không.
-- **Phản hồi mẫu:**
-```json
-{
-  "status": "ok",
-  "robotState": "STOPPED",
-  "safetyState": "CLEAR",
-  "camera": true,
-  "detector": true,
-  "motor": true,
-  "oled": true,
-  "server": true
-}
+Tất cả các API yêu cầu xác thực sử dụng Bearer Token định dạng UUID trong HTTP Header:
+```http
+Authorization: Bearer <session_token>
 ```
-
-### 2.2. `GET /api/v1/info`
-Thông tin chung về robot.
-- **Yêu cầu xác thực:** Không.
-- **Phản hồi mẫu:**
-```json
-{
-  "robotId": "RBT01",
-  "robotName": "Pi Robot",
-  "apiVersion": "v1",
-  "protocolVersion": 1,
-  "hostname": "raspberrypi",
-  "serverVersion": "1.0.0",
-  "paired": true
-}
-```
-
-### 2.3. `GET /api/v1/status`
-Ảnh chụp nhanh trạng thái telemetry hiện tại.
-- **Yêu cầu xác thực:** Không.
-
-### 2.4. `POST /api/v1/pair`
-Xác thực mã ghép nối và cấp phát Session Token.
-- **Yêu cầu xác thực:** Không.
-- **Body gửi lên:**
-```json
-{
-  "pairCode": "A7K39P",
-  "clientInfo": "Android Device"
-}
-```
-- **Phản hồi thành công:**
-```json
-{
-  "success": true,
-  "token": "4vO2K-8dM_3...",
-  "robotId": "RBT01",
-  "robotName": "Pi Robot",
-  "message": "Pairing successful"
-}
-```
-
-### 2.5. `POST /api/v1/emergency-stop`
-Kích hoạt dừng khẩn cấp toàn bộ hệ thống động cơ ngay lập tức.
-- **Yêu cầu xác thực:** Không.
-
-### 2.6. `POST /api/v1/emergency-reset`
-Mở khóa an toàn sau khi dừng khẩn cấp (chỉ cho phép khi khu vực an toàn).
-- **Yêu cầu xác thực:** Có (`Authorization: Bearer <token>`).
-
-### 2.7. `GET /api/v1/camera/ticket`
-Cấp vé truy cập ngắn hạn (TTL: 30s) để xem luồng MJPEG.
-- **Yêu cầu xác thực:** Có (`Authorization: Bearer <token>`).
-- **Phản hồi mẫu:**
-```json
-{
-  "ticket": "8f3b2a9c1d0e4f5a",
-  "expiresIn": 30.0
-}
-```
-
-### 2.8. `GET /api/v1/camera/snapshot`
-Lấy 1 frame ảnh tĩnh định dạng JPEG từ camera CSI.
-- **Yêu cầu xác thực:** Token hoặc Ticket.
-
-### 2.9. `GET /api/v1/camera/mjpeg`
-Luồng video MJPEG thời gian thực (`multipart/x-mixed-replace; boundary=frame`) ở tốc độ 8 FPS.
-- **Yêu cầu xác thực:** Token hoặc Ticket (`?ticket=...`).
-
-### 2.10. `GET /api/v1/logs/recent`
-Lấy 50 sự kiện quan trọng gần nhất của robot.
-- **Yêu cầu xác thực:** Có.
-
-### 2.11. `DELETE /api/v1/session`
-Hủy phiên ghép nối hiện tại (Quên robot).
-- **Yêu cầu xác thực:** Có.
+Hệ thống hỗ trợ 3 cấp bậc vai trò:
+- **`guest`**: Công khai, không cần Token.
+- **`staff`**: Nhân viên cửa hàng, giới hạn thao tác trong phạm vi các gian hàng được phân công.
+- **`admin`**: Quản trị viên toàn hệ thống, toàn quyền cấu hình và điều khiển.
 
 ---
 
-## 3. Giao Thức WebSocket Realtime (`/ws/v1/control`)
+## 2. DANH SÁCH REST API (VERSIONED: `/api/v1`)
 
-Kênh truyền thông điều khiển 2 chiều với độ trễ siêu thấp.
-Kết nối: `ws://<HOST>:<PORT>/ws/v1/control?token=<TOKEN>`
+### 2.1. Nhóm Xác Thực & Tài Khoản (Authentication & Session)
 
-### 3.1. Handshake Khởi Tạo
-Client gửi:
+#### `POST /api/v1/login`
+- **Quyền truy cập:** Công khai (`guest`).
+- **Mục đích:** Đăng nhập lấy Session Token.
+- **Body:**
+  ```json
+  {
+    "username": "staff_zara",
+    "password": "Staff@123456"
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "success": true,
+    "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "user": {
+      "id": "usr_staff_zara",
+      "username": "staff_zara",
+      "full_name": "Nhân viên Zara",
+      "role": "staff",
+      "assigned_stores": ["store_zara"]
+    }
+  }
+  ```
+
+#### `POST /api/v1/logout`
+- **Quyền truy cập:** Yêu cầu đăng nhập (`staff` hoặc `admin`).
+- **Response 200 OK:** `{"success": true, "message": "Đã đăng xuất"}`
+
+#### `GET /api/v1/me`
+- **Quyền truy cập:** Yêu cầu đăng nhập (`staff` hoặc `admin`).
+- **Response 200 OK:** Thông tin tài khoản hiện tại kèm danh sách gian hàng phụ trách.
+
+---
+
+### 2.2. Nhóm Thông Tin Robot & Sức Khỏe Phần Cứng (Telemetry & Health)
+
+#### `GET /api/v1/health`
+- **Quyền truy cập:** Công khai.
+- **Response 200 OK:**
+  ```json
+  {
+    "status": "ok",
+    "robotState": "IDLE",
+    "safetyState": "CLEAR",
+    "camera": true,
+    "detector": true,
+    "motor": true,
+    "oled": true,
+    "server": true,
+    "ultrasonic": {
+      "left_cm": 120.5,
+      "right_cm": 118.2,
+      "state": "CLEAR"
+    }
+  }
+  ```
+
+#### `GET /api/v1/info`
+- **Quyền truy cập:** Công khai.
+- **Response 200 OK:** Tên robot, ID, phiên bản API `v2.0`, hostname và thông tin phần cứng.
+
+#### `GET /api/v1/status`
+- **Quyền truy cập:** Công khai.
+- **Response 200 OK:** Dữ liệu đo đạc chi tiết bao gồm tọa độ Odometry ($x, y, \theta$), độ tin cậy (`confidence`), trạng thái pin, nhiệt độ CPU.
+
+---
+
+### 2.3. Nhóm Điều Khiển Khẩn Cấp & Camera Vé Bảo Mật
+
+#### `POST /api/v1/emergency-stop`
+- **Quyền truy cập:** Công khai / Khẩn cấp.
+- **Mục đích:** Kích hoạt ngắt điện phần cứng động cơ ngay lập tức.
+- **Response 200 OK:** `{"success": true, "state": "EMERGENCY_STOP"}`
+
+#### `POST /api/v1/emergency-reset`
+- **Quyền truy cập:** Yêu cầu `staff` hoặc `admin`.
+- **Mục đích:** Mở khóa trạng thái khẩn cấp sau khi kiểm tra khu vực an toàn.
+- **Response 200 OK:** `{"success": true, "state": "IDLE"}`
+
+#### `GET /api/v1/camera/ticket`
+- **Quyền truy cập:** Yêu cầu `staff` hoặc `admin`.
+- **Mục đích:** Cấp phát vé xem camera trực tiếp thời hạn ngắn (TTL: 30 giây).
+- **Response 200 OK:** `{"ticket": "tk_8f3b2a9c1d0e4f5a", "expiresIn": 30.0}`
+
+#### `GET /api/v1/camera/mjpeg?ticket={ticket}`
+- **Quyền truy cập:** Yêu cầu Ticket hợp lệ.
+- **Response 200 OK:** Luồng dữ liệu video `multipart/x-mixed-replace; boundary=frame`.
+
+---
+
+### 2.4. Nhóm Nghiệp Vụ TTTM (Stores, Promotions, Escort, Delivery)
+
+#### `GET /api/v1/stores`
+- **Quyền truy cập:** Công khai. Trả về danh sách gian hàng, tầng, danh mục, tọa độ node bản đồ.
+
+#### `GET /api/v1/promotions`
+- **Quyền truy cập:** Công khai. Trả về danh sách khuyến mãi đang có hiệu lực (`is_active = 1`).
+
+#### `POST /api/v1/promotions`
+- **Quyền truy cập:** `staff` (chỉ được tạo cho gian hàng phụ trách) hoặc `admin` (toàn quyền).
+- **Body:** `{ "store_id": "store_zara", "title": "Giảm giá 30%", "discount_percent": 30, ... }`
+
+#### `PUT /api/v1/promotions/{promo_id}`
+- **Quyền truy cập:** `staff` (kiểm tra quyền sở hữu) hoặc `admin`. Cập nhật nội dung khuyến mãi.
+
+#### `DELETE /api/v1/promotions/{promo_id}`
+- **Quyền truy cập:** `staff` (kiểm tra quyền sở hữu) hoặc `admin`. Xóa khuyến mãi.
+
+#### `POST /api/v1/escort`
+- **Quyền truy cập:** Công khai (`guest`), `staff`, `admin`.
+- **Body:** `{ "target_poi_id": "poi_zara" }`
+- **Mục đích:** Yêu cầu robot dẫn đường từ vị trí hiện tại tới điểm đến.
+
+#### `GET /api/v1/deliveries`
+- **Quyền truy cập:** `staff` hoặc `admin`. Trả về hàng đợi đơn giao hàng nội bộ.
+
+#### `POST /api/v1/deliveries`
+- **Quyền truy cập:** `staff` hoặc `admin`. Tạo đơn giao hàng từ điểm lấy hàng tới điểm giao hàng.
+
+---
+
+### 2.5. Nhóm Trợ Lý AI Concierge & Quản Trị Hệ Thống (AI & Admin)
+
+#### `POST /api/v1/ai/ask`
+- **Quyền truy cập:** Công khai. Giới hạn tần suất (Rate limit 20 req/min).
+- **Body:** `{ "question": "Highlands Coffee nằm ở tầng mấy?" }`
+- **Response 200 OK:** `{ "answer": "Highlands Coffee nằm tại Tầng 1, Sảnh Đông...", "suggested_poi": "poi_highlands" }`
+
+#### `GET /api/v1/admin/users`
+- **Quyền truy cập:** Chỉ `admin`. Quản lý danh sách tài khoản nhân viên.
+
+#### `POST /api/v1/admin/users`
+- **Quyền truy cập:** Chỉ `admin`. Tạo tài khoản nhân viên mới kèm phân công gian hàng.
+
+#### `GET /api/v1/admin/audit-logs`
+- **Quyền truy cập:** Chỉ `admin`. Xem nhật ký kiểm toán hệ thống.
+
+#### `POST /api/v1/admin/backup-db`
+- **Quyền truy cập:** Chỉ `admin`. Kích hoạt sao lưu tức thời database SQLite sang file `.backup_<timestamp>`.
+
+---
+
+## 3. ĐẶC TẢ GIAO THỨC WEBSOCKET (`/ws/v1/control`)
+
+### 3.1. Thiết Lập Kết Nối & Xác Thực
+1. Client kết nối tới `ws://<HOST>:8765/ws/v1/control`.
+2. Client gửi gói tin `hello` chứa token (nếu là staff/admin) hoặc rỗng (nếu là guest):
+   ```json
+   {
+     "type": "hello",
+     "clientType": "web_dashboard",
+     "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+     "clientTimestamp": 1773381600000
+   }
+   ```
+3. Server phản hồi `welcome` kèm phân quyền xác nhận:
+   ```json
+   {
+     "type": "welcome",
+     "authenticated": true,
+     "role": "staff",
+     "robotState": "IDLE"
+   }
+   ```
+
+### 3.2. Chu Kỳ Heartbeat (1.2 Giây)
+Client gửi heartbeat định kỳ mỗi 1.0 giây:
 ```json
-{
-  "type": "hello",
-  "protocol": 1,
-  "client": "android",
-  "appVersion": "1.0.0"
-}
+{ "type": "heartbeat", "timestamp": 1773381601000 }
 ```
 Server phản hồi:
 ```json
-{
-  "type": "hello_ack",
-  "protocol": 1,
-  "robotId": "RBT01",
-  "robotName": "Pi Robot",
-  "state": "STOPPED"
-}
+{ "type": "heartbeat_ack", "timestamp": 1773381601005 }
 ```
+*Nếu quá 1.2 giây server không nhận được heartbeat khi đang lái xe thủ công, xe tự động dừng lại lập tức.*
 
-### 3.2. Heartbeat Giám Sát Kết Nối (Gửi mỗi 400ms)
-Client gửi:
-```json
-{
-  "type": "heartbeat",
-  "timestamp": 1718000000.123
-}
-```
-Server phản hồi:
-```json
-{
-  "type": "heartbeat_ack",
-  "timestamp": 1718000000.125
-}
-```
-
-### 3.3. Lệnh Điều Khiển Di Chuyển (Press-and-Hold với Lease 350ms)
-Client gửi lặp lại mỗi 100ms khi giữ nút:
+### 3.3. Lệnh Điều Khiển Vận Động (Drive Lease 350ms)
+Chỉ cho phép `staff` hoặc `admin`:
 ```json
 {
   "type": "drive",
-  "direction": "forward",
-  "speed": 0.35,
-  "seq": 101
+  "direction": "FORWARD",
+  "speed": 0.6,
+  "lease_ms": 350
 }
 ```
-*(Các hướng: `"forward"`, `"backward"`, `"left"`, `"right"`)*
+Các hướng hợp lệ: `FORWARD`, `BACKWARD`, `TURN_LEFT`, `TURN_RIGHT`, `STOP`.
 
-Server phản hồi:
-```json
-{
-  "type": "command_ack",
-  "seq": 101,
-  "accepted": true
-}
-```
-*(Nếu bị chặn do có người hoặc E-Stop: `accepted: false, reason: "PERSON_DETECTED"`)*
-
-### 3.4. Lệnh Dừng (Stop)
-Khi người dùng nhả nút điều khiển:
-```json
-{
-  "type": "stop",
-  "seq": 102
-}
-```
-
-### 3.5. Kiểm Tra Độc Lập Từng Động Cơ (Motor Test)
-```json
-{
-  "type": "motor_test",
-  "motor": 1,
-  "speed": 0.20,
-  "seq": 103
-}
-```
-
-### 3.6. Dòng Dữ Liệu Telemetry Định Kỳ (2–5 Hz)
-Server phát liên tục:
+### 3.4. Gói Tin Telemetry Tự Động Từ Server (Tần số 2 - 5 Hz)
+Server phát thanh cập nhật liên tục:
 ```json
 {
   "type": "telemetry",
-  "robotState": "FORWARD",
+  "robotState": "IDLE",
   "safetyState": "CLEAR",
-  "speed": 0.35,
-  "leftSpeed": 0.35,
-  "rightSpeed": 0.35,
-  "m1": 0.35,
-  "m2": 0.35,
-  "m3": 0.35,
-  "m4": 0.35,
-  "personDetected": false,
-  "personConfidence": 0.0,
-  "cameraOk": true,
-  "detectorOk": true,
-  "oledOk": true,
-  "motorOk": true,
-  "cameraFps": 30.0,
-  "inferenceFps": 11.2,
-  "cpuTemp": 51.4,
-  "cpuUsage": 28.5,
-  "memoryUsage": 38.0,
-  "uptime": 245.5,
-  "timestamp": 1718000001.5
+  "odometry": {
+    "x": 12.4,
+    "y": 8.6,
+    "heading": 1.57,
+    "confidence": 0.88,
+    "is_estimated": true
+  },
+  "ultrasonic": {
+    "left_cm": 150.0,
+    "right_cm": 145.2,
+    "obstacle_state": "CLEAR"
+  },
+  "system": {
+    "cpu_temp": 48.5,
+    "cpu_percent": 18.2,
+    "ram_percent": 34.0
+  }
 }
 ```
-
-### 3.7. Sự Kiện An Toàn Tức Thì (Immediate Safety Events)
-Khi phát hiện người bước vào STOP_ZONE, server gửi ngay lập tức:
-```json
-{
-  "type": "safety_event",
-  "event": "person_detected",
-  "confidence": 0.88
-}
-```
-Khi người rời khỏi:
-```json
-{
-  "type": "safety_event",
-  "event": "person_clear"
-}
-```
-
----
-
-## 4. Bảng Mã Lỗi Chuẩn (Standard Error Codes)
-
-| Mã lỗi | Ý nghĩa | Hành động của App |
-| :--- | :--- | :--- |
-| `AUTH_REQUIRED` | Thiếu token xác thực | Chuyển về màn hình Ghép nối |
-| `AUTH_INVALID` | Token không hợp lệ hoặc đã bị hủy | Yêu cầu quét lại mã QR |
-| `PAIR_CODE_INVALID` | Mã ghép nối sai hoặc đã hết hạn | Báo lỗi trên màn hình QR |
-| `CONTROLLER_BUSY` | Đã có một thiết bị khác đang điều khiển | Báo bận, từ chối kết nối |
-| `SAFETY_BLOCKED` | Lệnh di chuyển bị từ chối do khóa an toàn | Hiển thị cảnh báo an toàn |
-| `PERSON_DETECTED` | Phát hiện người trong vùng nguy hiểm | Dừng motor, báo động đỏ |
-| `CAMERA_ERROR` | Mất tín hiệu camera CSI | Dừng robot, khóa di chuyển |
-| `EMERGENCY_ACTIVE` | Đang ở trạng thái dừng khẩn cấp | Yêu cầu bấm nút Reset E-Stop |
-
----
-
-## 5. Các Tham Số Thời Gian & Timeouts (Safety Invariants)
-
-- **`DRIVE_COMMAND_INTERVAL`**: 100 ms (tần suất app gửi làm mới lệnh khi giữ nút).
-- **`DRIVE_COMMAND_TIMEOUT`**: 350 ms (hết hạn lệnh di chuyển nếu app mất kết nối hoặc bị đóng).
-- **`HEARTBEAT_INTERVAL`**: 400 ms.
-- **`CONNECTION_TIMEOUT`**: 1.2 s (ngắt kết nối và dừng robot nếu không nhận được heartbeat).
-- **`CAMERA_WATCHDOG_TIMEOUT`**: 2.0 s (dừng robot nếu luồng camera bị đơ khi đang chạy).
-- **`PERSON_CLEAR_DELAY`**: 1.5 s (thời gian trễ xác nhận sau khi người rời đi).
-- **`AUTO_RESUME_AFTER_PERSON_CLEAR`**: `false` (robot luôn ở trạng thái STOPPED, không tự động chạy lại).

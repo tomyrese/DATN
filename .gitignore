@@ -20,6 +20,11 @@ frontend/dist/
 .vercel/
 *.tsbuildinfo
 
-# SQLite databases
+# SQLite databases and backups
 *.db
-data/*.db
+*.db-*
+*.db.bak
+*.db.backup_*
+data/*.db*
+data/*.bak
+data/*.backup_*

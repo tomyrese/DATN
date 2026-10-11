@@ -151,6 +151,12 @@ class MotorController:
         with self.lock:
             return self.motor_speeds.copy()
 
+    def get_wheel_speeds(self) -> tuple:
+        with self.lock:
+            left = (self.motor_speeds[1] + self.motor_speeds[2]) / 2.0
+            right = (self.motor_speeds[3] + self.motor_speeds[4]) / 2.0
+            return (left, right)
+
     def cleanup(self):
         self.emergency_stop()
         if self.gpio_available:

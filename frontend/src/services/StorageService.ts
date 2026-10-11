@@ -1,8 +1,9 @@
-import { PairedRobotInfo, AppSettings, UserRole } from '../types/robot';
+import { PairedRobotInfo, AppSettings, UserRole, AuthUser } from '../types/robot';
 
 const KEY_PAIRED_ROBOT = 'pi_robot_paired_info';
 const KEY_SETTINGS = 'pi_robot_settings';
 const KEY_USER_ROLE = 'pi_robot_user_role';
+const KEY_AUTH_USER = 'pi_robot_auth_user';
 
 const DEFAULT_SETTINGS: AppSettings = {
   defaultSpeed: 0.35,
@@ -61,10 +62,45 @@ export class StorageService {
 
   static getUserRole(): UserRole {
     try {
+      const user = this.getAuthUser();
+      if (user) {
+        return user.role;
+      }
       const role = localStorage.getItem(KEY_USER_ROLE);
-      return role === 'staff' ? 'staff' : 'customer';
+      if (role === 'admin') return 'admin';
+      if (role === 'staff') return 'staff';
+      return 'customer';
     } catch (e) {
       return 'customer';
     }
+  }
+
+  static saveAuthUser(user: AuthUser | null): void {
+    try {
+      if (user) {
+        localStorage.setItem(KEY_AUTH_USER, JSON.stringify(user));
+        localStorage.setItem(KEY_USER_ROLE, user.role);
+      } else {
+        localStorage.removeItem(KEY_AUTH_USER);
+        localStorage.setItem(KEY_USER_ROLE, 'customer');
+      }
+    } catch (e) {}
+  }
+
+  static getAuthUser(): AuthUser | null {
+    try {
+      const json = localStorage.getItem(KEY_AUTH_USER);
+      if (!json) return null;
+      return JSON.parse(json) as AuthUser;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static clearAuthUser(): void {
+    try {
+      localStorage.removeItem(KEY_AUTH_USER);
+      localStorage.setItem(KEY_USER_ROLE, 'customer');
+    } catch (e) {}
   }
 }

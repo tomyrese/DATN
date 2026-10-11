@@ -86,11 +86,30 @@ class TelemetryMessage(BaseModel):
     uptime: float = 0.0
     timestamp: float = 0.0
     personBbox: Optional[List[float]] = None
+    odometryX: Optional[float] = None
+    odometryY: Optional[float] = None
+    odometryHeading: Optional[float] = None
+    odometryConfidence: Optional[float] = None
+    isEstimated: Optional[bool] = True
+    ultrasonicLeft: Optional[float] = None
+    ultrasonicRight: Optional[float] = None
+    obstacleState: Optional[str] = None
+    navStatus: Optional[str] = None
 
 class ErrorMessage(BaseModel):
     type: Literal["error"] = "error"
     code: str
     message: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginResponse(BaseModel):
+    success: bool
+    token: Optional[str] = None
+    user: Optional[dict] = None
+    message: Optional[str] = None
 
 class PairRequest(BaseModel):
     pairCode: str

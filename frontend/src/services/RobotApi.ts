@@ -6,7 +6,12 @@ import {
   DeliveryOrder,
   EscortTask,
   AskAssistantResponse,
+  Promotion,
+  AdminUser,
+  AuditLog,
+  MapGraphData,
 } from '../types/protocol';
+import { AuthUser } from '../types/robot';
 
 export class RobotApi {
   static getBaseUrl(host?: string, port?: number): string {
@@ -271,6 +276,242 @@ export class RobotApi {
       return {
         answer: 'Xin lỗi, robot tạm thời mất kết nối với máy chủ AI. Quý khách vui lòng thử lại sau giây lát!',
       };
+    }
+  }
+
+  // ==================== AUTHENTICATION & SESSIONS ====================
+
+  static async login(
+    host: string,
+    port: number,
+    creds: { username: string; password: string }
+  ): Promise<{ success: boolean; token?: string; user?: AuthUser; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/auth/login`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(creds),
+      });
+      const data = await res.json();
+      if (data.success && data.token && data.user) {
+        return {
+          success: true,
+          token: data.token,
+          user: {
+            id: data.user.id,
+            username: data.user.username,
+            fullName: data.user.fullName || data.user.username,
+            role: data.user.role,
+            assignedStoreIds: data.user.assignedStoreIds || [],
+            token: data.token,
+          },
+          message: data.message,
+        };
+      }
+      return { success: false, message: data.message || 'Đăng nhập không thành công' };
+    } catch (e: any) {
+      return { success: false, message: e.message || 'Lỗi kết nối máy chủ' };
+    }
+  }
+
+  static async logout(host: string, port: number, token: string): Promise<boolean> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/auth/logout`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  static async getMe(host: string, port: number, token?: string): Promise<any> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/auth/me`;
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await this.fetchWithTimeout(url, { headers });
+      return res.json();
+    } catch {
+      return { authenticated: false, role: 'guest' };
+    }
+  }
+
+  // ==================== PROMOTIONS (STAFF & ADMIN) ====================
+
+  static async getPromotions(host: string, port: number, storeId?: string): Promise<Promotion[]> {
+    try {
+      const q = storeId ? `?store_id=${encodeURIComponent(storeId)}` : '';
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/promotions${q}`;
+      const res = await this.fetchWithTimeout(url);
+      const data = await res.json();
+      return data.promotions || [];
+    } catch {
+      return [];
+    }
+  }
+
+  static async createPromotion(
+    host: string,
+    port: number,
+    promo: {
+      storeId: string;
+      title: string;
+      description: string;
+      discountPercent: number;
+      promoCode?: string;
+      startTime?: string;
+      endTime?: string;
+    },
+    token: string
+  ): Promise<{ success: boolean; promotion?: Promotion; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/promotions`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(promo),
+      });
+      return res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  }
+
+  static async deletePromotion(host: string, port: number, promoId: string, token: string): Promise<boolean> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/promotions/${promoId}`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch {
+      return false;
+    }
+  }
+
+  // ==================== MAP GRAPH & PATROL ====================
+
+  static async getMapGraph(host: string, port: number): Promise<MapGraphData | null> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/map/graph`;
+      const res = await this.fetchWithTimeout(url);
+      const data = await res.json();
+      return data.graph || null;
+    } catch {
+      return null;
+    }
+  }
+
+  static async getPatrolStatus(host: string, port: number): Promise<any> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/patrol`;
+      const res = await this.fetchWithTimeout(url);
+      return res.json();
+    } catch {
+      return null;
+    }
+  }
+
+  static async triggerPatrol(host: string, port: number, token: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/patrol/trigger`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  }
+
+  // ==================== ADMIN API ====================
+
+  static async getAdminUsers(host: string, port: number, token: string): Promise<AdminUser[]> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/admin/users`;
+      const res = await this.fetchWithTimeout(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      return data.users || [];
+    } catch {
+      return [];
+    }
+  }
+
+  static async createAdminUser(
+    host: string,
+    port: number,
+    userData: { username: string; password: string; fullName: string; role: string; assignedStoreIds?: string[] },
+    token: string
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/admin/users`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+      });
+      return res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
+    }
+  }
+
+  static async toggleUserStatus(host: string, port: number, userId: string, isActive: boolean, token: string): Promise<boolean> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/admin/users/${userId}/status`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isActive }),
+      });
+      const data = await res.json();
+      return !!data.success;
+    } catch {
+      return false;
+    }
+  }
+
+  static async getAuditLogs(host: string, port: number, token: string): Promise<AuditLog[]> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/admin/audit-logs`;
+      const res = await this.fetchWithTimeout(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      return data.logs || [];
+    } catch {
+      return [];
+    }
+  }
+
+  static async backupDatabase(host: string, port: number, token: string): Promise<{ success: boolean; backupPath?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/admin/backup-db`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.json();
+    } catch {
+      return { success: false };
     }
   }
 }

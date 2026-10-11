@@ -87,6 +87,48 @@ export const ControlTab: React.FC<ControlTabProps> = ({ cameraTicket }) => {
             </div>
           )}
         </div>
+
+        {/* Ultrasonic & Safety State Bar */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: '#F8FAFC',
+          padding: '8px 12px',
+          borderRadius: '8px',
+          border: '1px solid #E2E8F0',
+          fontSize: '0.75rem',
+          color: '#334155'
+        }}>
+          <div>
+            <span style={{ fontWeight: 600 }}>Cảm biến HC-SR04: </span>
+            <span>Trái: <strong>{telemetry?.ultrasonicLeft !== undefined && telemetry?.ultrasonicLeft !== null ? Math.round(telemetry.ultrasonicLeft) : '—'}cm</strong></span>
+            <span style={{ margin: '0 4px', color: '#CBD5E1' }}>|</span>
+            <span>Phải: <strong>{telemetry?.ultrasonicRight !== undefined && telemetry?.ultrasonicRight !== null ? Math.round(telemetry.ultrasonicRight) : '—'}cm</strong></span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              background: telemetry?.obstacleState && telemetry.obstacleState !== 'CLEAR' ? '#FEE2E2' : '#DCFCE7',
+              color: telemetry?.obstacleState && telemetry.obstacleState !== 'CLEAR' ? '#DC2626' : '#15803D'
+            }}>
+              {telemetry?.obstacleState || 'CLEAR'}
+            </span>
+            <span style={{
+              background: '#FEF3C7',
+              color: '#B45309',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              fontWeight: 700,
+              fontSize: '0.68rem'
+            }}>
+              SIMULATED
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Gamepad D-Pad & Emergency Controls */}

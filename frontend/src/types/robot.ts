@@ -1,6 +1,6 @@
-import { RobotStateType, SafetyStateType, TelemetryData, PointOfInterest, DeliveryOrder, EscortTask } from './protocol';
+import { RobotStateType, SafetyStateType, TelemetryData, PointOfInterest, DeliveryOrder, EscortTask, Promotion } from './protocol';
 
-export type UserRole = 'customer' | 'staff';
+export type UserRole = 'guest' | 'customer' | 'staff' | 'admin';
 
 export type ConnectionStatus =
   | 'DISCONNECTED'
@@ -9,6 +9,15 @@ export type ConnectionStatus =
   | 'CONNECTED'
   | 'RECONNECTING'
   | 'FAILED';
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  fullName: string;
+  role: 'guest' | 'customer' | 'staff' | 'admin';
+  assignedStoreIds: string[];
+  token: string;
+}
 
 export interface PairedRobotInfo {
   robotId: string;
@@ -38,6 +47,7 @@ export interface ChatMessage {
 
 export interface RobotStoreState {
   userRole: UserRole;
+  currentUser: AuthUser | null;
   connectionStatus: ConnectionStatus;
   pairedRobot: PairedRobotInfo | null;
   settings: AppSettings;
@@ -52,6 +62,7 @@ export interface RobotStoreState {
   logs: string[];
   latencyMs: number;
   pois: PointOfInterest[];
+  promotions: Promotion[];
   deliveryOrders: DeliveryOrder[];
   activeEscort: EscortTask | null;
   chatMessages: ChatMessage[];

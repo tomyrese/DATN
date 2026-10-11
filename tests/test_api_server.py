@@ -7,6 +7,10 @@ from src.services.robot_controller import RobotController
 def client():
     cfg = RobotConfig(SIMULATION_MODE=True, PAIRING_CODE_TTL=60.0)
     robot = RobotController(cfg)
+    # Ensure clean delivery queue state for test isolation
+    robot.mall.db.execute("UPDATE delivery_orders SET status = 'COMPLETED' WHERE status NOT IN ('COMPLETED', 'CANCELLED')")
+    robot.mall.active_order = None
+    robot.mall.active_order_id = None
     robot.start(start_server=False)
     tc = TestClient(robot.api_app)
     yield tc, robot

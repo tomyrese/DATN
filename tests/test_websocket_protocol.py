@@ -9,6 +9,9 @@ from src.services.robot_controller import RobotController
 def ws_setup():
     cfg = RobotConfig(SIMULATION_MODE=True, DRIVE_COMMAND_TIMEOUT=0.1)
     robot = RobotController(cfg)
+    robot.mall.db.execute("UPDATE delivery_orders SET status = 'COMPLETED' WHERE status NOT IN ('COMPLETED', 'CANCELLED')")
+    robot.mall.active_order = None
+    robot.mall.active_order_id = None
     robot.start(start_server=False)
     token = robot.auth_manager.create_session_token()
     tc = TestClient(robot.api_app)

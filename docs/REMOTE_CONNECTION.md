@@ -1,90 +1,62 @@
-# HƯỚNG DẪN KẾT NỐI TỪ XA & VẬN HÀNH ROBOT TRUNG TÂM THƯƠNG MẠI
+# HƯỚNG DẪN KẾT NỐI TỪ XA AN TOÀN CHO ROBOT TTTM (REMOTE CONNECTION GUIDE V2.0)
 
-Tài liệu hướng dẫn cách thiết lập kết nối từ xa (Remote Internet Control) cho Robot Raspberry Pi và cách sử dụng 2 phân hệ **Khách Hàng (Customer)** & **Nhân Viên (Staff)** trên nền tảng Website React (Vercel).
-
----
-
-## I. KIẾN TRÚC KẾT NỐI TỪ XA (INTERNET ARCHITECTURE)
-
-Khi trang web được deploy lên **Vercel** (`https://your-robot.vercel.app`):
-- **Khách hàng / Nhân viên**: Truy cập từ bất kỳ thiết bị nào (điện thoại, máy tính bảng, laptop) qua 4G/5G/Wi-Fi công cộng.
-- **Robot Raspberry Pi**: Chạy service **Cloudflare Tunnel (cloudflared)** tạo kết nối mã hóa hai chiều (HTTPS & WSS an toàn) ra Internet mà **không cần mở Port Forwarding, không cần IP tĩnh (Static IP)** và vượt qua mọi tường lửa NAT/CGNAT của TTTM.
-
-```
-[ Người Dùng / Trình Duyệt ]
-           │
-           ▼ (HTTPS / WSS)
-[ Cloudflare Tunnel Edge ]
-           │
-           ▼ (Encrypted Secure Tunnel)
-[ Raspberry Pi Robot Server (FastAPI :8765) ]
- ├── AI Mall Concierge Service (Hỏi đáp TTTM)
- ├── Escort Navigation Engine (Dẫn đường khách hàng)
- ├── Delivery Order Dispatcher (Giao hàng nội bộ)
- ├── TB6612 Motor Driver + Picamera2 CSI + SSD MobileNet V2
-```
+Tài liệu hướng dẫn cấu hình truy cập từ xa qua mạng Internet cho Robot Trung Tâm Thương Mại mà **không cần mở cổng (Port Forwarding)**, không cần IP tĩnh, vượt qua mọi tường lửa NAT/CGNAT của TTTM và đảm bảo an toàn thông tin theo chuẩn doanh nghiệp.
 
 ---
 
-## II. HƯỚNG DẪN CÀI ĐẶT TRÊN RASPBERRY PI (CHỈ MẤT 2 PHÚT)
+## 1. MÔ HÌNH KIẾN TRÚC KẾT NỐI TỪ XA
+
+```
+[ Người Dùng Ngoài Internet / 4G / Trình Duyệt ]
+                       │
+                       ▼ (HTTPS / WSS Chuẩn TLS 1.3)
+      [ Mạng Cận Biên Cloudflare Edge ]
+                       │
+                       ▼ (Mã Hóa Đường Hầm Ngược - Outbound-Only Tunnel)
+[ Daemon cloudflared trên Raspberry Pi 4 ]
+                       │
+                       ▼ (Localhost HTTP / WS)
+[ FastAPI Server (Port 8765) trên Robot ]
+       ├── Xác thực RBAC (Guest / Staff / Admin)
+       ├── API Key OpenRouter lưu trữ an toàn trong .env
+       └── Tầng Điều Khiển Phần Cứng & An Toàn Vật Lý
+```
+
+### Ưu điểm vượt trội:
+1. **Không mở cổng Inbound (Zero Open Ports):** Raspberry Pi chỉ chủ động kết nối ra ngoài (Outbound) tới Cloudflare Edge. Kẻ tấn công quét IP trên Internet sẽ không thấy bất kỳ cổng nào mở trên mạng Wi-Fi của TTTM.
+2. **Chứng chỉ SSL/TLS tự động:** Kết nối qua Internet luôn được mã hóa HTTPS và WSS an toàn.
+3. **Chống tấn công DDoS:** Cloudflare tự động lọc các lưu lượng độc hại trước khi chuyển tiếp tới Raspberry Pi.
+
+---
+
+## 2. QUY TRÌNH THIẾT LẬP NHANH TRÊN RASPBERRY PI (QUICK SETUP)
 
 ### Bước 1: Khởi động Robot Backend
-Trên terminal của Raspberry Pi:
 ```bash
 cd ~/KLTN/Code
 python3 src/main.py
 ```
 
-### Bước 2: Chạy Cloudflare Tunnel (Miễn phí 100%)
-Dự án đã tích hợp sẵn script tự động:
+### Bước 2: Kích hoạt Cloudflare Tunnel
+Dự án đã tích hợp sẵn script tự động tải và kích hoạt:
 ```bash
 bash scripts/setup_cloudflare_tunnel.sh
 ```
-
-Chọn chế độ **1 (Quick Free Tunnel)**. Terminal sẽ hiển thị đường link công khai, ví dụ:
+Chọn tùy chọn **1 (Quick Free Tunnel)**. Terminal sẽ xuất ra đường link công khai có định dạng:
 ```
-Your quick tunnel has been created! Visit it at:
-https://pi-robot-mall-xyz.trycloudflare.com
+https://pi-robot-mall-xxx.trycloudflare.com
 ```
 
-### Bước 3: Cấu hình trên Website Vercel
-1. Mở trang web Vercel của bạn trên điện thoại hoặc máy tính.
-2. Vào tab **Cài Đặt (Settings)**.
-3. Dán link `https://pi-robot-mall-xyz.trycloudflare.com` vào ô **Cloudflare Tunnel URL**.
-4. Nhấn **"Lưu & Kết Nối"**.
-👉 *Hệ thống sẽ tự động lưu cấu hình vào LocalStorage và duy trì kết nối WebSocket thời gian thực mọi lúc mọi nơi!*
+### Bước 3: Cấu hình trên Frontend Web Dashboard
+1. Truy cập vào trang Web Dashboard trên điện thoại hoặc máy tính.
+2. Vào phần **Cài Đặt (Settings)**.
+3. Nhập đường dẫn Tunnel (ví dụ `https://pi-robot-mall-xxx.trycloudflare.com`) vào ô **Backend Server URL**.
+4. Nhấn **"Lưu & Kết Nối"**. Giao diện sẽ tự động kết nối lại WebSocket và cập nhật trạng thái thời gian thực.
 
 ---
 
-## III. HƯỚNG DẪN SỬ DỤNG 2 CHẾ ĐỘ TRÊN WEBSITE
+## 3. NGUYÊN TẮC BẢO MẬT KHI TRUY CẬP TỪ XA
 
-### 👥 1. Phân Hệ Dành Cho Khách Hàng (Customer Portal - Không cần đăng nhập)
-Khách tham quan TTTM quét mã QR dán tại sảnh hoặc trên thân Robot để mở Web App:
-
-1. **Bản Đồ TTTM Tương Tác (Mall Map)**:
-   - Xem sơ đồ mặt bằng các tầng (Tầng 1 Sảnh chính, Tầng 2 Ẩm thực, Tầng 3 Giải trí).
-   - Xem vị trí thời gian thực của Robot đang di chuyển.
-   - Nhấn vào bất kỳ gian hàng nào (ZARA, UNIQLO, Highlands, WC, CGV Cinema...) và nhấn **"ROBOT DẪN TÔI ĐẾN ĐÂY"**.
-   - Robot sẽ lên lộ trình và dẫn đường trực tiếp cho khách hàng.
-
-2. **Trợ Lý Ảo Thông Minh (AI Concierge Q&A)**:
-   - Trò chuyện hoặc chọn câu hỏi nhanh: *"Nhà vệ sinh gần nhất ở đâu?", "Quán cà phê ngon?", "Rạp CGV chiếu phim gì?", "Giờ mở cửa?", "WiFi miễn phí?"*.
-   - Trợ lý AI trả lời tức thì kèm nút **"Dẫn đường tới địa điểm này"** để khách hàng kích hoạt xe dẫn đường ngay trong tin nhắn.
-
-3. **Danh Mục Gian Hàng (Directory)**:
-   - Tìm kiếm nhanh theo tên hoặc lọc theo danh mục: Ẩm thực, Thời trang, Giải trí, Tiện ích WC.
-
----
-
-### 🛡️ 2. Phân Hệ Dành Cho Nhân Viên Vận Hành (Staff Portal)
-Nhân viên nhấn nút **"KHÁCH THAM QUAN"** trên Header -> Quét mã QR trên màn hình OLED của Robot hoặc nhập mã PIN 6 ký tự để mở khóa:
-
-1. **Quản Lý Giao Hàng Nội Bộ (Delivery Dispatcher)**:
-   - **Đặt đơn giao hàng mới**: Chọn Điểm lấy hàng (ví dụ: *Kho B1, Quầy giao nhận T1, Shop Zara*) -> Chọn Điểm giao đích (ví dụ: *Quầy Lễ Tân, Sảnh Tây, Quầy CSKH*) -> Nhập tên kiện hàng -> Nhấn **"Xác Nhận Điều Phối"**.
-   - **Theo dõi tiến độ đơn hàng**:
-     - *Chờ điều phối* ➔ *Robot đang đến lấy hàng* ➔ *Đã đến điểm lấy (Nhân viên xếp hàng lên xe)* ➔ *Đang vận chuyển tới đích* ➔ *Hoàn thành giao hàng*.
-
-2. **Điều Khiển Thủ Công & Camera CSI (Drive & CSI Vision)**:
-   - Lái xe bằng bàn phím phím tắt (**W/A/S/D**, **Space**, **E-Stop**, **Reset**).
-   - Xem trực tiếp video từ camera góc rộng CSI độ trễ siêu thấp (<80ms) kèm khung nhận diện AI chống va chạm người đi bộ.
-   - Kiểm tra nhiệt độ CPU, RAM, điện áp và bench test độc lập 4 kênh động cơ DC.
+1. **Khách tham quan (Guest):** Chỉ có thể tra cứu thông tin tĩnh, hỏi đáp AI và gửi yêu cầu dẫn đường. Tuyệt đối không thể kích hoạt động cơ hoặc xem camera qua liên kết Internet.
+2. **Nhân viên & Quản trị viên:** Bắt buộc đăng nhập tài khoản. Mọi hành động nhạy cảm (Lái xe, E-Stop, Sửa khuyến mãi, Thêm tài khoản) đều được ghi vào bảng `audit_logs` cùng địa chỉ IP và mã người dùng.
+3. **Vé xem Camera (Stream Ticket):** Luồng video CSI MJPEG chỉ mở khi client cung cấp Ticket hợp lệ được cấp trong vòng 30 giây qua API xác thực. Không chia sẻ link video trực tiếp ra ngoài Internet.

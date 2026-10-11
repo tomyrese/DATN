@@ -1,23 +1,25 @@
 import os
 import time
 import uuid
-import sqlite3
 import threading
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
+from src.database.db import Database, get_db
+from src.security.auth_service import SessionInfo
+from src.services.logging_service import logger
 
 @dataclass
 class PointOfInterest:
     id: str
     name: str
     category: str  # 'food', 'fashion', 'entertainment', 'utility', 'staff'
-    floor: str     # 'T1' (Single unified floor)
-    x: float       # 0.0 - 100.0 (percentage coordinates on map)
+    floor: str     # 'T1'
+    x: float       # 0.0 - 100.0 (percentage coordinates)
     y: float
     description: str
     is_staff_only: bool = False
+    store_id: Optional[str] = None
 
 @dataclass
 class DeliveryOrder:
@@ -31,8 +33,9 @@ class DeliveryOrder:
     status: str  # 'PENDING', 'MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF', 'COMPLETED', 'CANCELLED'
     created_at: float
     updated_at: float
-    current_progress: int = 0  # 0 - 100%
+    current_progress: int = 0
     phase_started_at: float = 0.0
+    creator_user_id: Optional[str] = None
 
 @dataclass
 class EscortTask:
@@ -44,124 +47,195 @@ class EscortTask:
     started_at: float
     estimated_seconds: int = 25
     current_progress: int = 0
+    target_x: float = 50.0
+    target_y: float = 50.0
 
 class MallService:
     """
-    Manages Shopping Mall Points of Interest (POIs), SQLite Persistent Delivery Orders,
-    FIFO Delivery Queue for Multi-User concurrency, and Customer Escort Navigation.
-    Thread-safe with WAL mode and in-memory state caching.
+    Central Shopping Mall Business Logic Service.
+    Interacts with SQLite Normalized Schema:
+    - Stores, Floors, POIs
+    - Store-scoped Promotions (RBAC: Staff can only edit their assigned store, Admin edits all)
+    - Persistent Delivery Orders with FIFO Queue
+    - Customer Escort Tasks
+    - Mall FAQ Knowledge Base
     """
 
     def __init__(self, db_path: Optional[str] = None):
-        if db_path is None:
-            data_dir = Path(__file__).resolve().parent.parent.parent / "data"
-            data_dir.mkdir(parents=True, exist_ok=True)
-            self.db_path = str(data_dir / "mall_delivery.db")
-        else:
-            self.db_path = db_path
-
+        self.db = get_db(db_path)
         self._lock = threading.RLock()
-        self.pois: Dict[str, PointOfInterest] = self._init_default_pois()
         self.current_escort: Optional[EscortTask] = None
         self.active_order_id: Optional[str] = None
         self.active_order: Optional[DeliveryOrder] = None
-        self.robot_pos = {"x": 50.0, "y": 68.0, "floor": "T1", "heading": 0.0}
 
-        self._init_db()
         self._load_active_order()
 
-    @contextmanager
-    def _get_conn(self):
-        conn = sqlite3.connect(self.db_path, timeout=30.0, check_same_thread=False)
-        conn.row_factory = sqlite3.Row
-        try:
-            conn.execute("PRAGMA journal_mode=WAL;")
-            conn.execute("PRAGMA busy_timeout=10000;")
-            conn.execute("PRAGMA synchronous=NORMAL;")
-        except Exception:
-            pass
-        try:
-            yield conn
-        finally:
-            conn.close()
+    # ==================== STORES & FLOORS ====================
+    def get_floors(self) -> List[Dict[str, Any]]:
+        return self.db.fetchall("SELECT * FROM mall_floors ORDER BY level_index ASC")
 
-    def _init_db(self):
-        with self._lock:
-            with self._get_conn() as conn:
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS delivery_orders (
-                        order_id TEXT PRIMARY KEY,
-                        creator_name TEXT,
-                        pickup_poi_id TEXT,
-                        pickup_poi_name TEXT,
-                        dropoff_poi_id TEXT,
-                        dropoff_poi_name TEXT,
-                        item_description TEXT,
-                        status TEXT,
-                        created_at REAL,
-                        updated_at REAL,
-                        current_progress INTEGER DEFAULT 0,
-                        phase_started_at REAL DEFAULT 0.0
-                    )
-                """)
-                conn.commit()
+    def get_stores(self, active_only: bool = True) -> List[Dict[str, Any]]:
+        query = "SELECT * FROM stores" + (" WHERE is_active = 1" if active_only else "") + " ORDER BY name ASC"
+        return self.db.fetchall(query)
 
-    def _load_active_order(self):
-        with self._lock:
-            with self._get_conn() as conn:
-                cursor = conn.execute(
-                    "SELECT * FROM delivery_orders WHERE status IN ('MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF') ORDER BY created_at ASC LIMIT 1"
-                )
-                row = cursor.fetchone()
-                if row:
-                    self.active_order = DeliveryOrder(**dict(row))
-                    self.active_order_id = self.active_order.order_id
-                else:
-                    self.active_order = None
-                    self.active_order_id = None
+    def get_store(self, store_id: str) -> Optional[Dict[str, Any]]:
+        return self.db.fetchone("SELECT * FROM stores WHERE id = ?", (store_id,))
 
-    def _init_default_pois(self) -> Dict[str, PointOfInterest]:
-        default_list = [
-            # Khu Trung Tâm & Tiện Ích
-            PointOfInterest("poi_reception", "Quầy Lễ Tân & CSKH", "utility", "T1", 50.0, 72.0, "Sảnh chính trung tâm, hỗ trợ đổi quà, chỉ đường và thông tin."),
-            PointOfInterest("poi_wc", "Khu Vệ Sinh & Tiện Ích", "utility", "T1", 82.0, 72.0, "Nhà vệ sinh hiện đại Nam, Nữ và phòng chăm sóc em bé."),
-            PointOfInterest("poi_elevator", "Thang Máy & Bãi Đỗ Xe", "utility", "T1", 18.0, 72.0, "Cụm thang máy lồng kính và lối xuống bãi đỗ xe."),
+    def update_store(self, store_id: str, data: Dict[str, Any]) -> bool:
+        allowed_keys = ["name", "description", "contact_phone", "opening_hours", "is_active"]
+        updates = []
+        params = []
+        for k in allowed_keys:
+            if k in data:
+                updates.append(f"{k} = ?")
+                params.append(data[k])
+        if not updates:
+            return False
 
-            # Khu Thời Trang Quốc Tế
-            PointOfInterest("poi_uniqlo", "UNIQLO LifeWear", "fashion", "T1", 20.0, 24.0, "Thời trang phong cách Nhật Bản, trang phục nam, nữ và trẻ em."),
-            PointOfInterest("poi_zara", "Thời Trang ZARA", "fashion", "T1", 80.0, 24.0, "Thương hiệu thời trang cao cấp Tây Ban Nha mới nhất."),
+        params.append(store_id)
+        sql = f"UPDATE stores SET {', '.join(updates)} WHERE id = ?"
+        return self.db.execute(sql, tuple(params)) > 0
 
-            # Khu Ẩm Thực & Cafe
-            PointOfInterest("poi_highlands", "Highlands Coffee", "food", "T1", 20.0, 48.0, "Cà phê pha phin truyền thống, Freeze và bánh ngọt."),
-            PointOfInterest("poi_kura_sushi", "Nhà Hàng Kura Sushi", "food", "T1", 50.0, 24.0, "Sushi băng chuyền công nghệ cao và ẩm thực Nhật."),
-
-            # Khu Giải Trí
-            PointOfInterest("poi_cgv", "Rạp Phim CGV Cinemas", "entertainment", "T1", 80.0, 48.0, "Cụm rạp chiếu phim IMAX & 4DX hiện đại bậc nhất."),
-
-            # Khu Vực Nội Bộ Nhân Viên (Staff Only)
-            PointOfInterest("poi_warehouse", "Kho Giao Nhận Hàng Nội Bộ", "staff", "T1", 90.0, 88.0, "Khu vực bốc dỡ và xuất nhập hàng hóa nội bộ.", is_staff_only=True),
-        ]
-        return {p.id: p for p in default_list}
-
+    # ==================== POIS ====================
     def get_pois(self, include_staff: bool = False) -> List[Dict[str, Any]]:
-        return [
-            asdict(p) for p in self.pois.values()
-            if include_staff or not p.is_staff_only
-        ]
+        query = "SELECT id, name, category, floor_id as floor, x, y, description, is_staff_only, store_id FROM mall_pois"
+        if not include_staff:
+            query += " WHERE is_staff_only = 0"
+        query += " ORDER BY name ASC"
+        return self.db.fetchall(query)
 
     def get_poi(self, poi_id: str) -> Optional[PointOfInterest]:
-        return self.pois.get(poi_id)
+        row = self.db.fetchone("SELECT * FROM mall_pois WHERE id = ?", (poi_id,))
+        if not row:
+            return None
+        return PointOfInterest(
+            id=row["id"],
+            name=row["name"],
+            category=row["category"],
+            floor=row["floor_id"],
+            x=float(row["x"]),
+            y=float(row["y"]),
+            description=row["description"] or "",
+            is_staff_only=bool(row["is_staff_only"]),
+            store_id=row["store_id"]
+        )
 
-    # ==================== DELIVERY ORDERS & QUEUE (SQLITE PERSISTENCE) ====================
+    # ==================== PROMOTIONS (WITH RBAC STORE SCOPING) ====================
+    def get_promotions(self, store_id: Optional[str] = None, active_only: bool = True) -> List[Dict[str, Any]]:
+        now = time.time()
+        sql = """
+            SELECT p.*, s.name as store_name
+            FROM promotions p
+            JOIN stores s ON p.store_id = s.id
+        """
+        clauses = []
+        params = []
+
+        if store_id:
+            clauses.append("p.store_id = ?")
+            params.append(store_id)
+
+        if active_only:
+            clauses.append("p.is_active = 1 AND p.end_time >= ?")
+            params.append(now)
+
+        if clauses:
+            sql += " WHERE " + " AND ".join(clauses)
+
+        sql += " ORDER BY p.start_time DESC"
+        return self.db.fetchall(sql, tuple(params))
+
+    def create_promotion(
+        self,
+        store_id: str,
+        title: str,
+        description: str,
+        discount_percent: Optional[int],
+        promo_code: Optional[str],
+        banner_url: Optional[str],
+        start_time: float,
+        end_time: float,
+        session: SessionInfo
+    ) -> Dict[str, Any]:
+        # Validate store scoping
+        if session.role == "staff" and store_id not in session.assigned_store_ids:
+            raise PermissionError(f"Staff '{session.username}' is not authorized to manage promotions for store '{store_id}'")
+
+        promo_id = f"prm_{int(time.time())}_{uuid.uuid4().hex[:4]}"
+        now = time.time()
+
+        self.db.execute("""
+            INSERT INTO promotions (id, title, store_id, description, discount_percent, promo_code, banner_url, start_time, end_time, is_active, created_by, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            promo_id, title, store_id, description, discount_percent, promo_code,
+            banner_url, start_time, end_time, 1, session.user_id, now, now
+        ))
+
+        logger.info(f"Promotion created: {promo_id} ('{title}') for store '{store_id}' by {session.username}")
+        row = self.db.fetchone("SELECT * FROM promotions WHERE id = ?", (promo_id,))
+        return dict(row) if row else {}
+
+    def update_promotion(
+        self,
+        promo_id: str,
+        data: Dict[str, Any],
+        session: SessionInfo
+    ) -> bool:
+        promo = self.db.fetchone("SELECT * FROM promotions WHERE id = ?", (promo_id,))
+        if not promo:
+            return False
+
+        # Validate store scoping
+        if session.role == "staff" and promo["store_id"] not in session.assigned_store_ids:
+            raise PermissionError(f"Staff '{session.username}' is not authorized to modify promotions for store '{promo['store_id']}'")
+
+        allowed_keys = ["title", "description", "discount_percent", "promo_code", "banner_url", "start_time", "end_time", "is_active"]
+        updates = ["updated_at = ?"]
+        params = [time.time()]
+
+        for k in allowed_keys:
+            if k in data:
+                updates.append(f"{k} = ?")
+                params.append(data[k])
+
+        params.append(promo_id)
+        sql = f"UPDATE promotions SET {', '.join(updates)} WHERE id = ?"
+        return self.db.execute(sql, tuple(params)) > 0
+
+    def delete_promotion(self, promo_id: str, session: SessionInfo) -> bool:
+        promo = self.db.fetchone("SELECT * FROM promotions WHERE id = ?", (promo_id,))
+        if not promo:
+            return False
+
+        if session.role == "staff" and promo["store_id"] not in session.assigned_store_ids:
+            raise PermissionError(f"Staff '{session.username}' is not authorized to delete promotions for store '{promo['store_id']}'")
+
+        return self.db.execute("DELETE FROM promotions WHERE id = ?", (promo_id,)) > 0
+
+    # ==================== DELIVERY ORDERS & FIFO QUEUE ====================
+    def _load_active_order(self):
+        with self._lock:
+            row = self.db.fetchone(
+                "SELECT * FROM delivery_orders WHERE status IN ('MOVING_TO_PICKUP', 'ARRIVED_AT_PICKUP', 'DELIVERING', 'ARRIVED_AT_DROPOFF') ORDER BY created_at ASC LIMIT 1"
+            )
+            if row:
+                self.active_order = DeliveryOrder(**dict(row))
+                self.active_order_id = self.active_order.order_id
+            else:
+                self.active_order = None
+                self.active_order_id = None
+
     def create_delivery_order(
         self,
         creator_name: str,
         pickup_poi_id: str,
         dropoff_poi_id: str,
-        item_description: str
+        item_description: str,
+        creator_user_id: Optional[str] = None
     ) -> DeliveryOrder:
-        pickup = self.pois.get(pickup_poi_id)
-        dropoff = self.pois.get(dropoff_poi_id)
+        pickup = self.get_poi(pickup_poi_id)
+        dropoff = self.get_poi(dropoff_poi_id)
 
         pickup_name = pickup.name if pickup else pickup_poi_id
         dropoff_name = dropoff.name if dropoff else dropoff_poi_id
@@ -170,7 +244,6 @@ class MallService:
         now = time.time()
 
         with self._lock:
-            # Check if robot is currently idle to start immediately, or place in queue
             should_start_now = self.active_order is None and (self.current_escort is None or self.current_escort.status != "NAVIGATING")
             initial_status = "MOVING_TO_PICKUP" if should_start_now else "PENDING"
             initial_progress = 0
@@ -187,20 +260,19 @@ class MallService:
                 created_at=now,
                 updated_at=now,
                 current_progress=initial_progress,
-                phase_started_at=now if should_start_now else 0.0
+                phase_started_at=now if should_start_now else 0.0,
+                creator_user_id=creator_user_id
             )
 
-            with self._get_conn() as conn:
-                conn.execute("""
-                    INSERT OR REPLACE INTO delivery_orders
-                    (order_id, creator_name, pickup_poi_id, pickup_poi_name, dropoff_poi_id, dropoff_poi_name, item_description, status, created_at, updated_at, current_progress, phase_started_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    order.order_id, order.creator_name, order.pickup_poi_id, order.pickup_poi_name,
-                    order.dropoff_poi_id, order.dropoff_poi_name, order.item_description,
-                    order.status, order.created_at, order.updated_at, order.current_progress, order.phase_started_at
-                ))
-                conn.commit()
+            self.db.execute("""
+                INSERT INTO delivery_orders
+                (order_id, creator_name, creator_user_id, pickup_poi_id, pickup_poi_name, dropoff_poi_id, dropoff_poi_name, item_description, status, created_at, updated_at, current_progress, phase_started_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                order.order_id, order.creator_name, order.creator_user_id, order.pickup_poi_id, order.pickup_poi_name,
+                order.dropoff_poi_id, order.dropoff_poi_name, order.item_description,
+                order.status, order.created_at, order.updated_at, order.current_progress, order.phase_started_at
+            ))
 
             if should_start_now:
                 self.active_order_id = order_id
@@ -212,11 +284,8 @@ class MallService:
         with self._lock:
             if self.active_order and self.active_order.order_id == order_id:
                 return self.active_order
-            with self._get_conn() as conn:
-                row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
-                if row:
-                    return DeliveryOrder(**dict(row))
-            return None
+            row = self.db.fetchone("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,))
+            return DeliveryOrder(**dict(row)) if row else None
 
     def get_active_order(self) -> Optional[DeliveryOrder]:
         with self._lock:
@@ -229,28 +298,24 @@ class MallService:
             if self.current_escort and self.current_escort.status == "NAVIGATING":
                 return None
 
-            with self._get_conn() as conn:
-                cursor = conn.execute(
-                    "SELECT * FROM delivery_orders WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 1"
+            row = self.db.fetchone("SELECT * FROM delivery_orders WHERE status = 'PENDING' ORDER BY created_at ASC LIMIT 1")
+            if row:
+                order = DeliveryOrder(**dict(row))
+                now = time.time()
+                order.status = "MOVING_TO_PICKUP"
+                order.updated_at = now
+                order.phase_started_at = now
+                order.current_progress = 0
+
+                self.db.execute(
+                    "UPDATE delivery_orders SET status = ?, updated_at = ?, phase_started_at = ?, current_progress = ? WHERE order_id = ?",
+                    (order.status, order.updated_at, order.phase_started_at, order.current_progress, order.order_id)
                 )
-                row = cursor.fetchone()
-                if row:
-                    order = DeliveryOrder(**dict(row))
-                    now = time.time()
-                    order.status = "MOVING_TO_PICKUP"
-                    order.updated_at = now
-                    order.phase_started_at = now
-                    order.current_progress = 0
 
-                    conn.execute(
-                        "UPDATE delivery_orders SET status = ?, updated_at = ?, phase_started_at = ?, current_progress = ? WHERE order_id = ?",
-                        (order.status, order.updated_at, order.phase_started_at, order.current_progress, order.order_id)
-                    )
-                    conn.commit()
-
-                    self.active_order_id = order.order_id
-                    self.active_order = order
-                    return order
+                self.active_order_id = order.order_id
+                self.active_order = order
+                logger.info(f"Dispatched next queued delivery order: {order.order_id}")
+                return order
 
             self.active_order_id = None
             self.active_order = None
@@ -263,61 +328,55 @@ class MallService:
                 self.active_order.current_progress = progress
                 self.active_order.updated_at = now
 
-            with self._get_conn() as conn:
-                conn.execute(
-                    "UPDATE delivery_orders SET current_progress = ?, updated_at = ? WHERE order_id = ?",
-                    (progress, now, order_id)
-                )
-                conn.commit()
+            self.db.execute(
+                "UPDATE delivery_orders SET current_progress = ?, updated_at = ? WHERE order_id = ?",
+                (progress, now, order_id)
+            )
 
     def update_order_status(self, order_id: str, new_status: str, progress: Optional[int] = None) -> bool:
         now = time.time()
         with self._lock:
-            with self._get_conn() as conn:
-                row = conn.execute("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,)).fetchone()
-                if not row:
-                    return False
+            row = self.db.fetchone("SELECT * FROM delivery_orders WHERE order_id = ?", (order_id,))
+            if not row:
+                return False
 
-                old_order = DeliveryOrder(**dict(row))
-                prog = progress if progress is not None else old_order.current_progress
-                phase_start = now if new_status != old_order.status else old_order.phase_started_at
+            old_order = DeliveryOrder(**dict(row))
+            prog = progress if progress is not None else old_order.current_progress
+            phase_start = now if new_status != old_order.status else old_order.phase_started_at
 
-                conn.execute(
-                    "UPDATE delivery_orders SET status = ?, updated_at = ?, current_progress = ?, phase_started_at = ? WHERE order_id = ?",
-                    (new_status, now, prog, phase_start, order_id)
-                )
-                conn.commit()
+            self.db.execute(
+                "UPDATE delivery_orders SET status = ?, updated_at = ?, current_progress = ?, phase_started_at = ? WHERE order_id = ?",
+                (new_status, now, prog, phase_start, order_id)
+            )
 
-                if self.active_order and self.active_order.order_id == order_id:
-                    self.active_order.status = new_status
-                    self.active_order.updated_at = now
-                    self.active_order.current_progress = prog
-                    self.active_order.phase_started_at = phase_start
+            if self.active_order and self.active_order.order_id == order_id:
+                self.active_order.status = new_status
+                self.active_order.updated_at = now
+                self.active_order.current_progress = prog
+                self.active_order.phase_started_at = phase_start
 
             if new_status in ["COMPLETED", "CANCELLED"] and self.active_order_id == order_id:
                 self.active_order_id = None
                 self.active_order = None
-                # Dispatch next pending order in queue
                 self._try_dispatch_next_in_queue()
 
             return True
 
     def get_orders(self) -> List[Dict[str, Any]]:
         with self._lock:
-            with self._get_conn() as conn:
-                rows = conn.execute("SELECT * FROM delivery_orders ORDER BY created_at DESC LIMIT 50").fetchall()
-                orders = [dict(r) for r in rows]
-                if self.active_order:
-                    for o in orders:
-                        if o.get("order_id") == self.active_order.order_id:
-                            o["current_progress"] = self.active_order.current_progress
-                            o["status"] = self.active_order.status
-                            o["updated_at"] = self.active_order.updated_at
-                return orders
+            rows = self.db.fetchall("SELECT * FROM delivery_orders ORDER BY created_at DESC LIMIT 50")
+            orders = [dict(r) for r in rows]
+            if self.active_order:
+                for o in orders:
+                    if o.get("order_id") == self.active_order.order_id:
+                        o["current_progress"] = self.active_order.current_progress
+                        o["status"] = self.active_order.status
+                        o["updated_at"] = self.active_order.updated_at
+            return orders
 
-    # ==================== ESCORT NAVIGATION (CUSTOMERS) ====================
+    # ==================== ESCORT NAVIGATION ====================
     def request_escort(self, target_poi_id: str) -> Optional[EscortTask]:
-        poi = self.pois.get(target_poi_id)
+        poi = self.get_poi(target_poi_id)
         if not poi:
             return None
 
@@ -329,10 +388,13 @@ class MallService:
             target_floor="Sảnh Chính T1",
             status="NAVIGATING",
             started_at=time.time(),
-            estimated_seconds=20,
-            current_progress=0
+            estimated_seconds=25,
+            current_progress=0,
+            target_x=poi.x,
+            target_y=poi.y
         )
         self.current_escort = task
+        logger.info(f"Customer Escort initiated to '{poi.name}' (Task ID: {task_id})")
         return task
 
     def get_escort_status(self) -> Optional[Dict[str, Any]]:
@@ -344,79 +406,10 @@ class MallService:
         if self.current_escort:
             self.current_escort.status = "CANCELLED"
             self.current_escort = None
+            logger.info("Customer escort cancelled")
             return True
         return False
 
-    # ==================== AI CONCIERGE Q&A ====================
-    def ask_concierge(self, question: str) -> Dict[str, Any]:
-        q = question.lower()
-
-        # Toilet / WC
-        if any(k in q for k in ["vệ sinh", "toilet", "wc", "nhà tắm", "rửa tay"]):
-            return {
-                "answer": "Nhà vệ sinh hiện đại nằm ở phía Đông sảnh Tầng 1 (cạnh cụm rạp CGV). Quý khách có thể yêu cầu tôi dẫn đường trực tiếp đến đó!",
-                "suggested_poi_id": "poi_wc",
-                "suggested_poi_name": "Khu Vệ Sinh & Tiện Ích"
-            }
-
-        # Coffee / Tea / Drinks
-        if any(k in q for k in ["cafe", "cà phê", "highlands", "nước", "uống"]):
-            return {
-                "answer": "Quán Highlands Coffee nằm ở khu ẩm thực Tầng 1 với không gian thoáng mát và cà phê pha phin truyền thống. Quý khách muốn tôi dẫn đường đến đó không ạ?",
-                "suggested_poi_id": "poi_highlands",
-                "suggested_poi_name": "Highlands Coffee"
-            }
-
-        # Sushi / Food / Eating
-        if any(k in q for k in ["sushi", "ăn", "lẩu", "nhà hàng", "kura"]):
-            return {
-                "answer": "Nhà hàng Kura Sushi nằm ngay trung tâm Tầng 1 với sushi băng chuyền tươi ngon. Bấm nút bên dưới để tôi đưa quý khách đến quán nhé!",
-                "suggested_poi_id": "poi_kura_sushi",
-                "suggested_poi_name": "Nhà Hàng Kura Sushi"
-            }
-
-        # Fashion / Clothes
-        if any(k in q for k in ["quần áo", "thời trang", "uniqlo", "áo", "quần"]):
-            return {
-                "answer": "Cửa hàng UNIQLO LifeWear nằm ở cánh Tây Tầng 1 với đầy đủ các bộ sưu tập thời trang mới nhất. Quý khách bấm vào nút bên dưới để tôi dẫn đường nhé!",
-                "suggested_poi_id": "poi_uniqlo",
-                "suggested_poi_name": "UNIQLO LifeWear"
-            }
-
-        if any(k in q for k in ["zara", "váy", "đầm"]):
-            return {
-                "answer": "Showroom thời trang ZARA nằm ở cánh Đông Tầng 1. Quý khách có thể đi theo tôi để đến cửa hàng ngay!",
-                "suggested_poi_id": "poi_zara",
-                "suggested_poi_name": "Thời Trang ZARA"
-            }
-
-        # Cinema / Movies
-        if any(k in q for k in ["phim", "cgv", "rạp", "cinema", "vé"]):
-            return {
-                "answer": "Cụm rạp CGV Cinemas nằm ở tầng 1 với phòng chiếu IMAX & 4DX hiện đại. Bấm nút dưới đây để tôi dẫn quý khách đến quầy vé!",
-                "suggested_poi_id": "poi_cgv",
-                "suggested_poi_name": "Rạp Phim CGV Cinemas"
-            }
-
-        # Elevator
-        if any(k in q for k in ["thang máy", "bãi xe", "gửi xe", "đỗ xe", "xe"]):
-            return {
-                "answer": "Cụm Thang Máy lồng kính và lối xuống bãi đỗ xe nằm ở phía Tây Tầng 1. Tôi có thể dẫn quý khách đến ngay cửa thang máy!",
-                "suggested_poi_id": "poi_elevator",
-                "suggested_poi_name": "Thang Máy & Bãi Đỗ Xe"
-            }
-
-        # Reception
-        if any(k in q for k in ["lễ tân", "cskh", "đổi quà", "hỏi đáp", "quầy"]):
-            return {
-                "answer": "Quầy Lễ Tân & Chăm Sóc Khách Hàng nằm ngay sảnh chính Tầng 1. Quý khách có thể đến để được tư vấn và đổi quà khuyến mãi!",
-                "suggested_poi_id": "poi_reception",
-                "suggested_poi_name": "Quầy Lễ Tân & CSKH"
-            }
-
-        # Default Mall Info
-        return {
-            "answer": "Trung tâm thương mại mở cửa từ 09:00 - 22:00 tất cả các ngày trong tuần. Miễn phí WiFi 'MALL_GUEST_FREE'. Quý khách có thể chạm vào bản đồ hoặc hỏi tôi về bất kỳ gian hàng nào!",
-            "suggested_poi_id": None,
-            "suggested_poi_name": None
-        }
+    # ==================== FAQ & KNOWLEDGE BASE ====================
+    def get_faq_items(self) -> List[Dict[str, Any]]:
+        return self.db.fetchall("SELECT * FROM mall_faq WHERE is_active = 1")

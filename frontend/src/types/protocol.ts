@@ -44,6 +44,15 @@ export interface TelemetryData {
   uptime: number;
   timestamp: number;
   personBbox?: [number, number, number, number] | null;
+  odometryX?: number | null;
+  odometryY?: number | null;
+  odometryHeading?: number | null;
+  odometryConfidence?: number | null;
+  isEstimated?: boolean | null;
+  ultrasonicLeft?: number | null;
+  ultrasonicRight?: number | null;
+  obstacleState?: string | null;
+  navStatus?: string | null;
 }
 
 export interface SafetyEventData {
@@ -136,5 +145,64 @@ export interface AskAssistantResponse {
   answer: string;
   suggested_poi_id?: string | null;
   suggested_poi_name?: string | null;
+}
+
+export interface Promotion {
+  id: string;
+  store_id: string;
+  store_name?: string;
+  title: string;
+  description: string;
+  discount_percent: number;
+  promo_code?: string;
+  start_time: string;
+  end_time: string;
+  is_active: number | boolean;
+}
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  full_name: string;
+  role: 'guest' | 'staff' | 'admin';
+  is_active: number | boolean;
+  created_at: string;
+  assignedStoreIds?: string[];
+}
+
+export interface AuditLog {
+  id: number;
+  user_id?: string;
+  username?: string;
+  role?: string;
+  action: string;
+  resource: string;
+  details?: string;
+  ip_address?: string;
+  created_at: string;
+}
+
+export interface MapGraphNode {
+  id: string;
+  floor: string;
+  x: number;
+  y: number;
+  label?: string;
+  poi_id?: string;
+}
+
+export interface MapGraphEdge {
+  id: string;
+  source_node_id: string;
+  target_node_id: string;
+  distance_m: number;
+  bidirectional: number;
+  is_blocked: number;
+}
+
+export interface MapGraphData {
+  nodes: MapGraphNode[];
+  edges: MapGraphEdge[];
+  restricted_zones: Array<{ id: string; name: string; polygon_json: string }>;
 }
 

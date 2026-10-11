@@ -19,7 +19,8 @@ const DEFAULT_POIS: PointOfInterest[] = [
 ];
 
 let globalState: RobotStoreState = {
-  userRole: 'customer',
+  userRole: StorageService.getUserRole(),
+  currentUser: StorageService.getAuthUser(),
   connectionStatus: 'DISCONNECTED',
   pairedRobot: null,
   settings: {
@@ -40,6 +41,7 @@ let globalState: RobotStoreState = {
   logs: [],
   latencyMs: 0,
   pois: DEFAULT_POIS,
+  promotions: [],
   deliveryOrders: [],
   activeEscort: null,
   chatMessages: [
@@ -153,6 +155,12 @@ export function initializeStore() {
   RobotApi.getDeliveryOrders(apiHost, apiPort).then(orders => {
     if (orders) {
       updateGlobalState(() => ({ deliveryOrders: orders }));
+    }
+  });
+
+  RobotApi.getPromotions(apiHost, apiPort).then(promotions => {
+    if (promotions) {
+      updateGlobalState(() => ({ promotions }));
     }
   });
 }

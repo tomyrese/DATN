@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRobotStore, updateGlobalState } from '../store/useRobotStore';
 import { StorageService } from '../services/StorageService';
-import { Bot, User, ShieldCheck } from 'lucide-react';
+import { RobotApi } from '../services/RobotApi';
+import { RobotSocket } from '../services/RobotSocket';
+import { LoginModal } from './LoginModal';
+import { Bot, User, ShieldCheck, Shield, LogOut, LogIn } from 'lucide-react';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
-  const { connectionStatus, userRole } = useRobotStore();
+  const { connectionStatus, userRole, currentUser, pairedRobot } = useRobotStore();
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const getStatusInfo = () => {
     switch (connectionStatus) {
@@ -25,55 +29,148 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
 
   const status = getStatusInfo();
 
-  const handleToggleRole = () => {
-    if (userRole === 'customer') {
-      StorageService.saveUserRole('staff');
-      updateGlobalState(() => ({ userRole: 'staff' }));
-    } else {
-      StorageService.saveUserRole('customer');
-      updateGlobalState(() => ({ userRole: 'customer' }));
+  const handleLogout = async () => {
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+    const token = currentUser?.token;
+    if (token) {
+      await RobotApi.logout(host, port, token);
     }
+    StorageService.clearAuthUser();
+    updateGlobalState(() => ({
+      currentUser: null,
+      userRole: 'customer',
+    }));
+    // Reconnect as guest
+    RobotSocket.getInstance().connect(host, port, 'guest');
   };
 
   return (
-    <header className="app-header">
-      <div className="brand-section">
-        <div className="brand-icon-bubble">
-          <Bot size={20} />
-        </div>
-        <div className="brand-text-block">
-          <h1>
-            ROBOT TTTM
-          </h1>
-        </div>
-      </div>
-
-      <div className="header-actions">
-        {/* Status Pill */}
-        <div className="robot-status-pill">
-          <span className={`status-dot ${status.className}`}></span>
-          <span>{status.text}</span>
+    <>
+      <header className="app-header">
+        <div className="brand-section">
+          <div className="brand-icon-bubble">
+            <Bot size={20} />
+          </div>
+          <div className="brand-text-block">
+            <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>
+              ROBOT TTTM
+            </h1>
+            <span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
+              Trung Tâm Thương Mại
+            </span>
+          </div>
         </div>
 
-        {/* Role Toggle Button */}
-        <button
-          className={`btn-role-switch ${userRole === 'staff' ? 'active-staff' : ''}`}
-          onClick={handleToggleRole}
-          title="Chuyển chế độ Khách Hàng / Nhân Viên"
-        >
-          {userRole === 'staff' ? (
-            <>
-              <ShieldCheck size={13} color="#B45309" />
-              <span>NV</span>
-            </>
+        <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Status Pill */}
+          <div className="robot-status-pill">
+            <span className={`status-dot ${status.className}`}></span>
+            <span>{status.text}</span>
+          </div>
+
+          {/* User Role & Login/Logout Action */}
+          {userRole === 'admin' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: '#FEF3C7',
+                  color: '#B45309',
+                  padding: '5px 9px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  border: '1px solid #FDE68A'
+                }}
+              >
+                <Shield size={13} />
+                <span>Admin: {currentUser?.username || 'admin'}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                title="Đăng xuất"
+                style={{
+                  background: '#F1F5F9',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '8px',
+                  padding: '6px 8px',
+                  cursor: 'pointer',
+                  color: '#475569',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 600
+                }}
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
+          ) : userRole === 'staff' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: '#EFF6FF',
+                  color: '#1D4ED8',
+                  padding: '5px 9px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  border: '1px solid #BFDBFE'
+                }}
+              >
+                <ShieldCheck size={13} />
+                <span>NV: {currentUser?.username || 'Staff'}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                title="Đăng xuất"
+                style={{
+                  background: '#F1F5F9',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '8px',
+                  padding: '6px 8px',
+                  cursor: 'pointer',
+                  color: '#475569',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '0.75rem',
+                  fontWeight: 600
+                }}
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
           ) : (
-            <>
-              <User size={13} />
-              <span>Khách</span>
-            </>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: '#F8FAFC',
+                border: '1.5px solid #CBD5E1',
+                borderRadius: '8px',
+                padding: '6px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                color: '#334155',
+                cursor: 'pointer'
+              }}
+            >
+              <LogIn size={13} color="#2563EB" />
+              <span>Đăng Nhập</span>
+            </button>
           )}
-        </button>
-      </div>
-    </header>
+        </div>
+      </header>
+
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    </>
   );
 };

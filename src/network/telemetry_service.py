@@ -47,8 +47,17 @@ class TelemetryService:
         oled_ok: bool,
         motor_ok: bool,
         camera_fps: float,
-        inference_fps: float,
-        person_bbox: Optional[List[float]] = None
+        inferenceFps: float,
+        person_bbox: Optional[List[float]] = None,
+        odometry_x: Optional[float] = None,
+        odometry_y: Optional[float] = None,
+        odometry_heading: Optional[float] = None,
+        odometry_confidence: Optional[float] = None,
+        is_estimated: Optional[bool] = True,
+        ultrasonic_left: Optional[float] = None,
+        ultrasonic_right: Optional[float] = None,
+        obstacle_state: Optional[str] = None,
+        nav_status: Optional[str] = None
     ) -> TelemetryMessage:
         self._update_system_metrics()
         now = time.time()
@@ -79,12 +88,21 @@ class TelemetryService:
             oledOk=oled_ok,
             motorOk=motor_ok,
             cameraFps=camera_fps,
-            inferenceFps=inference_fps,
+            inferenceFps=inferenceFps,
             cpuTemp=self.cached_cpu_temp,
             cpuUsage=self.cached_cpu_usage,
             memoryUsage=self.cached_memory_usage,
             wifiSignal=None,
             uptime=uptime,
             timestamp=now,
-            personBbox=person_bbox
+            personBbox=person_bbox,
+            odometryX=odometry_x,
+            odometryY=odometry_y,
+            odometryHeading=odometry_heading,
+            odometryConfidence=odometry_confidence,
+            isEstimated=is_estimated,
+            ultrasonicLeft=ultrasonic_left,
+            ultrasonicRight=ultrasonic_right,
+            obstacleState=obstacle_state,
+            navStatus=nav_status
         )
