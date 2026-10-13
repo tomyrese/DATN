@@ -56,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
             <h1 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800 }}>
               ROBOT TTTM
             </h1>
-            <span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
+            <span className="brand-subtext" style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
               Trung Tâm Thương Mại
             </span>
           </div>

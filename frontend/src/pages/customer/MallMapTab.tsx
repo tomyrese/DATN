@@ -1,31 +1,24 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRobotStore, updateGlobalState } from '../../store/useRobotStore';
 import { RobotApi } from '../../services/RobotApi';
-import { PointOfInterest } from '../../types/protocol';
 import {
   Navigation,
   XCircle,
-  Search,
-  CheckCircle2,
   Sparkles,
   MapPin,
   Clock,
-  Compass,
-  Zap,
-  ArrowUp,
-  ArrowDown,
-  ArrowLeft,
+  CheckCircle2,
+  Tag,
   ArrowRight,
-  Square,
-  ShieldAlert,
-  Layers,
+  Info,
 } from 'lucide-react';
 
-interface StoreMeta {
+export interface MallStoreMeta {
   id: string;
+  shortName: string;
   name: string;
   sub: string;
-  category: string;
+  category: 'food' | 'fashion' | 'entertainment' | 'utility';
   lotX: number;
   lotY: number;
   lotW: number;
@@ -38,11 +31,14 @@ interface StoreMeta {
   icon: string;
   description: string;
   promo?: string;
+  hours: string;
+  wing: string;
 }
 
-const MALL_STORES: StoreMeta[] = [
+export const MALL_STORES: MallStoreMeta[] = [
   {
     id: 'poi_uniqlo',
+    shortName: 'UNIQLO',
     name: 'UNIQLO LifeWear',
     sub: 'Thời trang Nhật Bản',
     category: 'fashion',
@@ -58,9 +54,12 @@ const MALL_STORES: StoreMeta[] = [
     icon: '👕',
     description: 'Trang phục thường ngày cao cấp phong cách Nhật Bản dành cho mọi lứa tuổi.',
     promo: 'Giảm 20% bộ sưu tập mùa hè',
+    hours: '09:00 — 22:00',
+    wing: 'Hành lang Tây (Tầng 1)',
   },
   {
     id: 'poi_kura_sushi',
+    shortName: 'KURA SUSHI',
     name: 'Nhà Hàng Kura Sushi',
     sub: 'Ẩm thực Nhật Bản',
     category: 'food',
@@ -74,11 +73,14 @@ const MALL_STORES: StoreMeta[] = [
     borderColor: '#FBBF24',
     accentBg: '#FFFBEB',
     icon: '🍣',
-    description: 'Sushi băng chuyền công nghệ cao, hải sản nhập khẩu tươi ngon mỗi ngày.',
+    description: 'Sushi băng chuyền công nghệ cao, hải sản tươi ngon nhập khẩu mỗi ngày.',
     promo: 'Tặng 1 đĩa cá hồi cho hóa đơn từ 500k',
+    hours: '10:00 — 22:00',
+    wing: 'Sảnh Trung Tâm (Tầng 1)',
   },
   {
     id: 'poi_zara',
+    shortName: 'ZARA',
     name: 'Thời Trang ZARA',
     sub: 'Thời trang Quốc tế',
     category: 'fashion',
@@ -94,9 +96,12 @@ const MALL_STORES: StoreMeta[] = [
     icon: '👗',
     description: 'Thương hiệu thời trang cao cấp Tây Ban Nha với xu hướng mới nhất toàn cầu.',
     promo: 'Ưu đãi lên đến 30% cho thành viên',
+    hours: '09:00 — 22:00',
+    wing: 'Hành lang Đông (Tầng 1)',
   },
   {
     id: 'poi_highlands',
+    shortName: 'HIGHLANDS',
     name: 'Highlands Coffee',
     sub: 'Cà phê & Bánh ngọt',
     category: 'food',
@@ -111,12 +116,15 @@ const MALL_STORES: StoreMeta[] = [
     accentBg: '#FEF2F2',
     icon: '☕',
     description: 'Cà phê pha phin truyền thống đậm đà, Freeze đá xay và trà sen vàng trứ danh.',
-    promo: 'Mua 2 tặng 1 vào khung giờ 14h - 17h',
+    promo: 'Mua 2 tặng 1 vào khung giờ 14h — 17h',
+    hours: '08:00 — 22:30',
+    wing: 'Hành lang Tây (Tầng 1)',
   },
   {
     id: 'poi_cgv',
+    shortName: 'CGV CINEMAS',
     name: 'Rạp Phim CGV Cinemas',
-    sub: 'Rạp chiếu phim IMAX',
+    sub: 'Rạp chiếu phim IMAX & 4DX',
     category: 'entertainment',
     lotX: 680,
     lotY: 260,
@@ -130,11 +138,14 @@ const MALL_STORES: StoreMeta[] = [
     icon: '🎬',
     description: 'Cụm rạp chiếu phim màn hình lớn IMAX & 4DX hiện đại với hệ thống âm thanh Dolby Atmos.',
     promo: 'Combo bắp nước giảm 15% khi đặt vé trước',
+    hours: '08:30 — 23:30',
+    wing: 'Hành lang Đông (Tầng 1)',
   },
   {
     id: 'poi_elevator',
+    shortName: 'THANG MÁY',
     name: 'Thang Máy & Bãi Xe',
-    sub: 'Lên xuống tầng & Hầm B1',
+    sub: 'Lên tầng & Hầm B1',
     category: 'utility',
     lotX: 50,
     lotY: 470,
@@ -147,9 +158,12 @@ const MALL_STORES: StoreMeta[] = [
     accentBg: '#F0FDF4',
     icon: '🛗',
     description: 'Cụm thang máy kính tốc độ cao kết nối các tầng T1, T2, T3 và bãi giữ xe tầng hầm.',
+    hours: 'Mở cửa 24/7',
+    wing: 'Hành lang Tây (Tầng 1)',
   },
   {
     id: 'poi_reception',
+    shortName: 'LỄ TÂN & SẠC',
     name: 'Lễ Tân & Trạm Sạc Robot',
     sub: 'Sảnh chính & Xuất phát',
     category: 'utility',
@@ -164,9 +178,12 @@ const MALL_STORES: StoreMeta[] = [
     accentBg: '#EFF6FF',
     icon: '💁',
     description: 'Quầy thông tin CSKH trung tâm và điểm xuất phát / sạc pin tự động của Robot.',
+    hours: '08:00 — 22:00',
+    wing: 'Sảnh Chính Trung Tâm (Tầng 1)',
   },
   {
     id: 'poi_wc',
+    shortName: 'KHU VỆ SINH',
     name: 'Khu Vệ Sinh & Tiện Ích',
     sub: 'WC Nam / Nữ / Em Bé',
     category: 'utility',
@@ -181,6 +198,8 @@ const MALL_STORES: StoreMeta[] = [
     accentBg: '#F0FDFA',
     icon: '🚻',
     description: 'Khu vệ sinh hiện đại trang bị thiết bị tự động và phòng thay tã cho mẹ & bé.',
+    hours: 'Mở cửa 24/7',
+    wing: 'Hành lang Đông (Tầng 1)',
   },
 ];
 
@@ -193,114 +212,113 @@ const CATEGORIES = [
 ];
 
 export const MallMapTab: React.FC = () => {
-  const { activeEscort, pairedRobot, telemetry, currentUser } = useRobotStore();
+  const { activeEscort, pairedRobot, telemetry, connectionStatus } = useRobotStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedStoreId, setSelectedStoreId] = useState<string>('poi_cgv');
-  const [searchQuery, setSearchQuery] = useState('');
   const [loadingEscort, setLoadingEscort] = useState(false);
-  const [drivingManual, setDrivingManual] = useState(false);
-
-  // Breadcrumb trajectory of real robot movements (stored as SVG coordinates)
-  const [trail, setTrail] = useState<{ x: number; y: number }[]>([]);
 
   // Selected store details
   const currentStore = useMemo(() => {
     return MALL_STORES.find(s => s.id === selectedStoreId) || MALL_STORES[0];
   }, [selectedStoreId]);
 
-  // Filtered stores
+  // Stores filtered by category
   const filteredStores = useMemo(() => {
-    return MALL_STORES.filter(s => {
-      const matchCat = selectedCategory === 'all' || s.category === selectedCategory;
-      const matchSearch =
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.sub.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
-    });
-  }, [selectedCategory, searchQuery]);
+    if (selectedCategory === 'all') return MALL_STORES;
+    return MALL_STORES.filter(s => s.category === selectedCategory);
+  }, [selectedCategory]);
 
-  // Coordinate Conversion: (x: 0..100, y: 0..70) -> SVG (1000 x 700)
-  // Default robot start: Reception desk (x=50, y=51 -> svgX=500, svgY=510)
-  const defaultRobotSvg = { x: 500, y: 510 };
-
+  // Coordinate Conversion: Metric (x: 0..100, y: 0..70) -> SVG (1000 x 680)
   const rawOdomX = telemetry?.odometryX;
   const rawOdomY = telemetry?.odometryY;
   const odomHeading = telemetry?.odometryHeading ?? 0;
   const odomHeadingDeg = Math.round((odomHeading * 180) / Math.PI);
-  const odomConfidence = Math.round((telemetry?.odometryConfidence ?? 0.95) * 100);
 
-  // Compute live SVG position
   const robotSvgPos = useMemo(() => {
     if (rawOdomX !== undefined && rawOdomX !== null && rawOdomY !== undefined && rawOdomY !== null) {
-      // Map metric (0..100) to SVG (0..1000) and (0..70) to SVG (0..700)
       const mappedX = Math.max(60, Math.min(940, rawOdomX * 10.0));
-      const mappedY = Math.max(50, Math.min(650, rawOdomY * 10.0));
+      const mappedY = Math.max(50, Math.min(630, rawOdomY * 10.0));
       return { x: mappedX, y: mappedY };
     }
-    return defaultRobotSvg;
+    // Default: Reception desk
+    return { x: 500, y: 510 };
   }, [rawOdomX, rawOdomY]);
 
-  // Record breadcrumbs trail as robot drives
-  useEffect(() => {
-    setTrail(prev => {
-      const last = prev[prev.length - 1];
-      if (!last || Math.hypot(last.x - robotSvgPos.x, last.y - robotSvgPos.y) > 12) {
-        return [...prev.slice(-40), robotSvgPos];
-      }
-      return prev;
-    });
-  }, [robotSvgPos]);
-
-  // Escort mission path (A* Corridor Waypoints Path)
-  // Route: Robot -> Corridor Spine -> Target Store Entrance
+  // Planned corridor route path (SVG Path D)
   const plannedPathD = useMemo(() => {
     if (!currentStore) return '';
     const start = robotSvgPos;
     const target = { x: currentStore.entranceX, y: currentStore.entranceY };
 
-    // Waypoint routing through central corridors
-    // Corridors intersections:
-    // South Atrium: (500, 510)
-    // Central Cross: (500, 340)
-    // North Cross: (500, 230)
     const waypoints: { x: number; y: number }[] = [start];
 
-    // If starting near South, pass through Central Cross first
     if (start.y > 420) {
       waypoints.push({ x: 500, y: 440 });
     }
-
-    // Pass through central atrium
     waypoints.push({ x: 500, y: 340 });
 
-    // Branch to target entrance along corridor
     if (target.y < 300) {
-      // North wing target
       waypoints.push({ x: 500, y: 230 });
       waypoints.push({ x: target.x, y: 230 });
       waypoints.push(target);
     } else if (target.y > 450) {
-      // South wing target
       waypoints.push({ x: 500, y: 440 });
       waypoints.push({ x: target.x, y: target.y });
       waypoints.push(target);
     } else {
-      // East/West wing target
       waypoints.push({ x: target.x, y: 340 });
       waypoints.push(target);
     }
 
-    // Build SVG path
     return waypoints.reduce((acc, pt, idx) => {
       return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
     }, '');
   }, [robotSvgPos, currentStore]);
 
-  // Handlers for Escort
-  const handleStartEscort = async (store: StoreMeta) => {
-    const host = pairedRobot?.host || '';
-    const port = pairedRobot?.port || 8765;
+  // Friendly status determination for mall guests
+  const getFriendlyRobotStatus = () => {
+    if (connectionStatus !== 'CONNECTED') {
+      return {
+        dotClass: 'connecting',
+        text: 'Robot đang kết nối máy chủ...',
+        subtext: 'Sảnh chính Tầng 1',
+      };
+    }
+    if (activeEscort) {
+      return {
+        dotClass: 'online',
+        text: `Robot đang dẫn đường đến: ${activeEscort.target_name}`,
+        subtext: `Tiến độ: ${activeEscort.current_progress}%`,
+      };
+    }
+    const rState = telemetry?.robotState;
+    if (rState && ['FORWARD', 'BACKWARD', 'TURN_LEFT', 'TURN_RIGHT'].includes(rState)) {
+      return {
+        dotClass: 'online',
+        text: 'Robot đang di chuyển phục vụ khách',
+        subtext: 'Đang di chuyển dọc hành lang',
+      };
+    }
+    if (telemetry?.personDetected || rState === 'PERSON_DETECTED' || rState === 'SAFETY_STOP') {
+      return {
+        dotClass: 'connecting',
+        text: 'Robot đang tạm dừng quan sát phía trước',
+        subtext: 'Đảm bảo an toàn cho khách đi bộ',
+      };
+    }
+    return {
+      dotClass: 'online',
+      text: 'Robot sẵn sàng phục vụ quý khách',
+      subtext: 'Trực tại Sảnh chính Tầng 1',
+    };
+  };
+
+  const friendlyStatus = getFriendlyRobotStatus();
+
+  // Escort Handlers
+  const handleStartEscort = async (store: MallStoreMeta) => {
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     setLoadingEscort(true);
     try {
       const res = await RobotApi.requestEscort(host, port, store.id);
@@ -317,29 +335,19 @@ export const MallMapTab: React.FC = () => {
   };
 
   const handleCancelEscort = async () => {
-    const host = pairedRobot?.host || '';
-    const port = pairedRobot?.port || 8765;
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
     try {
       await RobotApi.cancelEscort(host, port);
       updateGlobalState(() => ({ activeEscort: null }));
     } catch (e) {}
   };
 
-  // Test drive control handler
-  const handleDrive = async (direction: string) => {
-    const host = pairedRobot?.host || '';
-    const port = pairedRobot?.port || 8765;
-    const token = currentUser?.token;
-    setDrivingManual(true);
-    await RobotApi.directDrive(host, port, direction, 0.35, token);
-    setTimeout(() => setDrivingManual(false), 300);
-  };
-
   // Poll escort status if active
   useEffect(() => {
     if (!activeEscort || activeEscort.status !== 'NAVIGATING') return;
-    const host = pairedRobot?.host || '';
-    const port = pairedRobot?.port || 8765;
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
 
     const interval = setInterval(async () => {
       try {
@@ -354,144 +362,150 @@ export const MallMapTab: React.FC = () => {
           }
         }
       } catch (err) {}
-    }, 800);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, [activeEscort?.status]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '100%' }}>
       
-      {/* Top Telemetry & Status HUD Bar */}
+      {/* Friendly Guest Status Bar (NO raw engineering coordinates or technical terms) */}
       <div style={{
         display: 'flex',
-        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '10px 16px',
+        padding: '10px 14px',
         backgroundColor: '#FFFFFF',
-        borderRadius: '12px',
+        borderRadius: '14px',
         border: '1px solid #E2E8F0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        gap: '8px'
+        boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+        gap: '8px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            backgroundColor: telemetry?.robotState === 'STOPPED' ? '#10B981' : '#3B82F6',
-            boxShadow: '0 0 8px rgba(59,130,246,0.6)'
-          }} />
-          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1E293B' }}>
-            ROBOT TỰ HÀNH: {telemetry?.robotState || 'SẴN SÀNG'}
-          </span>
-          <span style={{
-            fontSize: '0.72rem',
-            padding: '2px 8px',
-            borderRadius: '99px',
-            backgroundColor: '#EFF6FF',
-            color: '#1D4ED8',
-            fontWeight: 700
-          }}>
-            TẦNG 1 SẢNH CHÍNH
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+          <span className={`status-dot ${friendlyStatus.dotClass}`} style={{ flexShrink: 0, width: '9px', height: '9px' }} />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {friendlyStatus.text}
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+              {friendlyStatus.subtext}
+            </div>
+          </div>
         </div>
 
-        {/* Real Odometry Metrics */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.75rem', color: '#64748B' }}>
-          <span title="Tọa độ tích phân Dead-Reckoning">
-            📍 <strong>X:</strong> {(rawOdomX ?? 50.0).toFixed(1)}m, <strong>Y:</strong> {(rawOdomY ?? 51.0).toFixed(1)}m
-          </span>
-          <span title="Góc quay Robot">
-            🧭 <strong>Hướng:</strong> {odomHeadingDeg}°
-          </span>
-          <span title="Độ tin cậy cảm biến" style={{ color: odomConfidence > 80 ? '#059669' : '#D97706', fontWeight: 700 }}>
-            ⚡ Tin cậy: {odomConfidence}%
-          </span>
-          <span style={{ fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#FEF3C7', color: '#B45309', fontWeight: 800 }}>
-            [DEAD-RECKONING]
-          </span>
-        </div>
+        <span style={{
+          fontSize: '0.72rem',
+          padding: '3px 10px',
+          borderRadius: '99px',
+          backgroundColor: '#EFF6FF',
+          color: '#1D4ED8',
+          fontWeight: 800,
+          whiteSpace: 'nowrap',
+          flexShrink: 0,
+        }}>
+          TẦNG 1
+        </span>
       </div>
 
-      {/* Escort Active Banner */}
+      {/* Escort Active Card (If actively leading customer) */}
       {activeEscort && (
         <div style={{
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 18px',
-          background: 'linear-gradient(135deg, #1E40AF, #3B82F6)',
-          borderRadius: '12px',
+          flexDirection: 'column',
+          gap: '10px',
+          padding: '14px 16px',
+          background: 'linear-gradient(135deg, #1E40AF, #2563EB)',
+          borderRadius: '16px',
           color: '#FFFFFF',
-          boxShadow: '0 4px 12px rgba(59,130,246,0.3)',
+          boxShadow: '0 8px 20px rgba(37,99,235,0.25)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-            <div style={{ fontSize: '1.8rem', animation: 'bounce 1s infinite' }}>🤖</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{ fontWeight: 800, fontSize: '0.95rem' }}>ĐANG DẪN ĐƯỜNG ĐẾN: {activeEscort.target_name}</span>
-                <span style={{ fontWeight: 800, fontSize: '0.85rem' }}>{activeEscort.current_progress}%</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '1.4rem' }}>🤖</span>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.92rem' }}>
+                  ĐANG DẪN ĐƯỜNG ĐẾN: {activeEscort.target_name}
+                </div>
+                <div style={{ fontSize: '0.72rem', opacity: 0.9 }}>
+                  Vui lòng đi theo sau Robot dọc theo hành lang
+                </div>
               </div>
-              <div style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: '99px', overflow: 'hidden' }}>
-                <div style={{ width: `${activeEscort.current_progress}%`, height: '100%', backgroundColor: '#FFFFFF', borderRadius: '99px', transition: 'width 0.3s ease' }} />
-              </div>
-              <span style={{ fontSize: '0.72rem', opacity: 0.9 }}>Quý khách vui lòng đi theo sau Robot, xe đang di chuyển dọc hành lang</span>
             </div>
+            <button
+              onClick={handleCancelEscort}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 12px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                border: '1px solid rgba(255,255,255,0.4)',
+                borderRadius: '8px',
+                color: '#FFFFFF',
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+              }}
+            >
+              <XCircle size={14} />
+              <span>HỦY</span>
+            </button>
           </div>
-          <button
-            onClick={handleCancelEscort}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              border: '1px solid rgba(255,255,255,0.4)',
-              borderRadius: '8px',
-              color: '#FFFFFF',
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginLeft: '14px',
-            }}
-          >
-            <XCircle size={15} />
-            <span>HỦY</span>
-          </button>
+
+          {/* Progress bar */}
+          <div style={{ width: '100%', height: '6px', backgroundColor: 'rgba(255,255,255,0.25)', borderRadius: '99px', overflow: 'hidden' }}>
+            <div style={{
+              width: `${activeEscort.current_progress}%`,
+              height: '100%',
+              backgroundColor: '#FFFFFF',
+              borderRadius: '99px',
+              transition: 'width 0.4s ease',
+            }} />
+          </div>
         </div>
       )}
 
-      {/* Main Architectural SVG Map Container */}
+      {/* Main Architectural Floor Map Card */}
       <div style={{
-        position: 'relative',
         backgroundColor: '#FFFFFF',
-        borderRadius: '16px',
-        border: '1px solid #CBD5E1',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+        borderRadius: '18px',
+        border: '1px solid #E2E8F0',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}>
-        {/* Floor Title & Category Filters */}
+        {/* Header & Category Filters */}
         <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 18px',
+          padding: '12px 14px 10px',
           borderBottom: '1px solid #F1F5F9',
+          display: 'flex',
+          flexDirection: 'column',
           gap: '10px',
         }}>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
-              SƠ ĐỒ TRUNG TÂM THƯƠNG MẠI — TẦNG 1
-            </h2>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748B' }}>
-              Mặt bằng kiến trúc thực tế, mạng lưới hành lang an toàn và vị trí định vị Robot trực tiếp
-            </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#0F172A' }}>
+                SƠ ĐỒ TRUNG TÂM THƯƠNG MẠI
+              </h2>
+              <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Chạm gian hàng để xem thông tin và yêu cầu dẫn đường
+              </span>
+            </div>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8', fontWeight: 600 }}>
+              {filteredStores.length} địa điểm
+            </span>
           </div>
 
-          {/* Category Chips */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {/* Category Filter Chips */}
+          <div style={{
+            display: 'flex',
+            gap: '6px',
+            overflowX: 'auto',
+            paddingBottom: '2px',
+            scrollbarWidth: 'none',
+          }}>
             {CATEGORIES.map(cat => (
               <button
                 key={cat.id}
@@ -499,12 +513,13 @@ export const MallMapTab: React.FC = () => {
                 style={{
                   padding: '5px 11px',
                   borderRadius: '99px',
-                  fontSize: '0.75rem',
+                  fontSize: '0.74rem',
                   fontWeight: 700,
-                  border: selectedCategory === cat.id ? '1px solid #3B82F6' : '1px solid #E2E8F0',
-                  backgroundColor: selectedCategory === cat.id ? '#EFF6FF' : '#FFFFFF',
+                  border: selectedCategory === cat.id ? '1px solid #2563EB' : '1px solid #E2E8F0',
+                  backgroundColor: selectedCategory === cat.id ? '#EFF6FF' : '#F8FAFC',
                   color: selectedCategory === cat.id ? '#1D4ED8' : '#64748B',
                   cursor: 'pointer',
+                  whiteSpace: 'nowrap',
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -514,91 +529,87 @@ export const MallMapTab: React.FC = () => {
           </div>
         </div>
 
-        {/* SVG Viewport */}
-        <div style={{ position: 'relative', width: '100%', height: 'auto', backgroundColor: '#F8FAFC' }}>
-          <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: 'auto', display: 'block' }}>
-            <defs>
-              {/* Floor Tile Grid Texture */}
-              <pattern id="floor-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#F1F5F9" strokeWidth="0.8" />
-              </pattern>
+        {/* Lightweight, High-Performance Architectural SVG Canvas */}
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          backgroundColor: '#F8FAFC',
+          userSelect: 'none',
+        }}>
+          <svg
+            viewBox="0 0 1000 680"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          >
+            {/* Base Mall Floorplate Outline */}
+            <rect x="20" y="15" width="960" height="650" rx="16" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="2" />
 
-              {/* Corridor Tile Texture */}
-              <pattern id="corridor-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E2E8F0" strokeWidth="1" />
-              </pattern>
-
-              {/* Laser / Radar Vision Gradient */}
-              <radialGradient id="radar-beam" cx="50%" cy="100%" r="100%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.45" />
-                <stop offset="60%" stopColor="#60A5FA" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.0" />
-              </radialGradient>
-
-              {/* Active Route Pulse Animation */}
-              <linearGradient id="route-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#2563EB" />
-                <stop offset="100%" stopColor="#06B6D4" />
-              </linearGradient>
-
-              {/* Store Drop Shadow */}
-              <filter id="lot-shadow" x="-5%" y="-5%" width="110%" height="115%">
-                <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#0F172A" floodOpacity="0.06" />
-              </filter>
-            </defs>
-
-            {/* Base Background Floor */}
-            <rect width="1000" height="700" fill="#F8FAFC" />
-            <rect width="1000" height="700" fill="url(#floor-grid)" />
-
-            {/* Outer Mall Perimeter Walls */}
-            <rect x="25" y="20" width="950" height="660" rx="14" fill="none" stroke="#94A3B8" strokeWidth="3" />
-            <rect x="30" y="25" width="940" height="650" rx="10" fill="none" stroke="#CBD5E1" strokeWidth="1" />
-
-            {/* ==================== WALKABLE CONCOURSE CORRIDORS ==================== */}
-            {/* North-South Main Concourse */}
-            <rect x="420" y="30" width="160" height="640" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.5" />
-            <rect x="420" y="30" width="160" height="640" fill="url(#corridor-grid)" opacity="0.6" />
-
-            {/* East-West Main Concourse */}
-            <rect x="30" y="280" width="940" height="130" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1.5" />
-            <rect x="30" y="280" width="940" height="130" fill="url(#corridor-grid)" opacity="0.6" />
+            {/* Walkable Concourse Corridors (High contrast, smooth vector shapes) */}
+            {/* North-South Concourse */}
+            <rect x="410" y="25" width="180" height="630" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" />
+            
+            {/* East-West Concourse */}
+            <rect x="25" y="270" width="950" height="150" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" />
 
             {/* Central Atrium Rotunda Medallion */}
-            <circle cx="500" cy="345" r="95" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="2" />
-            <circle cx="500" cy="345" r="85" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
-            <circle cx="500" cy="345" r="45" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1.5" />
-            <text x="500" y="342" textAnchor="middle" fill="#1E40AF" fontSize="11" fontWeight="800" letterSpacing="1">
-              SẢNH TRUNG TÂM
+            <circle cx="500" cy="345" r="85" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="2" />
+            <circle cx="500" cy="345" r="75" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
+            <circle cx="500" cy="345" r="42" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1.5" />
+            <text x="500" y="342" textAnchor="middle" fill="#1E40AF" fontSize="11" fontWeight="800" letterSpacing="0.5">
+              SẢNH CHÍNH
             </text>
-            <text x="500" y="356" textAnchor="middle" fill="#64748B" fontSize="9" fontWeight="600">
-              ATRIUM ROTUNDA
-            </text>
-
-            {/* Concourse Corridor Labels */}
-            <text x="500" y="195" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="800" letterSpacing="1">
-              HÀNH LANG BẮC (NORTH WING)
-            </text>
-            <text x="500" y="475" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="800" letterSpacing="1">
-              HÀNH LANG NAM (SOUTH CONCOURSE)
-            </text>
-            <text x="210" y="350" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="800" letterSpacing="1">
-              HÀNH LANG TÂY
-            </text>
-            <text x="790" y="350" textAnchor="middle" fill="#94A3B8" fontSize="11" fontWeight="800" letterSpacing="1">
-              HÀNH LANG ĐÔNG
+            <text x="500" y="356" textAnchor="middle" fill="#64748B" fontSize="9" fontWeight="700">
+              ROTUNDA
             </text>
 
-            {/* Navigation Guide Tracks (Topological Corridor Graph) */}
+            {/* Corridor Navigation Tracks */}
             <path
               d="M 500 110 L 500 580 M 170 345 L 830 345 M 210 230 L 790 230 M 210 530 L 790 530"
               fill="none"
-              stroke="#CBD5E1"
-              strokeWidth="1.2"
+              stroke="#E2E8F0"
+              strokeWidth="1.5"
               strokeDasharray="4 4"
             />
 
-            {/* ==================== STORE LOTS & TENANT HUBS ==================== */}
+            {/* Corridor Directional Labels */}
+            <text x="500" y="190" textAnchor="middle" fill="#94A3B8" fontSize="10.5" fontWeight="700" letterSpacing="0.8">
+              HÀNH LANG BẮC
+            </text>
+            <text x="500" y="460" textAnchor="middle" fill="#94A3B8" fontSize="10.5" fontWeight="700" letterSpacing="0.8">
+              HÀNH LANG NAM
+            </text>
+            <text x="210" y="349" textAnchor="middle" fill="#94A3B8" fontSize="10" fontWeight="700">
+              HÀNH LANG TÂY
+            </text>
+            <text x="790" y="349" textAnchor="middle" fill="#94A3B8" fontSize="10" fontWeight="700">
+              HÀNH LANG ĐÔNG
+            </text>
+
+            {/* Planned Route Line (Robot to Target Entrance) */}
+            {plannedPathD && (
+              <>
+                <path
+                  d={plannedPathD}
+                  fill="none"
+                  stroke="#3B82F6"
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity="0.25"
+                />
+                <path
+                  d={plannedPathD}
+                  fill="none"
+                  stroke="#2563EB"
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray="7 5"
+                />
+              </>
+            )}
+
+            {/* Store Lots */}
             {MALL_STORES.map(store => {
               const isSelected = selectedStoreId === store.id;
               const isTargetOfEscort = activeEscort?.target_poi_id === store.id;
@@ -609,7 +620,7 @@ export const MallMapTab: React.FC = () => {
                   onClick={() => setSelectedStoreId(store.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  {/* Store Lot Box */}
+                  {/* Lot Base Box */}
                   <rect
                     x={store.lotX}
                     y={store.lotY}
@@ -617,481 +628,308 @@ export const MallMapTab: React.FC = () => {
                     height={store.lotH}
                     rx="12"
                     fill={isSelected ? store.accentBg : '#FFFFFF'}
-                    stroke={isSelected ? store.color : store.borderColor}
+                    stroke={isSelected ? '#2563EB' : store.borderColor}
                     strokeWidth={isSelected ? 3 : 1.5}
-                    filter="url(#lot-shadow)"
-                    style={{ transition: 'all 0.2s ease' }}
                   />
 
-                  {/* Store Brand Header Bar */}
+                  {/* Top Header Strip */}
                   <rect
                     x={store.lotX}
                     y={store.lotY}
                     width={store.lotW}
-                    height="32"
+                    height="36"
                     rx="12"
                     fill={store.accentBg}
-                    opacity="0.8"
+                    opacity="0.85"
                   />
 
-                  {/* Icon & Store Name */}
-                  <text x={store.lotX + 14} y={store.lotY + 22} fontSize="16">
+                  {/* Icon Circle */}
+                  <circle
+                    cx={store.lotX + 24}
+                    cy={store.lotY + 18}
+                    r="12"
+                    fill="#FFFFFF"
+                    stroke={isSelected ? '#2563EB' : store.borderColor}
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={store.lotX + 24}
+                    y={store.lotY + 23}
+                    textAnchor="middle"
+                    fontSize="13"
+                  >
                     {store.icon}
                   </text>
+
+                  {/* Bold Brand Name (Crisp & Readable) */}
                   <text
-                    x={store.lotX + 40}
-                    y={store.lotY + 21}
+                    x={store.lotX + 44}
+                    y={store.lotY + 23}
                     fill="#0F172A"
-                    fontSize="12.5"
+                    fontSize="13"
                     fontWeight="800"
                   >
-                    {store.name}
+                    {store.shortName}
                   </text>
 
                   {/* Subtitle / Category */}
                   <text
-                    x={store.lotX + 14}
-                    y={store.lotY + 52}
-                    fill="#64748B"
-                    fontSize="10"
+                    x={store.lotX + 16}
+                    y={store.lotY + 62}
+                    fill="#475569"
+                    fontSize="11"
                     fontWeight="600"
                   >
                     {store.sub}
                   </text>
 
-                  {/* Storefront Entrance Threshold Glass Door (Facing Corridor) */}
+                  {/* Entrance Door Indicator */}
                   <circle
                     cx={store.entranceX}
                     cy={store.entranceY}
-                    r="6"
-                    fill={isSelected ? store.color : '#94A3B8'}
+                    r="5"
+                    fill={isSelected ? '#2563EB' : '#94A3B8'}
                     stroke="#FFFFFF"
                     strokeWidth="2"
                   />
-                  <text
-                    x={store.entranceX}
-                    y={store.entranceY < 300 ? store.entranceY - 8 : store.entranceY + 14}
-                    textAnchor="middle"
-                    fill={isSelected ? store.color : '#64748B'}
-                    fontSize="8.5"
-                    fontWeight="800"
-                  >
-                    CỬA VÀO
-                  </text>
 
-                  {/* Selection / Escort Badge Indicator */}
+                  {/* Selection Status Badge */}
                   {isTargetOfEscort ? (
-                    <g transform={`translate(${store.lotX + store.lotW - 90}, ${store.lotY + 42})`}>
-                      <rect width="82" height="20" rx="10" fill="#2563EB" />
-                      <text x="41" y="13.5" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="800">
-                        ĐANG ĐẾN ĐÂY
+                    <g transform={`translate(${store.lotX + store.lotW - 84}, ${store.lotY + 8})`}>
+                      <rect width="76" height="20" rx="10" fill="#2563EB" />
+                      <text x="38" y="14" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="800">
+                        ĐANG ĐẾN
                       </text>
                     </g>
                   ) : isSelected ? (
-                    <g transform={`translate(${store.lotX + store.lotW - 85}, ${store.lotY + 42})`}>
-                      <rect width="76" height="20" rx="10" fill={store.color} />
-                      <text x="38" y="13.5" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="800">
+                    <g transform={`translate(${store.lotX + store.lotW - 84}, ${store.lotY + 8})`}>
+                      <rect width="76" height="20" rx="10" fill="#2563EB" />
+                      <text x="38" y="14" textAnchor="middle" fill="#FFFFFF" fontSize="9.5" fontWeight="800">
                         ĐANG CHỌN
                       </text>
                     </g>
                   ) : null}
-
-                  {/* Promo Badge inside store */}
-                  {store.promo && (
-                    <g transform={`translate(${store.lotX + 14}, ${store.lotY + store.lotH - 30})`}>
-                      <rect width={store.lotW - 28} height="18" rx="4" fill="#FEF3C7" stroke="#FDE68A" strokeWidth="0.8" />
-                      <text x="8" y="12.5" fill="#92400E" fontSize="8.5" fontWeight="700">
-                        🎁 {store.promo}
-                      </text>
-                    </g>
-                  )}
                 </g>
               );
             })}
 
-            {/* ==================== BREADCRUMB EXECUTED TRAIL ==================== */}
-            {trail.length > 1 && (
-              <polyline
-                points={trail.map(p => `${p.x},${p.y}`).join(' ')}
-                fill="none"
-                stroke="#06B6D4"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.65"
-              />
-            )}
-
-            {/* ==================== PLANNED ESCORT A* CORRIDOR ROUTE ==================== */}
-            {plannedPathD && (
-              <>
-                {/* Route Glow Underlay */}
-                <path
-                  d={plannedPathD}
-                  fill="none"
-                  stroke="#3B82F6"
-                  strokeWidth="8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  opacity="0.25"
-                />
-                {/* Animated Dashed Primary Route */}
-                <path
-                  d={plannedPathD}
-                  fill="none"
-                  stroke="url(#route-gradient)"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeDasharray="8 6"
-                />
-              </>
-            )}
-
-            {/* Target Destination Flag Marker */}
+            {/* Target Destination Pin Marker */}
             {currentStore && (
               <g transform={`translate(${currentStore.entranceX}, ${currentStore.entranceY})`}>
-                <circle r="14" fill="#3B82F6" opacity="0.2" />
-                <circle r="7" fill="#2563EB" stroke="#FFFFFF" strokeWidth="2" />
-                <circle r="3" fill="#FFFFFF" />
+                <circle r="12" fill="#3B82F6" opacity="0.25" />
+                <circle r="6" fill="#2563EB" stroke="#FFFFFF" strokeWidth="2" />
               </g>
             )}
 
-            {/* ==================== REAL ROBOT AVATAR & SENSORS ==================== */}
+            {/* Robot Puck Avatar & Heading Indicator */}
             <g
               transform={`translate(${robotSvgPos.x}, ${robotSvgPos.y})`}
-              style={{ transition: 'transform 0.15s linear' }}
+              style={{ transition: 'transform 0.2s linear' }}
             >
-              {/* Radar Vision Beam (Rotates with Heading) */}
+              {/* Heading cone / pointer */}
               <g transform={`rotate(${odomHeadingDeg})`}>
-                {/* Front Radar Field-of-View Cone */}
-                <path
-                  d="M 0 0 L -35 -70 A 80 80 0 0 1 35 -70 Z"
-                  fill="url(#radar-beam)"
-                />
-
-                {/* Ultrasonic Dual Beams (Left: -15°, Right: +15°) */}
-                <line x1="-12" y1="-18" x2="-26" y2="-55" stroke="#10B981" strokeWidth="1.8" strokeDasharray="3 3" opacity="0.8" />
-                <line x1="12" y1="-18" x2="26" y2="-55" stroke="#10B981" strokeWidth="1.8" strokeDasharray="3 3" opacity="0.8" />
-
-                {/* Ultrasonic Sensor Rings */}
-                <circle cx="-12" cy="-18" r="3.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1" />
-                <circle cx="12" cy="-18" r="3.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1" />
+                <polygon points="0,-22 7,-14 -7,-14" fill="#2563EB" />
               </g>
 
-              {/* Pulsing Outer Motion Aura */}
-              <circle r="24" fill="#3B82F6" opacity="0.2">
-                <animate attributeName="r" values="22;28;22" dur="2s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.25;0.05;0.25" dur="2s" repeatCount="indefinite" />
-              </circle>
+              {/* Robot Puck Circle */}
+              <circle r="16" fill="#2563EB" stroke="#FFFFFF" strokeWidth="2.5" />
+              <text x="0" y="5" textAnchor="middle" fill="#FFFFFF" fontSize="13">
+                🤖
+              </text>
 
-              {/* Robot Chassis (Differential Drive 4 Wheels) */}
-              <g transform={`rotate(${odomHeadingDeg})`}>
-                {/* 4 Wheels */}
-                <rect x="-20" y="-18" width="5" height="12" rx="2" fill="#1E293B" />
-                <rect x="15" y="-18" width="5" height="12" rx="2" fill="#1E293B" />
-                <rect x="-20" y="6" width="5" height="12" rx="2" fill="#1E293B" />
-                <rect x="15" y="6" width="5" height="12" rx="2" fill="#1E293B" />
-
-                {/* Main Body Frame */}
-                <rect x="-16" y="-18" width="32" height="36" rx="8" fill="#0F172A" stroke="#3B82F6" strokeWidth="2" />
-                <rect x="-13" y="-15" width="26" height="30" rx="6" fill="#1E293B" />
-
-                {/* Directional Front Arrow Tip */}
-                <polygon points="0,-14 6,-6 -6,-6" fill="#38BDF8" />
-
-                {/* Robot Core Light */}
-                <circle cx="0" cy="4" r="5" fill="#3B82F6" />
-                <circle cx="0" cy="4" r="2.5" fill="#FFFFFF" />
-              </g>
-
-              {/* Floating Name Badge */}
-              <g transform="translate(0, -32)">
-                <rect x="-38" y="-12" width="76" height="18" rx="9" fill="#0F172A" stroke="#38BDF8" strokeWidth="1" />
-                <text x="0" y="1" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="800">
-                  ROBOT TTTM
+              {/* Name Badge */}
+              <g transform="translate(0, -28)">
+                <rect x="-32" y="-10" width="64" height="16" rx="8" fill="#0F172A" />
+                <text x="0" y="2" textAnchor="middle" fill="#FFFFFF" fontSize="8.5" fontWeight="800">
+                  ROBOT
                 </text>
               </g>
             </g>
           </svg>
         </div>
-      </div>
 
-      {/* Manual Drive Controller & Simulation Toolbar */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 18px',
-        backgroundColor: '#FFFFFF',
-        borderRadius: '12px',
-        border: '1px solid #E2E8F0',
-        gap: '12px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Compass size={18} color="#3B82F6" />
-          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1E293B' }}>
-            LÁI XE THỬ NGHIỆM TRÊN BẢN ĐỒ:
-          </span>
-          <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
-            (Nhấn để xe di chuyển và xoay góc trong hành lang thực tế)
-          </span>
-        </div>
-
-        {/* D-Pad Manual Drive Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <button
-            onMouseDown={() => handleDrive('forward')}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: drivingManual ? '#3B82F6' : '#F1F5F9',
-              color: drivingManual ? '#FFFFFF' : '#1E293B',
-              border: '1px solid #CBD5E1',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <ArrowUp size={14} /> TIẾN
-          </button>
-          <button
-            onMouseDown={() => handleDrive('left')}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#F1F5F9',
-              color: '#1E293B',
-              border: '1px solid #CBD5E1',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <ArrowLeft size={14} /> TRÁI
-          </button>
-          <button
-            onMouseDown={() => handleDrive('right')}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#F1F5F9',
-              color: '#1E293B',
-              border: '1px solid #CBD5E1',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            PHẢI <ArrowRight size={14} />
-          </button>
-          <button
-            onMouseDown={() => handleDrive('backward')}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#F1F5F9',
-              color: '#1E293B',
-              border: '1px solid #CBD5E1',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <ArrowDown size={14} /> LÙI
-          </button>
-          <button
-            onClick={() => handleDrive('stop')}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#FEE2E2',
-              color: '#DC2626',
-              border: '1px solid #FCA5A5',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <Square size={13} /> DỪNG
-          </button>
-        </div>
-      </div>
-
-      {/* Selected Destination Card & Call To Action */}
-      {currentStore && (
+        {/* Quick Horizontal Store Switcher Chips */}
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          backgroundColor: '#FFFFFF',
-          borderRadius: '16px',
-          border: '1px solid #E2E8F0',
-          padding: '18px 22px',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-          gap: '14px',
+          gap: '6px',
+          overflowX: 'auto',
+          padding: '8px 12px',
+          backgroundColor: '#F8FAFC',
+          borderTop: '1px solid #F1F5F9',
+          scrollbarWidth: 'none',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{
-                fontSize: '2.4rem',
-                backgroundColor: currentStore.accentBg,
-                width: '60px',
-                height: '60px',
-                borderRadius: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: `1px solid ${currentStore.borderColor}`
-              }}>
-                {currentStore.icon}
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0F172A' }}>
-                    {currentStore.name}
-                  </h3>
-                  <span style={{
-                    fontSize: '0.72rem',
-                    padding: '2px 8px',
-                    borderRadius: '99px',
-                    backgroundColor: currentStore.accentBg,
-                    color: currentStore.color,
-                    fontWeight: 700,
-                  }}>
-                    {currentStore.sub}
-                  </span>
-                </div>
-                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: '#64748B' }}>
-                  {currentStore.description}
-                </p>
-              </div>
+          {filteredStores.map(store => {
+            const isSelected = selectedStoreId === store.id;
+            return (
+              <button
+                key={store.id}
+                onClick={() => setSelectedStoreId(store.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '5px 10px',
+                  borderRadius: '99px',
+                  fontSize: '0.74rem',
+                  fontWeight: 700,
+                  border: isSelected ? '1.5px solid #2563EB' : '1px solid #E2E8F0',
+                  backgroundColor: isSelected ? '#EFF6FF' : '#FFFFFF',
+                  color: isSelected ? '#1D4ED8' : '#334155',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                <span>{store.icon}</span>
+                <span>{store.shortName}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Selected Store Detail Sheet & Navigation Trigger (Clean, Elegant, Thumb-Friendly) */}
+      {currentStore && (
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: '18px',
+          border: '1px solid #E2E8F0',
+          padding: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}>
+          {/* Store Info Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '52px',
+              height: '52px',
+              borderRadius: '14px',
+              backgroundColor: currentStore.accentBg,
+              border: `1px solid ${currentStore.borderColor}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2rem',
+              flexShrink: 0,
+            }}>
+              {currentStore.icon}
             </div>
 
-            {/* Big Action Escort Button */}
-            <div>
-              {activeEscort?.target_poi_id === currentStore.id ? (
-                <button
-                  onClick={handleCancelEscort}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '12px 24px',
-                    backgroundColor: '#FEE2E2',
-                    border: '1px solid #FCA5A5',
-                    borderRadius: '12px',
-                    color: '#DC2626',
-                    fontWeight: 800,
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <XCircle size={18} />
-                  <span>HỦY DẪN ĐƯỜNG</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleStartEscort(currentStore)}
-                  disabled={loadingEscort}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '12px 24px',
-                    background: 'linear-gradient(135deg, #1D4ED8, #3B82F6)',
-                    border: 'none',
-                    borderRadius: '12px',
-                    color: '#FFFFFF',
-                    fontWeight: 800,
-                    fontSize: '0.9rem',
-                    boxShadow: '0 4px 14px rgba(59,130,246,0.4)',
-                    cursor: loadingEscort ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <Navigation size={18} />
-                  <span>{loadingEscort ? 'ĐANG LÊN LỘ TRÌNH...' : 'ROBOT DẪN TÔI ĐẾN ĐÂY'}</span>
-                </button>
-              )}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                <h3 style={{ margin: 0, fontSize: '1.08rem', fontWeight: 800, color: '#0F172A' }}>
+                  {currentStore.name}
+                </h3>
+                <span style={{
+                  fontSize: '0.68rem',
+                  padding: '2px 7px',
+                  borderRadius: '99px',
+                  backgroundColor: currentStore.accentBg,
+                  color: currentStore.color,
+                  fontWeight: 700,
+                }}>
+                  {currentStore.sub}
+                </span>
+              </div>
+              <p style={{ margin: '3px 0 0', fontSize: '0.78rem', color: '#64748B', lineHeight: '1.3' }}>
+                {currentStore.description}
+              </p>
             </div>
           </div>
 
-          {/* Store Details Grid */}
+          {/* Location & Hours Chips */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '10px',
-            paddingTop: '12px',
-            borderTop: '1px solid #F1F5F9'
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+            paddingTop: '8px',
+            borderTop: '1px solid #F8FAFC',
+            fontSize: '0.74rem',
+            color: '#64748B',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#64748B' }}>
-              <Clock size={15} color="#3B82F6" />
-              <span><strong>Giờ mở cửa:</strong> 09:00 — 22:00</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <MapPin size={13} color="#2563EB" />
+              <span>{currentStore.wing}</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#64748B' }}>
-              <MapPin size={15} color="#3B82F6" />
-              <span><strong>Vị trí:</strong> Tầng 1 (Sảnh {currentStore.entranceX < 500 ? 'Tây' : 'Đông'})</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={13} color="#2563EB" />
+              <span>{currentStore.hours}</span>
             </div>
-            {currentStore.promo && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.78rem', color: '#B45309' }}>
-                <Sparkles size={15} color="#F59E0B" />
-                <span><strong>Khuyến mãi:</strong> {currentStore.promo}</span>
-              </div>
+          </div>
+
+          {/* Active Promotion Banner */}
+          {currentStore.promo && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 12px',
+              backgroundColor: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: '10px',
+              fontSize: '0.76rem',
+              color: '#92400E',
+              fontWeight: 700,
+            }}>
+              <Sparkles size={14} color="#D97706" style={{ flexShrink: 0 }} />
+              <span>Ưu đãi: {currentStore.promo}</span>
+            </div>
+          )}
+
+          {/* Primary Action Button (Big & Thumb-Friendly) */}
+          <div>
+            {activeEscort?.target_poi_id === currentStore.id ? (
+              <button
+                onClick={handleCancelEscort}
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  backgroundColor: '#FEE2E2',
+                  border: '1px solid #FCA5A5',
+                  borderRadius: '12px',
+                  color: '#DC2626',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                <XCircle size={17} />
+                <span>HỦY DẪN ĐƯỜNG</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => handleStartEscort(currentStore)}
+                disabled={loadingEscort}
+                style={{
+                  width: '100%',
+                  padding: '13px',
+                  background: 'linear-gradient(135deg, #1D4ED8, #2563EB)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.92rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
+                  cursor: loadingEscort ? 'not-allowed' : 'pointer',
+                }}
+              >
+                <Navigation size={17} />
+                <span>{loadingEscort ? 'Đang chuẩn bị lộ trình...' : 'ROBOT DẪN TÔI ĐẾN ĐÂY'}</span>
+              </button>
             )}
           </div>
         </div>
       )}
-
-      {/* Store Quick Selection List */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-        gap: '10px',
-      }}>
-        {filteredStores.map(store => {
-          const isSelected = selectedStoreId === store.id;
-          return (
-            <div
-              key={store.id}
-              onClick={() => setSelectedStoreId(store.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 14px',
-                backgroundColor: isSelected ? store.accentBg : '#FFFFFF',
-                borderRadius: '12px',
-                border: isSelected ? `2px solid ${store.color}` : '1px solid #E2E8F0',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <span style={{ fontSize: '1.4rem' }}>{store.icon}</span>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {store.name}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{store.sub}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
     </div>
   );

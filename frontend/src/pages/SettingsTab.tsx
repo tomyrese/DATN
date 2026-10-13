@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import { useRobotStore, updateGlobalState } from '../store/useRobotStore';
 import { RobotSocket } from '../services/RobotSocket';
 import { StorageService } from '../services/StorageService';
-import { User, ShieldCheck, CheckCircle2, Save, Trash2 } from 'lucide-react';
+import { RobotApi } from '../services/RobotApi';
+import { LoginModal } from '../components/LoginModal';
+import { User, ShieldCheck, CheckCircle2, Save, Trash2, Shield, LogOut, LogIn } from 'lucide-react';
 
 export const SettingsTab: React.FC = () => {
-  const { pairedRobot, settings, userRole } = useRobotStore();
+  const { pairedRobot, settings, userRole, currentUser } = useRobotStore();
 
   const [inputHost, setInputHost] = useState(pairedRobot?.host || window.location.hostname || 'localhost');
   const [inputPort, setInputPort] = useState(pairedRobot?.port ? pairedRobot.port.toString() : '8765');
   const [inputToken, setInputToken] = useState(pairedRobot?.token || 'guest');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const handleSaveConnection = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,9 +46,24 @@ export const SettingsTab: React.FC = () => {
     }, 200);
   };
 
-  const handleSwitchRole = (newRole: 'customer' | 'staff') => {
-    StorageService.saveUserRole(newRole);
-    updateGlobalState(() => ({ userRole: newRole }));
+  const handleLogout = async () => {
+    const host = pairedRobot?.host || window.location.hostname || 'localhost';
+    const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
+    const token = currentUser?.token;
+    if (token) {
+      await RobotApi.logout(host, port, token);
+    }
+    StorageService.clearAuthUser();
+    updateGlobalState(() => ({
+      currentUser: null,
+      userRole: 'customer',
+    }));
+    RobotSocket.getInstance().connect(host, port, 'guest');
+  };
+
+  const handleSwitchToCustomerPreview = () => {
+    StorageService.saveUserRole('customer');
+    updateGlobalState(() => ({ userRole: 'customer' }));
   };
 
   const handleUnpair = () => {
@@ -63,65 +81,138 @@ export const SettingsTab: React.FC = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       
-      {/* Role Selection Card */}
+      {/* Account & Role Card */}
       <div className="card-clean" style={{ padding: '16px 18px' }}>
         <div className="card-title-group" style={{ marginBottom: '12px' }}>
-          <h2 style={{ fontSize: '1.05rem', fontWeight: 800 }}>CHẾ ĐỘ GIAO DIỆN</h2>
-          <p style={{ fontSize: '0.8rem' }}>Chọn giao diện phù hợp với mục đích sử dụng</p>
+          <h2 style={{ fontSize: '1.05rem', fontWeight: 800 }}>TÀI KHOẢN & PHÂN QUYỀN</h2>
+          <p style={{ fontSize: '0.8rem' }}>Thông tin phiên làm việc và quyền truy cập các tính năng</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div
-            onClick={() => handleSwitchRole('customer')}
-            style={{
-              padding: '14px',
-              borderRadius: '14px',
-              border: userRole === 'customer' ? '2px solid #2563EB' : '1px solid #E2E8F0',
-              background: userRole === 'customer' ? '#EFF6FF' : '#FFFFFF',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#2563EB', fontWeight: 800, fontSize: '0.9rem' }}>
-              <User size={16} />
-              <span>Khách Tham Quan</span>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: '#64748B', lineHeight: '1.3' }}>
-              Bản đồ, hỏi đáp AI và chỉ dẫn đường gian hàng.
-            </p>
-          </div>
+        {currentUser ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '12px',
+            padding: '14px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  backgroundColor: currentUser.role === 'admin' ? '#FEF3C7' : '#EFF6FF',
+                  color: currentUser.role === 'admin' ? '#B45309' : '#1D4ED8',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {currentUser.role === 'admin' ? <Shield size={20} /> : <ShieldCheck size={20} />}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0F172A' }}>
+                    {currentUser.fullName || currentUser.username}
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: '#64748B' }}>
+                    Tên tài khoản: @{currentUser.username}
+                  </div>
+                </div>
+              </div>
 
-          <div
-            onClick={() => handleSwitchRole('staff')}
-            style={{
-              padding: '14px',
-              borderRadius: '14px',
-              border: userRole === 'staff' ? '2px solid #D97706' : '1px solid #E2E8F0',
-              background: userRole === 'staff' ? '#FFFBEB' : '#FFFFFF',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#B45309', fontWeight: 800, fontSize: '0.9rem' }}>
-              <ShieldCheck size={16} />
-              <span>Nhân Viên</span>
+              <span style={{
+                fontSize: '0.74rem',
+                fontWeight: 800,
+                padding: '3px 10px',
+                borderRadius: '99px',
+                backgroundColor: currentUser.role === 'admin' ? '#FEF3C7' : '#EFF6FF',
+                color: currentUser.role === 'admin' ? '#B45309' : '#1D4ED8',
+              }}>
+                {currentUser.role === 'admin' ? 'QUẢN TRỊ VIÊN' : 'NHÂN VIÊN'}
+              </span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#64748B', lineHeight: '1.3' }}>
-              Lái robot camera, điều phối đơn giao hàng.
-            </p>
+
+            {currentUser.assignedStoreIds && currentUser.assignedStoreIds.length > 0 && (
+              <div style={{ fontSize: '0.76rem', color: '#64748B' }}>
+                Gian hàng phụ trách: <strong>{currentUser.assignedStoreIds.join(', ')}</strong>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+              <button
+                onClick={handleSwitchToCustomerPreview}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '8px',
+                  color: '#334155',
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Xem Giao Diện Khách
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '8px 14px',
+                  backgroundColor: '#FEE2E2',
+                  border: '1px solid #FECACA',
+                  borderRadius: '8px',
+                  color: '#DC2626',
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                <LogOut size={14} />
+                <span>Đăng Xuất</span>
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '12px',
+            padding: '14px',
+          }}>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A' }}>
+                Khách Tham Quan (Guest)
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B' }}>
+                Chỉ xem bản đồ và yêu cầu dẫn đường
+              </div>
+            </div>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="btn-solid-blue"
+              style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+            >
+              <LogIn size={14} />
+              <span>Đăng Nhập</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Connection Config Card */}
       <div className="card-clean" style={{ padding: '16px 18px' }}>
         <div className="card-title-group" style={{ marginBottom: '12px' }}>
           <h2 style={{ fontSize: '1.05rem', fontWeight: 800 }}>KẾT NỐI ROBOT</h2>
-          <p style={{ fontSize: '0.8rem' }}>Tự động nhận diện khi kết nối mạng nội bộ của Robot</p>
+          <p style={{ fontSize: '0.8rem' }}>Địa chỉ mạng của máy chủ điều khiển Robot</p>
         </div>
 
         <form onSubmit={handleSaveConnection} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -189,6 +280,7 @@ export const SettingsTab: React.FC = () => {
         </form>
       </div>
 
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </div>
   );
 };
