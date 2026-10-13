@@ -24,7 +24,7 @@ class DeadReckoningOdometry:
         self.cfg = cfg or config
         self.x: float = 50.0  # Percentage or meter coordinates
         self.y: float = 70.0
-        self.heading: float = 0.0  # Radians (0 = North, pi/2 = East, etc.)
+        self.heading: float = 3.0 * math.pi / 2.0  # Radians (facing North towards Central Atrium)
         self.floor_id: str = "floor_t1"
 
         self.wheel_base_m: float = self.cfg.ODOMETRY_WHEEL_BASE_M
