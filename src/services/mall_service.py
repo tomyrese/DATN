@@ -63,6 +63,14 @@ class MallService:
 
     def __init__(self, db_path: Optional[str] = None):
         self.db = get_db(db_path)
+        try:
+            from src.database.migrator import DatabaseMigrator
+            from src.database.seed import seed_database
+            DatabaseMigrator(self.db).run_migrations()
+            seed_database(self.db)
+        except Exception as e:
+            logger.warning(f"MallService auto-migration check warning: {e}")
+
         self._lock = threading.RLock()
         self.current_escort: Optional[EscortTask] = None
         self.active_order_id: Optional[str] = None

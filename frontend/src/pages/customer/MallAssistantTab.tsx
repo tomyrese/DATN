@@ -13,11 +13,22 @@ const QUICK_PROMPTS = [
   '🕒 Giờ đóng cửa TTTM',
 ];
 
-export const MallAssistantTab: React.FC = () => {
+interface MallAssistantTabProps {
+  initialPrompt?: string;
+  onNavigateToMap?: (poiId: string) => void;
+}
+
+export const MallAssistantTab: React.FC<MallAssistantTabProps> = ({ initialPrompt, onNavigateToMap }) => {
   const { chatMessages, pairedRobot } = useRobotStore();
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(initialPrompt || '');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (initialPrompt && initialPrompt.trim()) {
+      handleSend(initialPrompt);
+    }
+  }, [initialPrompt]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

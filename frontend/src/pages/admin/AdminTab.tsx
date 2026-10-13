@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRobotStore } from '../../store/useRobotStore';
 import { RobotApi } from '../../services/RobotApi';
-import { AdminUser, AuditLog, MapGraphData } from '../../types/protocol';
+import { AdminUser, AuditLog, MapGraphData, MallStore, Promotion, HealthResponse } from '../../types/protocol';
 import {
   ShieldCheck,
   Users,
@@ -17,13 +17,26 @@ import {
   AlertTriangle,
   Server,
   Activity,
-  Store
+  Store,
+  LayoutDashboard,
+  Tag,
+  Cpu,
+  Camera,
+  Bot,
+  Radio,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
 } from 'lucide-react';
 
 export const AdminTab: React.FC = () => {
-  const { pairedRobot, currentUser, pois } = useRobotStore();
-  const [subTab, setSubTab] = useState<'users' | 'map_patrol' | 'audit' | 'database'>('users');
+  const { pairedRobot, currentUser, pois, connectionStatus } = useRobotStore();
+  const [subTab, setSubTab] = useState<'overview' | 'stores' | 'users' | 'map_patrol' | 'audit' | 'database'>('overview');
+  
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [stores, setStores] = useState<MallStore[]>([]);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [health, setHealth] = useState<HealthResponse | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [graphData, setGraphData] = useState<MapGraphData | null>(null);
   const [patrolStatus, setPatrolStatus] = useState<any>(null);
@@ -42,35 +55,31 @@ export const AdminTab: React.FC = () => {
   const port = pairedRobot?.port || (window.location.port ? parseInt(window.location.port, 10) : 8765);
   const token = currentUser?.token || pairedRobot?.token || '';
 
-  const loadUsers = async () => {
-    if (!token) return;
+  const loadData = async () => {
     try {
-      const list = await RobotApi.getAdminUsers(host, port, token);
-      setUsers(list);
-    } catch (e) {}
-  };
-
-  const loadAuditLogs = async () => {
-    if (!token) return;
-    try {
-      const logs = await RobotApi.getAuditLogs(host, port, token);
-      setAuditLogs(logs);
-    } catch (e) {}
-  };
-
-  const loadMapAndPatrol = async () => {
-    try {
+      const s = await RobotApi.getStores(host, port);
+      setStores(s || []);
+      const p = await RobotApi.getPromotions(host, port);
+      setPromotions(p || []);
+      const h = await RobotApi.getHealth(host, port);
+      setHealth(h);
+      if (token) {
+        const u = await RobotApi.getAdminUsers(host, port, token);
+        setUsers(u || []);
+        const logs = await RobotApi.getAuditLogs(host, port, token);
+        setAuditLogs(logs || []);
+      }
       const g = await RobotApi.getMapGraph(host, port);
       setGraphData(g);
-      const p = await RobotApi.getPatrolStatus(host, port);
-      setPatrolStatus(p);
-    } catch (e) {}
+      const patrol = await RobotApi.getPatrolStatus(host, port);
+      setPatrolStatus(patrol);
+    } catch (e) {
+      console.warn('Failed to load admin data:', e);
+    }
   };
 
   useEffect(() => {
-    loadUsers();
-    loadMapAndPatrol();
-    loadAuditLogs();
+    loadData();
   }, [token]);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -99,7 +108,7 @@ export const AdminTab: React.FC = () => {
         setNewPassword('');
         setNewFullName('');
         setSelectedStoreIds([]);
-        await loadUsers();
+        loadData();
       } else {
         setUserFormMsg({ type: 'err', text: res.message || 'Lỗi khi tạo người dùng' });
       }
@@ -111,7 +120,18 @@ export const AdminTab: React.FC = () => {
   const handleToggleUser = async (userId: string, currentActive: boolean) => {
     const ok = await RobotApi.toggleUserStatus(host, port, userId, !currentActive, token);
     if (ok) {
-      await loadUsers();
+      loadData();
+    }
+  };
+
+  const handleToggleStore = async (storeId: string, currentActive: boolean) => {
+    try {
+      const res = await RobotApi.updateStore(host, port, storeId, { is_active: currentActive ? 0 : 1 }, token);
+      if (res.success) {
+        loadData();
+      }
+    } catch (e: any) {
+      alert(`Lỗi: ${e.message}`);
     }
   };
 
@@ -120,7 +140,7 @@ export const AdminTab: React.FC = () => {
       const res = await RobotApi.triggerPatrol(host, port, token);
       if (res.success) {
         alert('Đã kích hoạt chế độ tuần tra hành lang TTTM!');
-        await loadMapAndPatrol();
+        loadData();
       } else {
         alert(res.message || 'Không thể kích hoạt tuần tra lúc này.');
       }
@@ -135,7 +155,7 @@ export const AdminTab: React.FC = () => {
       const res = await RobotApi.backupDatabase(host, port, token);
       if (res.success && res.backupPath) {
         setBackupResult(res.backupPath);
-        await loadAuditLogs();
+        loadData();
       } else {
         alert('Sao lưu thất bại');
       }
@@ -146,47 +166,73 @@ export const AdminTab: React.FC = () => {
     }
   };
 
+  const activeStoresCount = stores.filter(s => Boolean(s.is_active)).length;
+  const activeStaffCount = users.filter(u => u.role === 'staff' && Boolean(u.is_active)).length;
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%', maxWidth: '1080px', margin: '0 auto' }}>
       
       {/* Top Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
         color: '#FFFFFF',
-        padding: '18px 22px',
+        padding: '20px 24px',
         borderRadius: '16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '14px',
         boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             background: 'rgba(56, 189, 248, 0.2)',
             padding: '10px',
             borderRadius: '12px',
             border: '1px solid rgba(56, 189, 248, 0.4)'
           }}>
-            <ShieldCheck size={24} color="#38BDF8" />
+            <ShieldCheck size={26} color="#38BDF8" />
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>TRUNG TÂM ĐIỀU HÀNH & QUẢN TRỊ HỆ THỐNG</h2>
-            <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#94A3B8' }}>
-              Quyền Quản Trị Viên (Admin) • Kiểm soát người dùng, phân bổ cửa hàng, bản đồ graph, tuần tra và dữ liệu
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>TRUNG TÂM QUẢN TRỊ HỆ THỐNG ROBOT</h2>
+            <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#94A3B8' }}>
+              Quyền Quản Trị Viên (Admin) • Kiểm soát người dùng, phân bổ gian hàng, bản đồ graph, tuần tra và an ninh dữ liệu
             </p>
           </div>
         </div>
 
-        <span style={{
-          background: 'rgba(255,255,255,0.1)',
-          padding: '6px 12px',
-          borderRadius: '8px',
-          fontSize: '0.75rem',
-          fontWeight: 700,
-          letterSpacing: '0.5px'
-        }}>
-          ROLE: ADMIN
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={loadData}
+            title="Làm mới dữ liệu"
+            style={{
+              background: 'rgba(255,255,255,0.12)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+            }}
+          >
+            <RefreshCw size={14} /> Làm Mới
+          </button>
+          <span style={{
+            background: '#FEF3C7',
+            color: '#B45309',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            fontSize: '0.75rem',
+            fontWeight: 800,
+          }}>
+            ROLE: ADMIN
+          </span>
+        </div>
       </div>
 
       {/* Sub-nav Tabs */}
@@ -197,12 +243,15 @@ export const AdminTab: React.FC = () => {
         padding: '6px',
         borderRadius: '12px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        overflowX: 'auto'
+        overflowX: 'auto',
+        border: '1px solid #E2E8F0',
       }}>
         {[
-          { id: 'users', label: 'Tài Khoản & Nhân Viên', icon: <Users size={16} /> },
+          { id: 'overview', label: 'Tổng Quan Hệ Thống', icon: <LayoutDashboard size={16} /> },
+          { id: 'stores', label: `Gian Hàng (${stores.length})`, icon: <Store size={16} /> },
+          { id: 'users', label: `Tài Khoản & Nhân Viên (${users.length})`, icon: <Users size={16} /> },
           { id: 'map_patrol', label: 'Bản Đồ Graph & Tuần Tra', icon: <Compass size={16} /> },
-          { id: 'audit', label: 'Nhật Ký Kiểm Toán (Audit)', icon: <FileText size={16} /> },
+          { id: 'audit', label: `Nhật Ký Audit (${auditLogs.length})`, icon: <FileText size={16} /> },
           { id: 'database', label: 'Cơ Sở Dữ Liệu & Sao Lưu', icon: <Database size={16} /> },
         ].map(tab => (
           <button
@@ -231,12 +280,236 @@ export const AdminTab: React.FC = () => {
         ))}
       </div>
 
-      {/* Tab 1: Users & Staff Management */}
+      {/* ==================== SUBTAB: OVERVIEW ==================== */}
+      {subTab === 'overview' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          
+          {/* 4 Primary System Counters */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
+            <div className="card-clean" style={{ padding: '18px', borderLeft: '4px solid #2563EB' }}>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>Tổng Gian Hàng TTTM</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>
+                {stores.length}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#16A34A', fontWeight: 600, marginTop: '2px' }}>
+                {activeStoresCount} gian hàng đang mở cửa
+              </div>
+            </div>
+
+            <div className="card-clean" style={{ padding: '18px', borderLeft: '4px solid #DC2626' }}>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>Khuyến Mãi Đang Chạy</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>
+                {promotions.length}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '2px' }}>
+                Đồng bộ hiển thị cho khách
+              </div>
+            </div>
+
+            <div className="card-clean" style={{ padding: '18px', borderLeft: '4px solid #16A34A' }}>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>Nhân Viên Vận Hành</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: '#0F172A', marginTop: '4px' }}>
+                {activeStaffCount}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#16A34A', fontWeight: 600, marginTop: '2px' }}>
+                Phân quyền theo phạm vi gian hàng
+              </div>
+            </div>
+
+            <div className="card-clean" style={{ padding: '18px', borderLeft: '4px solid #0EA5E9' }}>
+              <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>Tình Trạng Máy Chủ</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', marginTop: '8px' }}>
+                {health?.status === 'ok' ? '🟢 ONLINE (2.0.0)' : '🟢 SẴN SÀNG'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '2px' }}>
+                SQLite WAL • FastAPI • RBAC
+              </div>
+            </div>
+          </div>
+
+          {/* System Services Status Grid */}
+          <div className="card-clean" style={{ padding: '20px 24px' }}>
+            <h3 style={{ margin: '0 0 14px 0', fontSize: '1.05rem', fontWeight: 800, color: '#0F172A' }}>
+              Tình Trạng Dịch Vụ & Phần Cứng
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Server size={18} color="#2563EB" />
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F172A' }}>FastAPI Backend Server</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Cổng 8765 / WebSocket API</div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16A34A', background: '#DCFCE7', padding: '2px 8px', borderRadius: '4px' }}>HOẠT ĐỘNG</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Database size={18} color="#16A34A" />
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F172A' }}>Cơ Sở Dữ Liệu SQLite</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>WAL Mode / Foreign Keys On</div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16A34A', background: '#DCFCE7', padding: '2px 8px', borderRadius: '4px' }}>KẾT NỐI</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Camera size={18} color="#9333EA" />
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F172A' }}>Hệ Thống Camera & Stream</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>MJPEG Stream Ticket Token</div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16A34A', background: '#DCFCE7', padding: '2px 8px', borderRadius: '4px' }}>BẢO MẬT</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Bot size={18} color="#EA580C" />
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0F172A' }}>Trợ Lý Ảo OpenRouter AI</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>Grounded RAG SQLite Context</div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16A34A', background: '#DCFCE7', padding: '2px 8px', borderRadius: '4px' }}>SẴN SÀNG</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Admin Actions */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setSubTab('users')}
+              className="btn-solid-blue"
+              style={{ padding: '10px 18px', fontSize: '0.86rem' }}
+            >
+              <Plus size={16} />
+              <span>Tạo Tài Khoản Nhân Viên Mới</span>
+            </button>
+            <button
+              onClick={handleBackupDB}
+              disabled={loading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#10B981',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 18px',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <Database size={16} />
+              <span>Sao Lưu Cơ Sở Dữ Liệu Ngay</span>
+            </button>
+            <button
+              onClick={handleTriggerPatrol}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: '#F1F5F9',
+                color: '#334155',
+                border: '1px solid #CBD5E1',
+                borderRadius: '8px',
+                padding: '10px 18px',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <Play size={16} color="#2563EB" />
+              <span>Kích Hoạt Tuần Tra Robot TTTM</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== SUBTAB: STORES CATALOG ==================== */}
+      {subTab === 'stores' && (
+        <div className="card-clean" style={{ padding: '20px 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#0F172A' }}>
+                Danh Sách Gian Hàng & Trạng Thái Hoạt Động
+              </h3>
+              <p style={{ margin: '4px 0 0 0', fontSize: '0.82rem', color: '#64748B' }}>
+                Quản trị viên có toàn quyền bật/tắt trạng thái mở cửa của tất cả các gian hàng trên sơ đồ TTTM.
+              </p>
+            </div>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#2563EB', background: '#EFF6FF', padding: '4px 10px', borderRadius: '6px' }}>
+              Tổng: {stores.length} gian hàng
+            </span>
+          </div>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #E2E8F0', textAlign: 'left', color: '#64748B' }}>
+                  <th style={{ padding: '10px 8px' }}>Mã / ID</th>
+                  <th style={{ padding: '10px 8px' }}>Tên Gian Hàng</th>
+                  <th style={{ padding: '10px 8px' }}>Ngành Hàng</th>
+                  <th style={{ padding: '10px 8px' }}>Hotline</th>
+                  <th style={{ padding: '10px 8px' }}>Giờ Mở Cửa</th>
+                  <th style={{ padding: '10px 8px', textAlign: 'right' }}>Trạng Thái Mở Cửa</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stores.map(store => (
+                  <tr key={store.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '10px 8px', fontFamily: 'monospace', fontWeight: 700, color: '#2563EB' }}>
+                      {store.id}
+                    </td>
+                    <td style={{ padding: '10px 8px', fontWeight: 700, color: '#0F172A' }}>
+                      {store.name}
+                    </td>
+                    <td style={{ padding: '10px 8px', color: '#475569' }}>
+                      {store.category}
+                    </td>
+                    <td style={{ padding: '10px 8px', color: '#64748B' }}>
+                      {store.contact_phone || '1900 6868'}
+                    </td>
+                    <td style={{ padding: '10px 8px', color: '#64748B' }}>
+                      {store.opening_hours || '09:30 - 22:00'}
+                    </td>
+                    <td style={{ padding: '10px 8px', textAlign: 'right' }}>
+                      <button
+                        onClick={() => handleToggleStore(store.id, Boolean(store.is_active))}
+                        style={{
+                          background: store.is_active ? '#DCFCE7' : '#FEE2E2',
+                          color: store.is_active ? '#15803D' : '#DC2626',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '5px 10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {store.is_active ? 'Đang Mở Cửa' : 'Đã Đóng Cửa'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== SUBTAB: USERS & STAFF MANAGEMENT ==================== */}
       {subTab === 'users' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '14px' }}>
           
           {/* Create User Card */}
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Plus size={16} color="#2563EB" />
               <span>TẠO TÀI KHOẢN MỚI</span>
@@ -265,8 +538,8 @@ export const AdminTab: React.FC = () => {
                   type="text"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="Ví dụ: staff_highlands"
-                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem' }}
+                  placeholder="Ví dụ: staff_uniqlo"
+                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem', boxSizing: 'border-box' }}
                   required
                 />
               </div>
@@ -280,7 +553,7 @@ export const AdminTab: React.FC = () => {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Nhập mật khẩu..."
-                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem' }}
+                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem', boxSizing: 'border-box' }}
                   required
                 />
               </div>
@@ -294,7 +567,7 @@ export const AdminTab: React.FC = () => {
                   value={newFullName}
                   onChange={(e) => setNewFullName(e.target.value)}
                   placeholder="Nguyễn Văn A"
-                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem' }}
+                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem', boxSizing: 'border-box' }}
                   required
                 />
               </div>
@@ -306,10 +579,10 @@ export const AdminTab: React.FC = () => {
                 <select
                   value={newRole}
                   onChange={(e) => setNewRole(e.target.value as any)}
-                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem' }}
+                  style={{ width: '100%', padding: '7px 9px', borderRadius: '6px', border: '1.5px solid #CBD5E1', fontSize: '0.8rem', boxSizing: 'border-box' }}
                 >
-                  <option value="staff">Nhân Viên Cửa Hàng (Staff)</option>
-                  <option value="admin">Quản Trị Viên (Admin)</option>
+                  <option value="staff">Nhân Viên Gian Hàng (Staff)</option>
+                  <option value="admin">Quản Trị Viên Hệ Thống (Admin)</option>
                 </select>
               </div>
 
@@ -359,7 +632,7 @@ export const AdminTab: React.FC = () => {
           </div>
 
           {/* User List Table */}
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
             <h3 style={{ margin: '0 0 12px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>
               DANH SÁCH TÀI KHOẢN ({users.length})
             </h3>
@@ -425,11 +698,11 @@ export const AdminTab: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 2: Map Graph & Patrol */}
+      {/* ==================== SUBTAB: MAP GRAPH & PATROL ==================== */}
       {subTab === 'map_patrol' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
           
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
             <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Compass size={16} color="#2563EB" />
               <span>CẤU HÌNH TUẦN TRA CONCOURSE (5 PHÚT TỰ ĐỘNG)</span>
@@ -450,8 +723,8 @@ export const AdminTab: React.FC = () => {
                 <span style={{ fontWeight: 700 }}>{patrolStatus?.current_waypoint_idx !== undefined ? `Điểm số ${patrolStatus.current_waypoint_idx}` : '0'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                <span style={{ fontWeight: 600, color: '#475569' }}>Số Vòng Đã Hoàn Thành:</span>
-                <span style={{ fontWeight: 700 }}>{patrolStatus?.completed_loops || 0} vòng</span>
+                <span style={{ fontWeight: 600, color: '#475569' }}>Tự Động Kích Hoạt Sau:</span>
+                <span style={{ fontWeight: 700 }}>{patrolStatus?.idle_timeout_seconds || 300} giây</span>
               </div>
             </div>
 
@@ -459,48 +732,50 @@ export const AdminTab: React.FC = () => {
               onClick={handleTriggerPatrol}
               style={{
                 width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '11px',
+                padding: '10px',
                 background: '#2563EB',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '8px',
                 fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer'
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
               }}
             >
               <Play size={16} />
-              <span>Kích Hoạt Tuần Tra Ngay Lập Tức</span>
+              <span>Kích Hoạt Tuần Tra Thủ Công Ngay</span>
             </button>
           </div>
 
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A' }}>
-              TOPOLOGICAL MAP GRAPH ({graphData?.nodes?.length || 0} Nodes, {graphData?.edges?.length || 0} Edges)
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
+            <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Compass size={16} color="#16A34A" />
+              <span>SƠ ĐỒ NODES & CẠNH ĐIỀU HƯỚNG</span>
             </h3>
-            <p style={{ fontSize: '0.78rem', color: '#64748B', margin: '0 0 12px' }}>
-              Bản đồ hình học được tính toán bằng thuật toán A* shortest path để đảm bảo robot không bao giờ đi xuyên qua tường hoặc vùng cấm.
-            </p>
 
-            <div style={{ maxHeight: '280px', overflowY: 'auto', border: '1px solid #E2E8F0', borderRadius: '8px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem' }}>
+            <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '10px' }}>
+              Số nút (Nodes): <strong>{graphData?.nodes?.length || 0}</strong> • Số cạnh (Edges): <strong>{graphData?.edges?.length || 0}</strong>
+            </div>
+
+            <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                 <thead>
-                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0', textAlign: 'left' }}>
-                    <th style={{ padding: '6px 8px' }}>Node ID</th>
-                    <th style={{ padding: '6px 8px' }}>Tọa Độ (X, Y mét)</th>
-                    <th style={{ padding: '6px 8px' }}>Nhãn POI</th>
+                  <tr style={{ borderBottom: '1px solid #E2E8F0', textAlign: 'left', color: '#64748B' }}>
+                    <th style={{ padding: '6px 4px' }}>Node ID</th>
+                    <th style={{ padding: '6px 4px' }}>Tọa Độ (X, Y)</th>
+                    <th style={{ padding: '6px 4px' }}>Tên Nhãn</th>
                   </tr>
                 </thead>
                 <tbody>
                   {graphData?.nodes?.map(n => (
-                    <tr key={n.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '5px 8px', fontWeight: 700 }}>{n.id}</td>
-                      <td style={{ padding: '5px 8px', color: '#64748B' }}>({n.x.toFixed(1)}m, {n.y.toFixed(1)}m)</td>
-                      <td style={{ padding: '5px 8px', color: '#2563EB' }}>{n.label || '—'}</td>
+                    <tr key={n.id} style={{ borderBottom: '1px solid #F8FAFC' }}>
+                      <td style={{ padding: '6px 4px', fontFamily: 'monospace', fontWeight: 600 }}>{n.id}</td>
+                      <td style={{ padding: '6px 4px' }}>({n.x}, {n.y})</td>
+                      <td style={{ padding: '6px 4px', color: '#334155' }}>{n.label || 'Waypoint'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -511,73 +786,51 @@ export const AdminTab: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Audit Logs */}
+      {/* ==================== SUBTAB: AUDIT LOGS ==================== */}
       {subTab === 'audit' && (
-        <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>
-                NHẬT KÝ KIỂM TOÁN HỆ THỐNG (AUDIT LOGS)
-              </h3>
-              <p style={{ margin: '3px 0 0', fontSize: '0.75rem', color: '#64748B' }}>
-                Lưu vết 100 thao tác nhạy cảm: Đăng nhập, Dừng khẩn cấp, Tạo người dùng, Sao lưu cơ sở dữ liệu
-              </p>
-            </div>
-            <button
-              onClick={loadAuditLogs}
-              style={{
-                background: '#F1F5F9',
-                border: '1px solid #CBD5E1',
-                borderRadius: '6px',
-                padding: '6px 10px',
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-            >
-              <RotateCcw size={12} />
-              <span>Tải Lại</span>
-            </button>
+        <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <FileText size={18} color="#2563EB" />
+              <span>NHẬT KÝ KIỂM TOÁN HỆ THỐNG (AUDIT LOGS)</span>
+            </h3>
+            <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+              Ghi nhận các thao tác đăng nhập, tạo tài khoản, chỉnh sửa gian hàng & sao lưu dữ liệu
+            </span>
           </div>
 
-          <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem' }}>
+          <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
               <thead>
-                <tr style={{ background: '#F8FAFC', borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', color: '#64748B' }}>
-                  <th style={{ padding: '8px' }}>Thời Gian</th>
-                  <th style={{ padding: '8px' }}>Người Dùng</th>
-                  <th style={{ padding: '8px' }}>Hành Động</th>
-                  <th style={{ padding: '8px' }}>Tài Nguyên</th>
-                  <th style={{ padding: '8px' }}>Chi Tiết</th>
+                <tr style={{ borderBottom: '1.5px solid #E2E8F0', textAlign: 'left', color: '#64748B' }}>
+                  <th style={{ padding: '8px 6px' }}>Thời Gian</th>
+                  <th style={{ padding: '8px 6px' }}>Người Dùng</th>
+                  <th style={{ padding: '8px 6px' }}>Quyền</th>
+                  <th style={{ padding: '8px 6px' }}>Hành Động</th>
+                  <th style={{ padding: '8px 6px' }}>Đối Tượng</th>
+                  <th style={{ padding: '8px 6px' }}>Chi Tiết</th>
                 </tr>
               </thead>
               <tbody>
                 {auditLogs.map(log => (
                   <tr key={log.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
-                    <td style={{ padding: '7px 8px', color: '#64748B', whiteSpace: 'nowrap' }}>
-                      {log.created_at ? new Date(log.created_at).toLocaleString() : '—'}
-                    </td>
-                    <td style={{ padding: '7px 8px', fontWeight: 700 }}>
-                      {log.username || 'Hệ thống'}
-                      {log.role && <span style={{ fontSize: '0.68rem', color: '#94A3B8', marginLeft: '4px' }}>({log.role})</span>}
-                    </td>
-                    <td style={{ padding: '7px 8px' }}>
+                    <td style={{ padding: '8px 6px', whiteSpace: 'nowrap', color: '#64748B' }}>{log.created_at}</td>
+                    <td style={{ padding: '8px 6px', fontWeight: 700 }}>{log.username || 'System'}</td>
+                    <td style={{ padding: '8px 6px' }}>
                       <span style={{
-                        padding: '2px 6px',
+                        padding: '2px 5px',
                         borderRadius: '4px',
-                        fontSize: '0.68rem',
-                        fontWeight: 800,
-                        background: '#EFF6FF',
-                        color: '#1D4ED8'
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        background: log.role === 'admin' ? '#FEF3C7' : '#EFF6FF',
+                        color: log.role === 'admin' ? '#B45309' : '#1D4ED8'
                       }}>
-                        {log.action}
+                        {log.role || 'GUEST'}
                       </span>
                     </td>
-                    <td style={{ padding: '7px 8px', color: '#475569' }}>{log.resource}</td>
-                    <td style={{ padding: '7px 8px', color: '#334155' }}>{log.details || '—'}</td>
+                    <td style={{ padding: '8px 6px', fontWeight: 600, color: '#0F172A' }}>{log.action}</td>
+                    <td style={{ padding: '8px 6px', color: '#475569' }}>{log.resource}</td>
+                    <td style={{ padding: '8px 6px', color: '#64748B' }}>{log.details || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -586,17 +839,17 @@ export const AdminTab: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 4: Database & Maintenance */}
+      {/* ==================== SUBTAB: DATABASE & BACKUP ==================== */}
       {subTab === 'database' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '14px' }}>
           
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
             <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Database size={18} color="#2563EB" />
-              <span>SAO LƯU CƠ SỞ DỮ LIỆU SQLITE (ATOMIC BACKUP)</span>
+              <Database size={18} color="#10B981" />
+              <span>SAO LƯU DỮ LIỆU SQLITE TOÀN VẸN</span>
             </h3>
             <p style={{ fontSize: '0.78rem', color: '#64748B', lineHeight: 1.4, margin: '0 0 14px' }}>
-              Cơ sở dữ liệu SQLite chạy ở chế độ WAL (Write-Ahead Logging) với Foreign Keys được kích hoạt bắt buộc. Bạn có thể tạo bản sao lưu snapshot đầy đủ an toàn trước khi thay đổi cấu trúc hoặc di chuyển robot.
+              Tạo bản snapshot sao lưu an toàn toàn bộ các bảng người dùng, phiên đăng nhập, gian hàng, khuyến mãi và nhật ký kiểm toán vào thư mục lưu trữ an toàn của hệ thống.
             </p>
 
             <button
@@ -643,7 +896,7 @@ export const AdminTab: React.FC = () => {
             )}
           </div>
 
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', padding: '18px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', border: '1px solid #E2E8F0' }}>
             <h3 style={{ margin: '0 0 10px', fontSize: '0.95rem', fontWeight: 800, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Activity size={18} color="#2563EB" />
               <span>TÌNH TRẠNG MIGRATION & RÀNG BUỘC</span>

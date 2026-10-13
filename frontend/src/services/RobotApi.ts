@@ -10,6 +10,8 @@ import {
   AdminUser,
   AuditLog,
   MapGraphData,
+  MallStore,
+  MallFloor,
 } from '../types/protocol';
 import { AuthUser } from '../types/robot';
 
@@ -170,6 +172,53 @@ export class RobotApi {
     } catch (e) {
       console.warn('Failed to load mall POIs:', e);
       return [];
+    }
+  }
+
+  static async getStores(host: string, port: number): Promise<MallStore[]> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/stores`;
+      const res = await this.fetchWithTimeout(url);
+      const data = await res.json();
+      return data.stores || [];
+    } catch (e) {
+      console.warn('Failed to load mall stores:', e);
+      return [];
+    }
+  }
+
+  static async getFloors(host: string, port: number): Promise<MallFloor[]> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/floors`;
+      const res = await this.fetchWithTimeout(url);
+      const data = await res.json();
+      return data.floors || [];
+    } catch (e) {
+      console.warn('Failed to load floors:', e);
+      return [];
+    }
+  }
+
+  static async updateStore(
+    host: string,
+    port: number,
+    storeId: string,
+    data: Partial<MallStore>,
+    token: string
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/stores/${storeId}`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
     }
   }
 
@@ -406,6 +455,29 @@ export class RobotApi {
       return !!data.success;
     } catch {
       return false;
+    }
+  }
+
+  static async updatePromotion(
+    host: string,
+    port: number,
+    promoId: string,
+    data: Partial<Promotion>,
+    token: string
+  ): Promise<{ success: boolean; message?: string }> {
+    try {
+      const url = `${this.getBaseUrl(host, port)}/api/v1/mall/promotions/${promoId}`;
+      const res = await this.fetchWithTimeout(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      return res.json();
+    } catch (e: any) {
+      return { success: false, message: e.message };
     }
   }
 

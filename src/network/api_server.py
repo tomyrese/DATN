@@ -1,4 +1,5 @@
 import os
+import time
 import socket
 import mimetypes
 from pathlib import Path
@@ -67,7 +68,7 @@ def create_api_server(
             return LoginResponse(success=False, message="Tên đăng nhập hoặc mật khẩu không chính xác")
 
         # Also register with AuthManager for stream/pairing token compatibility
-        auth_manager.sessions[session.token] = session.expires_at
+        auth_manager.register_token(session.token)
 
         return LoginResponse(
             success=True,

@@ -243,7 +243,11 @@ function odomToSvg(odomX: number, odomY: number): { x: number; y: number } {
   };
 }
 
-export const MallMapTab: React.FC = () => {
+interface MallMapTabProps {
+  initialStoreId?: string;
+}
+
+export const MallMapTab: React.FC<MallMapTabProps> = ({ initialStoreId }) => {
   const { activeEscort, pairedRobot, telemetry, connectionStatus, userRole } = useRobotStore();
 
   // Mode Selection: 'live' (Real Robot WebSocket) or 'virtual' (Interactive Virtual Simulation)
@@ -251,8 +255,14 @@ export const MallMapTab: React.FC = () => {
 
   // Category & Selected Store
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStoreId, setSelectedStoreId] = useState<string>('poi_cgv');
+  const [selectedStoreId, setSelectedStoreId] = useState<string>(initialStoreId || 'poi_cgv');
   const [loadingEscort, setLoadingEscort] = useState(false);
+
+  useEffect(() => {
+    if (initialStoreId) {
+      setSelectedStoreId(initialStoreId);
+    }
+  }, [initialStoreId]);
 
   // ==================== VIRTUAL SIMULATION STATE ====================
   // Virtual Robot coordinates (SVG space: 0..1000, 0..680)

@@ -8,9 +8,10 @@ import { Bot, User, ShieldCheck, Shield, LogOut, LogIn } from 'lucide-react';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
+  onGoHome?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenSettings, onGoHome }) => {
   const { connectionStatus, userRole, currentUser, pairedRobot } = useRobotStore();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -48,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   return (
     <>
       <header className="app-header">
-        <div className="brand-section">
+        <div className="brand-section" onClick={onGoHome} style={{ cursor: onGoHome ? 'pointer' : 'default' }}>
           <div className="brand-icon-bubble">
             <Bot size={20} />
           </div>

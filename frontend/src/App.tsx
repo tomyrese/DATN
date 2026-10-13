@@ -4,19 +4,28 @@ import { RobotSocket } from './services/RobotSocket';
 import { RobotApi } from './services/RobotApi';
 import { StorageService } from './services/StorageService';
 import { PairedRobotInfo } from './types/robot';
+import { PointOfInterest } from './types/protocol';
 import { Header } from './components/Header';
 import { SafetyBanner } from './components/SafetyBanner';
 import { NavigationTabs, TabType } from './components/NavigationTabs';
+import { StoreDetailModal } from './components/StoreDetailModal';
 
-// Customer Views
+// Customer / Guest Views (Area A)
+import { GuestHomePage } from './pages/customer/GuestHomePage';
 import { MallMapTab } from './pages/customer/MallMapTab';
 import { MallAssistantTab } from './pages/customer/MallAssistantTab';
 import { MallDirectoryTab } from './pages/customer/MallDirectoryTab';
+import { GuestPromotionsTab } from './pages/customer/GuestPromotionsTab';
 
-// Staff & Admin Views
-import { ControlTab } from './pages/ControlTab';
+// Staff Views (Area B)
+import { StaffDashboard } from './pages/staff/StaffDashboard';
 import { DeliveryOrdersTab } from './pages/staff/DeliveryOrdersTab';
 import { PromotionsTab } from './pages/staff/PromotionsTab';
+
+// Robotics Control & Telemetry (Staff & Admin)
+import { ControlTab } from './pages/ControlTab';
+
+// Admin Views (Area C)
 import { AdminTab } from './pages/admin/AdminTab';
 import { SettingsTab } from './pages/SettingsTab';
 
@@ -25,10 +34,16 @@ initializeStore();
 
 export const App: React.FC = () => {
   const { pairedRobot, settings, connectionStatus, isSafetyBlocked, isEmergencyStopped, userRole, currentUser } = useRobotStore();
+  
   const [activeTab, setActiveTab] = useState<TabType>(
-    userRole === 'admin' ? 'admin' : (userRole === 'staff' ? 'control' : 'mall-map')
+    userRole === 'admin' ? 'admin' : (userRole === 'staff' ? 'staff-dashboard' : 'home')
   );
   const [cameraTicket, setCameraTicket] = useState<string | null>(null);
+
+  // Cross-tab navigation states
+  const [mapTargetPoiId, setMapTargetPoiId] = useState<string | undefined>(undefined);
+  const [assistantPrompt, setAssistantPrompt] = useState<string | undefined>(undefined);
+  const [modalPoi, setModalPoi] = useState<PointOfInterest | null>(null);
 
   // Auto-pair from URL query param when scanning OLED QR code
   useEffect(() => {
@@ -76,12 +91,16 @@ export const App: React.FC = () => {
   // Sync tab when userRole switches
   useEffect(() => {
     if (userRole === 'customer' || userRole === 'guest') {
-      if (['control', 'delivery-orders', 'staff-promotions', 'admin', 'settings'].includes(activeTab)) {
-        setActiveTab('mall-map');
+      if (['staff-dashboard', 'control', 'delivery-orders', 'staff-promotions', 'admin', 'settings'].includes(activeTab)) {
+        setActiveTab('home');
       }
     } else if (userRole === 'staff') {
-      if (['admin', 'mall-directory'].includes(activeTab)) {
-        setActiveTab('control');
+      if (['admin', 'home', 'guest-promotions'].includes(activeTab)) {
+        setActiveTab('staff-dashboard');
+      }
+    } else if (userRole === 'admin') {
+      if (['home', 'guest-promotions', 'staff-dashboard'].includes(activeTab)) {
+        setActiveTab('admin');
       }
     }
   }, [userRole]);
@@ -116,6 +135,17 @@ export const App: React.FC = () => {
     const interval = setInterval(refreshCameraTicket, 3 * 60 * 1000);
     return () => clearInterval(interval);
   }, [refreshCameraTicket]);
+
+  // Handle navigation from Home shortcuts
+  const handleNavigateTab = (tabId: TabType | string, payload?: any) => {
+    if (payload?.targetPoiId) {
+      setMapTargetPoiId(payload.targetPoiId);
+    }
+    if (payload?.prompt) {
+      setAssistantPrompt(payload.prompt);
+    }
+    setActiveTab(tabId as TabType);
+  };
 
   // Keyboard drive controls (Staff and Admin modes only)
   useEffect(() => {
@@ -200,27 +230,66 @@ export const App: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Header />
+      <Header onGoHome={() => setActiveTab(userRole === 'admin' ? 'admin' : (userRole === 'staff' ? 'staff-dashboard' : 'home'))} />
       {(userRole === 'staff' || userRole === 'admin') && <SafetyBanner />}
       <NavigationTabs activeTab={activeTab} onSelectTab={setActiveTab} />
 
       <main className="app-main">
-        {/* Customer / Guest Views */}
-        {activeTab === 'mall-map' && <MallMapTab />}
-        {activeTab === 'mall-assistant' && <MallAssistantTab />}
-        {activeTab === 'mall-directory' && <MallDirectoryTab />}
+        {/* ==================== AREA A: CUSTOMER / GUEST ==================== */}
+        {activeTab === 'home' && (
+          <GuestHomePage
+            onNavigateTab={handleNavigateTab}
+            onOpenStoreModal={(poi) => setModalPoi(poi)}
+          />
+        )}
+        {activeTab === 'mall-map' && (
+          <MallMapTab initialStoreId={mapTargetPoiId} />
+        )}
+        {activeTab === 'mall-directory' && (
+          <MallDirectoryTab
+            onNavigateToMap={(poiId) => handleNavigateTab('mall-map', { targetPoiId: poiId })}
+            onAskAssistant={(name) => handleNavigateTab('mall-assistant', { prompt: `Chỉ đường và giới thiệu về ${name}` })}
+          />
+        )}
+        {activeTab === 'guest-promotions' && (
+          <GuestPromotionsTab
+            onNavigateToMap={(poiId) => handleNavigateTab('mall-map', { targetPoiId: poiId })}
+          />
+        )}
+        {activeTab === 'mall-assistant' && (
+          <MallAssistantTab
+            initialPrompt={assistantPrompt}
+            onNavigateToMap={(poiId) => handleNavigateTab('mall-map', { targetPoiId: poiId })}
+          />
+        )}
 
-        {/* Staff & Admin Shared Views */}
-        {activeTab === 'control' && <ControlTab cameraTicket={cameraTicket} />}
+        {/* ==================== AREA B: STAFF ==================== */}
+        {activeTab === 'staff-dashboard' && <StaffDashboard />}
         {activeTab === 'delivery-orders' && <DeliveryOrdersTab />}
         {activeTab === 'staff-promotions' && <PromotionsTab />}
 
-        {/* Admin Views */}
+        {/* ==================== AREA C: ADMIN & OPERATIONAL ==================== */}
         {activeTab === 'admin' && <AdminTab />}
+        {activeTab === 'control' && <ControlTab cameraTicket={cameraTicket} />}
 
-        {/* Settings & Diagnostics */}
+        {/* ==================== SYSTEM SETTINGS ==================== */}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
+
+      {/* Global Store Detail Modal if opened from Home */}
+      <StoreDetailModal
+        store={modalPoi}
+        isOpen={!!modalPoi}
+        onClose={() => setModalPoi(null)}
+        onNavigateToMap={(poiId) => {
+          setModalPoi(null);
+          handleNavigateTab('mall-map', { targetPoiId: poiId });
+        }}
+        onAskAssistant={(name) => {
+          setModalPoi(null);
+          handleNavigateTab('mall-assistant', { prompt: `Chỉ đường và giới thiệu về ${name}` });
+        }}
+      />
     </div>
   );
 };

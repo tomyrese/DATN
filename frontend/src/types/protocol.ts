@@ -206,3 +206,21 @@ export interface MapGraphData {
   restricted_zones: Array<{ id: string; name: string; polygon_json: string }>;
 }
 
+export interface MallStore {
+  id: string;
+  name: string;
+  category: string;
+  floor_id: string;
+  description: string;
+  contact_phone?: string;
+  opening_hours?: string;
+  is_active: number | boolean;
+}
+
+export interface MallFloor {
+  id: string;
+  name: string;
+  level_order: number;
+  description?: string;
+}
+

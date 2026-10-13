@@ -39,6 +39,12 @@ class AuthManager:
         self._save_persisted_tokens()
         return token
 
+    def register_token(self, token: str):
+        if token:
+            token_hash = self._hash_token(token)
+            self._valid_token_hashes.add(token_hash)
+            self._save_persisted_tokens()
+
     def validate_token(self, token: Optional[str]) -> bool:
         if not token:
             return False

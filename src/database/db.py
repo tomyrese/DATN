@@ -24,13 +24,17 @@ class Database:
             data_dir.mkdir(parents=True, exist_ok=True)
             self.db_path = str(data_dir / "mall_delivery.db")
         else:
-            self.db_path = str(db_path)
+            p = Path(db_path).resolve()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            self.db_path = str(p)
 
         self._thread_lock = threading.RLock()
 
     @classmethod
     def get_instance(cls, db_path: Optional[str] = None) -> "Database":
         with cls._lock:
+            if db_path is not None:
+                return cls(db_path)
             if cls._instance is None:
                 cls._instance = cls(db_path)
             return cls._instance
