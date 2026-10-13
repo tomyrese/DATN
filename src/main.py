@@ -42,6 +42,15 @@ def get_key_reader():
         return read_key_posix
 
 def main():
+    # Ensure database schema is migrated and seeded automatically on first run
+    try:
+        from src.database.migrator import run_database_migrations
+        from src.database.seed import seed_database
+        run_database_migrations()
+        seed_database()
+    except Exception as e:
+        logger.warning(f"Database auto-migration check warning: {e}")
+
     robot = RobotController(config)
     shutdown_requested = False
     is_posix_tty = os.name != "nt" and sys.stdin.isatty()
