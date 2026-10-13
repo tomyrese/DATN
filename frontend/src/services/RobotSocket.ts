@@ -282,7 +282,7 @@ export class RobotSocket {
         speed: this.currentDriveSpeed,
         seq: this.seq,
       });
-    } else {
+    } else if (this.status === 'CONNECTED') {
       RobotApi.directDrive(this.host, this.port, this.currentDriveDirection, this.currentDriveSpeed);
     }
   }
@@ -295,12 +295,15 @@ export class RobotSocket {
   }
 
   public stopDriveLoop() {
+    const wasDriving = this.currentDriveDirection !== null;
     if (this.driveTimer) {
       clearInterval(this.driveTimer);
       this.driveTimer = null;
     }
     this.currentDriveDirection = null;
-    this.sendStop();
+    if (wasDriving) {
+      this.sendStop();
+    }
   }
 
   public sendStop() {
@@ -310,7 +313,7 @@ export class RobotSocket {
         type: 'stop',
         seq: this.seq,
       });
-    } else {
+    } else if (this.status === 'CONNECTED') {
       RobotApi.directDrive(this.host, this.port, 'stop', 0);
     }
   }
