@@ -3766,7 +3766,7 @@
 		)
 		(uuid "060b78f2-4265-4aca-9ec0-dd6dffa924ab")
 	)
-	(label "+5V_PI"
+	(label "+5V_PI_1"
 		(at 213.36 43.18 180)
 		(effects
 			(font
@@ -3846,7 +3846,7 @@
 		)
 		(uuid "333675f3-0e58-4c36-81d8-8f04a06dd613")
 	)
-	(label "+5V_PI"
+	(label "+5V_PI_1"
 		(at 213.36 81.28 180)
 		(effects
 			(font
@@ -3936,7 +3936,7 @@
 		)
 		(uuid "64dd76c3-d207-49b5-ac82-d27fb057c43a")
 	)
-	(label "+5V_PI"
+	(label "+5V_PI_1"
 		(at 177.8 55.88 0)
 		(effects
 			(font
