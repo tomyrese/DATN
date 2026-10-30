@@ -6,8 +6,8 @@
 	(paper "A3")
 	(title_block
 		(title "SO DO NGUYEN LY ROBOT 4WD RASPBERRY PI 4 (TOI GIAN - CHUAN 1 LOP)")
-		(date "2026-10-29")
-		(rev "2.0")
+		(date "2026-10-24")
+		(rev "13.0")
 		(company "DATN - He Thong Nhung & Dien Tu Cong Suat")
 		(comment 1 "Toi gian hoa toi da - So do doi xung hoan hao de di mach 1 lop (Single-Sided PCB) de nhat")
 		(comment 2 "Tin hieu trai ben Trai, tin hieu phai ben Phai, cam bien line o Giua, khong cat cheo day")
@@ -45,7 +45,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "robot_electronics:CP_Radial_D8.0mm_P3.50mm"
+			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2872,12 +2872,6 @@
 		)
 		(uuid "79c51f54-b3b2-44e9-9c58-ba11122ab633")
 	)
-	(junction
-		(at 157.48 134.62)
-		(diameter 1)
-		(color 0 0 0 0)
-		(uuid "0476b0df-6502-461c-9df6-b7f3f49d7c0f")
-	)
 	(no_connect
 		(at 143.51 218.44)
 		(uuid "0b926643-f114-4104-b1ac-e5d498fbe169")
@@ -2895,12 +2889,20 @@
 		(uuid "1f4c2fd2-46bf-436d-aca7-3200c1c14867")
 	)
 	(no_connect
+		(at 67.31 152.4)
+		(uuid "293301c9-16aa-4b65-a8f5-53dd49272d3c")
+	)
+	(no_connect
 		(at 143.51 193.04)
 		(uuid "2bd6180a-58e8-4a73-9442-0693cde249ec")
 	)
 	(no_connect
 		(at 143.51 157.48)
 		(uuid "374e6f2f-552f-462a-87b3-997ab19860c8")
+	)
+	(no_connect
+		(at 67.31 228.6)
+		(uuid "3c3aba12-acb7-465f-910a-6e0f9a9f7c25")
 	)
 	(no_connect
 		(at 143.51 198.12)
@@ -2976,6 +2978,16 @@
 	)
 	(wire
 		(pts
+			(xy 43.18 60.96) (xy 43.18 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11ac7ea8-03e4-4e39-8a8a-b0a9d4a39982")
+	)
+	(wire
+		(pts
 			(xy 67.31 157.48) (xy 53.34 157.48)
 		)
 		(stroke
@@ -2986,7 +2998,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 132.08) (xy 157.48 132.08)
+			(xy 143.51 132.08) (xy 167.64 132.08)
 		)
 		(stroke
 			(width 0)
@@ -3356,7 +3368,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 55.88) (xy 127 55.88)
+			(xy 83.82 55.88) (xy 127 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3373,16 +3385,6 @@
 			(type default)
 		)
 		(uuid "856accc1-b8c7-42ca-b92e-69b000f67c7e")
-	)
-	(wire
-		(pts
-			(xy 157.48 132.08) (xy 157.48 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "89da6fe0-be01-406a-b899-6ac70f70f9ec")
 	)
 	(wire
 		(pts
@@ -3456,7 +3458,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.51 137.16) (xy 157.48 137.16)
+			(xy 143.51 137.16) (xy 167.64 137.16)
 		)
 		(stroke
 			(width 0)
@@ -3513,16 +3515,6 @@
 			(type default)
 		)
 		(uuid "b4400085-c5de-4b37-9e19-e5b3eecf5fab")
-	)
-	(wire
-		(pts
-			(xy 157.48 134.62) (xy 167.64 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b7fdb37c-ec40-45fb-9406-e09f79b55ef8")
 	)
 	(wire
 		(pts
@@ -3716,16 +3708,6 @@
 	)
 	(wire
 		(pts
-			(xy 43.18 60.96) (xy 43.18 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f1d551f8-096e-4ad2-97ea-2d4024d23137")
-	)
-	(wire
-		(pts
 			(xy 264.16 158.75) (xy 271.78 158.75)
 		)
 		(stroke
@@ -3844,6 +3826,16 @@
 		)
 		(uuid "22797949-e167-4dd0-871e-860ff988126d")
 	)
+	(label "+5V_PI_2"
+		(at 167.64 137.16 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2797558c-c7bf-4a2c-b23a-9f82907e1275")
+	)
 	(label "LINE_L"
 		(at 53.34 177.8 180)
 		(effects
@@ -3914,7 +3906,7 @@
 		)
 		(uuid "5daf40c8-5398-40a5-b43e-6718f16aa7f6")
 	)
-	(label "+5V_PI"
+	(label "+5V_PI_1"
 		(at 271.78 158.75 0)
 		(effects
 			(font
@@ -3934,8 +3926,8 @@
 		)
 		(uuid "64c3366e-c6b5-4b98-ae60-f3671d3b3278")
 	)
-	(label "+5V_PI"
-		(at 167.64 134.62 0)
+	(label "+5V_PI_1"
+		(at 167.64 132.08 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4074,7 +4066,7 @@
 		)
 		(uuid "78438a8d-6b09-4653-af21-3c989b2b8456")
 	)
-	(label "+5V_PI"
+	(label "+5V_PI_2"
 		(at 384.81 160.02 0)
 		(effects
 			(font
@@ -4164,6 +4156,16 @@
 		)
 		(uuid "a6ce2d1e-dc52-427c-a4a5-73cc5229009c")
 	)
+	(label "GND_LINE"
+		(at 337.82 76.2 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "abf516ee-a1d2-4481-bb08-73db95002001")
+	)
 	(label "+3V3_LOGIC"
 		(at 325.12 60.96 180)
 		(effects
@@ -4193,6 +4195,16 @@
 			(justify left bottom)
 		)
 		(uuid "b689048f-2235-466c-b316-6a03cbd87bd1")
+	)
+	(label "GND_LINE"
+		(at 67.31 193.04 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bd5dade6-36b1-4720-b2f0-be32891bf77a")
 	)
 	(label "STBY_R"
 		(at 318.77 170.18 180)
@@ -4559,10 +4571,6 @@
 			)
 		)
 	)
-	(no_connect
-		(at 67.31 152.4)
-		(uuid "293301c9-16aa-4b65-a8f5-53dd49272d3c")
-	)
 	(symbol
 		(lib_id "robot_electronics:GND")
 		(at 151.13 203.2 0)
@@ -4797,10 +4805,6 @@
 				)
 			)
 		)
-	)
-	(no_connect
-		(at 67.31 228.6)
-		(uuid "3c3aba12-acb7-465f-910a-6e0f9a9f7c25")
 	)
 	(symbol
 		(lib_id "robot_electronics:Conn_01x02")
@@ -6200,16 +6204,6 @@
 			)
 		)
 	)
-	(label "GND_LINE"
-		(at 337.82 76.2 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "abf516ee-a1d2-4481-bb08-73db95002001")
-	)
 	(symbol
 		(lib_id "robot_electronics:GND")
 		(at 266.7 93.98 0)
@@ -6284,16 +6278,6 @@
 				)
 			)
 		)
-	)
-	(label "GND_LINE"
-		(at 67.31 193.04 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "bd5dade6-36b1-4720-b2f0-be32891bf77a")
 	)
 	(symbol
 		(lib_id "robot_electronics:GND")

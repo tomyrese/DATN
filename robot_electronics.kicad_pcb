@@ -178,7 +178,7 @@
 				)
 			)
 		)
-		(property "Value" "HC_SR04_L"
+		(property "Value" "HC_SR04_Left"
 			(at 0 4.5 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -711,7 +711,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI")
+			(net "/+5V_PI_1")
 			(uuid "6b31eda1-9444-42b0-a9f1-6db4adb4d8f6")
 		)
 		(pad "11" thru_hole circle
@@ -982,7 +982,7 @@
 				)
 			)
 		)
-		(property "Value" "Raspberry_Pi_4"
+		(property "Value" "Raspberry_Pi_4_40Pin"
 			(at 0 4.5 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -1065,7 +1065,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI")
+			(net "/+5V_PI_1")
 			(uuid "f0294c54-c483-40be-87f8-0e665989f6f4")
 		)
 		(pad "3" thru_hole circle
@@ -1083,7 +1083,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI")
+			(net "/+5V_PI_2")
 			(uuid "7031cb57-89e1-4545-9bbf-7382cdf8ef57")
 		)
 		(pad "5" thru_hole circle
@@ -2087,7 +2087,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI")
+			(net "/+5V_PI_2")
 			(uuid "56057610-44e0-4c70-92ae-d4fa90a98744")
 		)
 		(pad "11" thru_hole circle
@@ -2619,7 +2619,7 @@
 				)
 			)
 		)
-		(property "Value" "HC_SR04_R"
+		(property "Value" "HC_SR04_Right"
 			(at 0 4.5 0)
 			(layer "F.Fab")
 			(hide yes)
