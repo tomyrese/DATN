@@ -1,14 +1,24 @@
 # HƯỚNG DẪN IN ẤN VÀ LÀM MẠCH IN THỦ CÔNG (PCB DIY GUIDE)
-## BẢN THU GỌN VÀ GHÉP TẤM (PANEL 4X & 2X TRÊN KHỔ A4)
+## BẢN THIẾT KẾ MỚI NHẤT & BẢN GHÉP TẤM (PANEL 4X & 2X TRÊN KHỔ A4)
 
-Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ lệ vật lý **1:1 (Scale 100%)** với các tùy chọn tối ưu cho từng phương pháp làm mạch in 1 lớp (`B.Cu`).
+Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ lệ vật lý **1:1 (Scale 100%)** với các tùy chọn tối ưu cho từng phương pháp làm mạch in thủ công 1 lớp (`B.Cu`).
 
 ---
 
-## 1. Thông số kích thước sau khi thu gọn
-- **Kích thước mạch ban đầu:** $140.2 \times 110.2\text{ mm}$ (nhiều khoảng trống thừa bên trong).
-- **Kích thước sau khi thu gọn:** **$124.0 \times 86.0\text{ mm}$** (thu hẹp $24.2\text{ mm}$ chiều dọc và $16.2\text{ mm}$ chiều ngang, dồn các khối linh kiện lại gần nhau tối ưu diện tích).
-- **Nhờ kích thước $124 \times 86\text{ mm}$**, 1 trang giấy in A4 ($297 \times 210\text{ mm}$) giờ đây có thể ghép vừa vặn **4 mạch (lưới 2 x 2)** với lề an toàn cực kỳ thoải mái!
+## 1. Thông số kích thước thực tế của bo mạch
+* **Chiều rộng (Width):** **`111.63 mm`** (khoảng **`11.16 cm`**)
+* **Chiều dài / Chiều dọc (Height):** **`72.94 mm`** (khoảng **`7.29 cm`**)
+* **Diện tích bo mạch:** **`81.43 cm²`** (giảm gần **`48% diện tích`** so với bản ban đầu $154.5\text{ cm}^2$).
+* **Tọa độ đường cắt viền bo (Edge.Cuts):**
+  * Góc trên - trái: $(49.00\text{ mm}, 37.23\text{ mm})$
+  * Góc trên - phải: $(160.46\text{ mm}, 37.23\text{ mm})$
+  * Góc dưới - phải: $(160.46\text{ mm}, 110.00\text{ mm})$
+  * Góc dưới - trái: $(49.00\text{ mm}, 110.00\text{ mm})$
+* **Quy cách ghép tấm A4 (Panel 4X):**
+  * Khổ giấy A4: $297 \times 210\text{ mm}$.
+  * Kích thước tổng cụm 4 mạch ($2 \times 2$): **$227.5 \times 150.8\text{ mm}$**.
+  * Khoảng hở giữa các mạch: $4.5\text{ mm}$ (ngang) và $5.2\text{ mm}$ (dọc) để cưa/cắt mạch dễ dàng.
+  * Lề an toàn của giấy in A4: lề ngang $\approx 3.5\text{ cm}$, lề dọc $\approx 3.0\text{ cm}$ (đảm bảo mọi loại máy in không bị kẹt hay mất góc).
 
 ---
 
@@ -19,7 +29,7 @@ Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ l�
 | :--- | :--- | :--- |
 | **`01_Panel_4x_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | **Lật gương (Mirror)**, Đen trắng. Chuyên dùng để **ủi nhiệt** (giấy bóng, decal nhiệt) làm 4 bo mạch cùng lúc. |
 | **`02_PANEL_4X_A4_B_Cu_DIRECT_In_Film.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | **Chiều thuận (Direct)**, Đen trắng. Dùng **in phim trong suốt** để rọi đèn UV cảm quang hoặc máy CNC. |
-| **`03_PANEL_4X_A4_F_Silkscreen.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | Mặt trên vị trí linh kiện (Silkscreen), dùng in lụa hoặc dán decal định vị linh kiện. |
+| **`03_PANEL_4X_A4_F_Silkscreen.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | Mặt trên vị trí linh kiện (Silkscreen), dùng in lụa hoặc dán decal định vị cắm chân. |
 | **`04_PANEL_2X_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** | **Ghép 2 mạch (2x1)** trên 1 tờ A4 | Lật gương, dùng cho phôi đồng dạng thanh dài hoặc làm 2 bo mạch. |
 | **`05_PANEL_2X_A4_B_Cu_DIRECT_In_Film.pdf`** | **Ghép 2 mạch (2x1)** trên 1 tờ A4 | Chiều thuận in film rọi UV cho 2 bo mạch. |
 
@@ -49,7 +59,7 @@ Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ l�
 
 1. **Chuẩn bị:**
    * Giấy in nhiệt (giấy thuốc vàng, giấy decal lột đế, hoặc giấy in ảnh bóng mỏng Couche).
-   * Phôi đồng 1 mặt: Nếu in file **`Panel_4x`** cần tấm phôi khoảng khổ A4 ($260 \times 190\text{ mm}$); nếu in mạch đơn cần phôi tối thiểu $130 \times 90\text{ mm}$.
+   * Phôi đồng 1 mặt: Nếu in file **`Panel_4x`** cần tấm phôi khoảng $235 \times 160\text{ mm}$; nếu in mạch đơn cần phôi tối thiểu $115 \times 75\text{ mm}$.
    * Máy in laser đen trắng (In đậm nhất có thể, mật độ mực cao - High Quality).
 2. **In mạch:**
    * Sử dụng file: **`01_Panel_4x_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** (hoặc `06_Don_1X_...` nếu làm mạch đơn).
@@ -62,4 +72,4 @@ Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ l�
    * Ăn mòn bằng dung dịch muối Sắt III Clorua ($FeCl_3$) hoặc hỗn hợp $H_2O_2 + HCl$.
    * Sau khi ăn mòn xong, rửa sạch và lau lớp mực bảo vệ bằng cồn / acetone.
    * Dùng mũi khoan $0.8\text{ mm}$ khoan các lỗ linh kiện (tâm lỗ khoan trắng nhỏ trên pad sẽ tự định tâm mũi khoan chính xác).
-   * Dùng mũi khoan $3.2\text{ mm}$ khoan 4 lỗ bắt ốc vít góc M3.
+   * Dùng mũi khoan $3.2\text{ mm}$ khoan 4 lỗ bắt ốc vít góc M3 (nếu có).
