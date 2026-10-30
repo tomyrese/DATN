@@ -1,0 +1,38 @@
+# KiCad Temporary & Backup Files
+*.kicad_prl
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-bak
+*-bak.kicad_pcb
+*-bak.kicad_sch
+*.bak
+*.lck
+~*.lck
+_autosave*
+*.tmp
+
+# KiCad DRC/ERC Reports
+*-drc.rpt
+*-erc.rpt
+*-drc.json
+*violations.json
+current_drc.rpt
+ref_drc*.rpt
+
+# Python Cache & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+venv/
+env/
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Scratch / MCP backups
+scratch/
+.mcp-backups/

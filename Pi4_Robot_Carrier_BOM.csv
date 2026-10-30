@@ -1,0 +1,18 @@
+value,footprint,quantity,references
+TB6612_R_CTL,Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical,1,['U_DRV_R_CTL']
+HC_SR04_Left,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,['J_SONAR_L']
+TB6612_L_CTL,Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical,1,['U_DRV_L_CTL']
+5V_Pi4_PWR,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,1,['J_PWR_PI']
+2k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,2,"['R_ECHOL_2', 'R_ECHOR_2']"
+0R,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,1,['R_JMP1']
+Pi4_IDC40_Ribbon,Connector_IDC:IDC-Header_2x20_P2.54mm_Vertical,1,['J_PI_IDC40']
+3S2P_12V_IN,"TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",1,['J_BAT']
+10k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,2,"['R_STBY_L', 'R_STBY_R']"
+1k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,2,"['R_ECHOL_1', 'R_ECHOR_1']"
+XL4015_Buck_Module,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,1,['U_BUCK']
+HC_SR04_Right,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,['J_SONAR_R']
+Motor_Right_4P,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,['J_MOT_R']
+OLED_1.3_I2C,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,['J_OLED']
+Motor_Left_4P,Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical,1,['J_MOT_L']
+TB6612_R_PWR,Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical,1,['U_DRV_R_PWR']
+TB6612_L_PWR,Connector_PinSocket_2.54mm:PinSocket_1x08_P2.54mm_Vertical,1,['U_DRV_L_PWR']

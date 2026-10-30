@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "robot_electronics")(type "KiCad")(uri "${KIPRJMOD}/libraries/robot_electronics.kicad_sym")(options "")(descr "Robot Electronics Custom Project Symbols"))
+)

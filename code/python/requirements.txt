@@ -1,0 +1,6 @@
+# Thư viện điều khiển GPIO cho Raspberry Pi 4
+# Lưu ý: Trên Raspberry Pi OS (Debian Bookworm), bạn có thể cài đặt:
+# sudo apt-get install python3-rpi.gpio python3-gpiozero python3-rpi-lgpio
+RPi.GPIO>=0.7.1
+gpiozero>=2.0
+rpi-lgpio>=0.6

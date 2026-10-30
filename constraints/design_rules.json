@@ -1,0 +1,79 @@
+{
+  "project_name": "Pi4_Robot_Carrier_1Layer",
+  "pcb_specifications": {
+    "layers": 1,
+    "active_copper_layer": "B.Cu",
+    "copper_pour_zones": false,
+    "compact_board_outline_mm": {
+      "width": 85.0,
+      "height": 65.0,
+      "clearance_from_edge_mm": 1.0
+    }
+  },
+  "pad_and_drill_rules": {
+    "default_tht_pad": {
+      "hole_size_mm": 0.8,
+      "pad_size_x_mm": 1.4,
+      "pad_size_y_mm": 1.4,
+      "shape": "OVAL_OR_CIRCLE"
+    }
+  },
+  "track_and_routing_rules": {
+    "power_nets": {
+      "nets": [
+        "12V_BAT",
+        "VM",
+        "5V_BUCK",
+        "3V3",
+        "GND"
+      ],
+      "track_width_mm": 1.5,
+      "min_clearance_mm": 0.5
+    },
+    "signal_nets": {
+      "nets": [
+        "DRV_L_PWMA",
+        "DRV_L_AIN1",
+        "DRV_L_AIN2",
+        "DRV_L_STBY",
+        "DRV_L_BIN1",
+        "DRV_L_BIN2",
+        "DRV_L_PWMB",
+        "DRV_R_PWMA",
+        "DRV_R_AIN1",
+        "DRV_R_AIN2",
+        "DRV_R_STBY",
+        "DRV_R_BIN1",
+        "DRV_R_BIN2",
+        "DRV_R_PWMB",
+        "DRV_L_AO1",
+        "DRV_L_AO2",
+        "DRV_L_BO2",
+        "DRV_L_BO1",
+        "DRV_R_AO1",
+        "DRV_R_AO2",
+        "DRV_R_BO2",
+        "DRV_R_BO1",
+        "SONAR_L_TRIG",
+        "SONAR_L_ECHO_5V",
+        "SONAR_L_ECHO_3V3",
+        "SONAR_R_TRIG",
+        "SONAR_R_ECHO_5V",
+        "SONAR_R_ECHO_3V3",
+        "I2C_SDA",
+        "I2C_SCL"
+      ],
+      "track_width_mm": 1.0,
+      "min_clearance_mm": 0.4
+    },
+    "geometry_constraints": {
+      "allow_90_degree_angles": false,
+      "bend_angle_degrees": 45,
+      "route_between_ic_or_header_pins": false,
+      "allow_route_under_axial_resistors": true,
+      "allow_track_crossovers": false,
+      "use_vias_or_top_jumpers": false,
+      "common_ground_star_bus": true
+    }
+  }
+}

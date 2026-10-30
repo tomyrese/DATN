@@ -1,0 +1,237 @@
+{
+  "description": "Quy hoạch chân GPIO Raspberry Pi 4 (IDC 40-Pin) tối ưu hoá cho mạch 1 lớp KHÔNG CHÉO DÂY (Planar Topology)",
+  "connectors": {
+    "J_PI_IDC40": {
+      "footprint": "Connector_IDC:IDC-Header_2x20_P2.54mm_Vertical",
+      "cable": "IDC 40-Pin 2.54mm Ribbon Cable (Length: 20cm)"
+    },
+    "J_OLED": {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "VDD",
+          "net": "3V3",
+          "note": "Cấp 3.3V (hoặc 5V) đồng mức I2C Pi 4"
+        },
+        "2": {
+          "name": "GND",
+          "net": "GND"
+        },
+        "3": {
+          "name": "SCK",
+          "net": "I2C_SCL",
+          "pi_pin": 5,
+          "pi_gpio": "GPIO3 (SCL1)"
+        },
+        "4": {
+          "name": "SDA",
+          "net": "I2C_SDA",
+          "pi_pin": 3,
+          "pi_gpio": "GPIO2 (SDA1)"
+        }
+      }
+    },
+    "J_SONAR_L": {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+      "location": "Front-Left Ultrasonic Sensor",
+      "pins": {
+        "1": {
+          "name": "VCC",
+          "net": "5V_BUCK"
+        },
+        "2": {
+          "name": "TRIG",
+          "net": "SONAR_L_TRIG",
+          "pi_pin": 7,
+          "pi_gpio": "GPIO4"
+        },
+        "3": {
+          "name": "ECHO",
+          "net": "SONAR_L_ECHO_5V",
+          "via_voltage_divider": "SONAR_L_ECHO_3V3",
+          "pi_pin": 11,
+          "pi_gpio": "GPIO17"
+        },
+        "4": {
+          "name": "GND",
+          "net": "GND"
+        }
+      }
+    },
+    "J_SONAR_R": {
+      "footprint": "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.54mm_Vertical",
+      "location": "Front-Right Ultrasonic Sensor",
+      "pins": {
+        "1": {
+          "name": "VCC",
+          "net": "5V_BUCK"
+        },
+        "2": {
+          "name": "TRIG",
+          "net": "SONAR_R_TRIG",
+          "pi_pin": 13,
+          "pi_gpio": "GPIO27"
+        },
+        "3": {
+          "name": "ECHO",
+          "net": "SONAR_R_ECHO_5V",
+          "via_voltage_divider": "SONAR_R_ECHO_3V3",
+          "pi_pin": 15,
+          "pi_gpio": "GPIO22"
+        },
+        "4": {
+          "name": "GND",
+          "net": "GND"
+        }
+      }
+    },
+    "U_DRV_L": {
+      "component": "TB6612FNG Module #1 (2 Left Motors)",
+      "control_header_1x8": {
+        "1_PWMA": {
+          "net": "DRV_L_PWMA",
+          "pi_pin": 19,
+          "pi_gpio": "GPIO10"
+        },
+        "2_AIN2": {
+          "net": "DRV_L_AIN2",
+          "pi_pin": 21,
+          "pi_gpio": "GPIO9"
+        },
+        "3_AIN1": {
+          "net": "DRV_L_AIN1",
+          "pi_pin": 23,
+          "pi_gpio": "GPIO11"
+        },
+        "4_STBY": {
+          "net": "3V3_STBY_L",
+          "note": "Kéo lên 3V3 qua điện trở R_STBY1 10kΩ (hoặc nối GPIO5 Pin 29)"
+        },
+        "5_BIN1": {
+          "net": "DRV_L_BIN1",
+          "pi_pin": 29,
+          "pi_gpio": "GPIO5"
+        },
+        "6_BIN2": {
+          "net": "DRV_L_BIN2",
+          "pi_pin": 31,
+          "pi_gpio": "GPIO6"
+        },
+        "7_PWMB": {
+          "net": "DRV_L_PWMB",
+          "pi_pin": 33,
+          "pi_gpio": "GPIO13 (PWM1)"
+        },
+        "8_GND": {
+          "net": "GND",
+          "pi_pin": 39,
+          "pi_gpio": "GND"
+        }
+      },
+      "power_header_1x8": {
+        "1_VM": {
+          "net": "12V_BAT"
+        },
+        "2_VCC": {
+          "net": "3V3"
+        },
+        "3_GND": {
+          "net": "GND"
+        },
+        "4_AO1": {
+          "net": "DRV_L_AO1",
+          "to_connector": "J_MOT_L Pin 1"
+        },
+        "5_AO2": {
+          "net": "DRV_L_AO2",
+          "to_connector": "J_MOT_L Pin 2"
+        },
+        "6_BO2": {
+          "net": "DRV_L_BO2",
+          "to_connector": "J_MOT_L Pin 3"
+        },
+        "7_BO1": {
+          "net": "DRV_L_BO1",
+          "to_connector": "J_MOT_L Pin 4"
+        },
+        "8_GND": {
+          "net": "GND"
+        }
+      }
+    },
+    "U_DRV_R": {
+      "component": "TB6612FNG Module #2 (2 Right Motors)",
+      "control_header_1x8": {
+        "1_PWMA": {
+          "net": "DRV_R_PWMA",
+          "pi_pin": 16,
+          "pi_gpio": "GPIO23"
+        },
+        "2_AIN2": {
+          "net": "DRV_R_AIN2",
+          "pi_pin": 18,
+          "pi_gpio": "GPIO24"
+        },
+        "3_AIN1": {
+          "net": "DRV_R_AIN1",
+          "pi_pin": 22,
+          "pi_gpio": "GPIO25"
+        },
+        "4_STBY": {
+          "net": "3V3_STBY_R",
+          "note": "Kéo lên 3V3 qua điện trở R_STBY2 10kΩ"
+        },
+        "5_BIN1": {
+          "net": "DRV_R_BIN1",
+          "pi_pin": 24,
+          "pi_gpio": "GPIO8"
+        },
+        "6_BIN2": {
+          "net": "DRV_R_BIN2",
+          "pi_pin": 26,
+          "pi_gpio": "GPIO7"
+        },
+        "7_PWMB": {
+          "net": "DRV_R_PWMB",
+          "pi_pin": 32,
+          "pi_gpio": "GPIO12 (PWM0)"
+        },
+        "8_GND": {
+          "net": "GND",
+          "pi_pin": 34,
+          "pi_gpio": "GND"
+        }
+      },
+      "power_header_1x8": {
+        "1_VM": {
+          "net": "12V_BAT"
+        },
+        "2_VCC": {
+          "net": "3V3"
+        },
+        "3_GND": {
+          "net": "GND"
+        },
+        "4_AO1": {
+          "net": "DRV_R_AO1",
+          "to_connector": "J_MOT_R Pin 1"
+        },
+        "5_AO2": {
+          "net": "DRV_R_AO2",
+          "to_connector": "J_MOT_R Pin 2"
+        },
+        "6_BO2": {
+          "net": "DRV_R_BO2",
+          "to_connector": "J_MOT_R Pin 3"
+        },
+        "7_BO1": {
+          "net": "DRV_R_BO1",
+          "to_connector": "J_MOT_R Pin 4"
+        },
+        "8_GND": {
+          "net": "GND"
+        }
+      }
+    }
+  }
+}

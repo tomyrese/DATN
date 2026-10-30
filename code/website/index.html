@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot 4WD Carrier - Bảng Điều Khiển Trực Tuyến</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-glow"></div>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="robot-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="10" rx="3"></rect>
+            <circle cx="12" cy="5" r="2"></circle>
+            <path d="M12 7v4"></path>
+            <line x1="8" y1="16" x2="8.01" y2="16"></line>
+            <line x1="16" y1="16" x2="16.01" y2="16"></line>
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title">ROBOT 4WD CARRIER CONTROLLER</h1>
+          <p class="header-subtitle">Bo mạch Carrier 1 Lớp • Raspberry Pi 4 • Driver TB6612</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div class="status-badge" id="connection-badge">
+          <span class="status-dot"></span>
+          <span id="connection-text">SẴN SÀNG</span>
+        </div>
+        <div class="battery-indicator">
+          <span class="battery-icon">⚡</span>
+          <span class="battery-text">Pin 3S 11.1V: <strong>11.8V</strong></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="dashboard-grid">
+
+      <!-- Panel Trái: Điều khiển Bánh Trái -->
+      <section class="control-panel card">
+        <div class="card-header">
+          <h2>ĐIỀU KHIỂN THỬ 2 BÁNH BÊN TRÁI</h2>
+          <span class="badge-tag">Driver U_TB1</span>
+        </div>
+
+        <!-- Trạng thái hoạt động tức thời -->
+        <div class="telemetry-bar">
+          <div class="telemetry-item">
+            <span class="telemetry-label">TRẠNG THÁI</span>
+            <span class="telemetry-value highlight" id="motor-direction">STOP</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">TỐC ĐỘ</span>
+            <span class="telemetry-value" id="motor-speed-display">60%</span>
+          </div>
+          <div class="telemetry-item">
+            <span class="telemetry-label">DRIVER CHÍNH</span>
+            <span class="telemetry-value" id="driver-state">ENABLED</span>
+          </div>
+        </div>
+
+        <!-- Bộ trượt chỉnh tốc độ -->
+        <div class="speed-control-box">
+          <div class="speed-header">
+            <label for="speed-slider">Cài Đặt Tốc Độ PWM (0 - 100%)</label>
+            <span class="speed-number" id="speed-val">60%</span>
+          </div>
+          <input type="range" id="speed-slider" min="20" max="100" value="60" step="5" class="custom-slider">
+          <div class="speed-ticks">
+            <span>20% (Chậm)</span>
+            <span>60% (Vừa)</span>
+            <span>100% (Tối đa)</span>
+          </div>
+        </div>
+
+        <!-- Cụm Phím Thao Tác Bánh Trái -->
+        <div class="action-buttons-group">
+          <button id="btn-forward" class="btn btn-primary" onclick="sendMotorCmd('forward')">
+            <span class="btn-icon">▲</span>
+            <span class="btn-text">TIẾN BÁNH TRÁI</span>
+            <span class="btn-hint">[Phím W]</span>
+          </button>
+
+          <div class="button-row">
+            <button id="btn-brake" class="btn btn-warning" onclick="sendMotorCmd('brake')">
+              <span class="btn-icon">⏹</span>
+              <span class="btn-text">HÃM PHANH</span>
+              <span class="btn-hint">[Phím B]</span>
+            </button>
+            <button id="btn-stop" class="btn btn-secondary" onclick="sendMotorCmd('stop')">
+              <span class="btn-icon">⏸</span>
+              <span class="btn-text">DỪNG TRÔI</span>
+              <span class="btn-hint">[Phím Space]</span>
+            </button>
+          </div>
+
+          <button id="btn-reverse" class="btn btn-primary" onclick="sendMotorCmd('reverse')">
+            <span class="btn-icon">▼</span>
+            <span class="btn-text">LÙI BÁNH TRÁI</span>
+            <span class="btn-hint">[Phím S]</span>
+          </button>
+        </div>
+
+        <!-- Tự động kiểm tra -->
+        <div class="test-suite-box">
+          <button id="btn-auto-test" class="btn btn-accent" onclick="runAutoTest()">
+            <span>⚡ CHẠY QUY TRÌNH KIỂM TRA TỰ ĐỘNG (AUTO TEST)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Panel Phải: Phần cứng & Nhật ký lệnh -->
+      <aside class="info-panel card">
+        <div class="card-header">
+          <h2>SƠ ĐỒ CHÂN PHẦN CỨNG</h2>
+          <span class="badge-tag">Chuẩn 1 Lớp</span>
+        </div>
+
+        <!-- Bảng chân GPIO Pi 4 kết nối TB6612 -->
+        <div class="pinout-table-wrapper">
+          <table class="pinout-table">
+            <thead>
+              <tr>
+                <th>Tín hiệu</th>
+                <th>Header Pi 4</th>
+                <th>BCM GPIO</th>
+                <th>Chức năng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="pin-badge pwr">PWMA_L</span></td>
+                <td><strong>Pin 3</strong></td>
+                <td>GPIO 2</td>
+                <td>PWM Tốc độ kênh A & B</td>
+              </tr>
+              <tr>
+                <td><span class="pin-badge sig">AIN1_L</span></td>
+                <td><strong>Pin 7</strong></td>
+                <td>GPIO 4</td>
+                <td>Định hướng AIN1 & BIN1</td>
+              </tr>
+              <tr>
+                <td><span class="pin-badge sig">AIN2_L</span></td>
+                <td><strong>Pin 5</strong></td>
+                <td>GPIO 3</td>
+                <td>Định hướng AIN2 & BIN2</td>
+              </tr>
+              <tr>
+                <td><span class="pin-badge stby">STBY_L</span></td>
+                <td><strong>Pin 11</strong></td>
+                <td>GPIO 17</td>
+                <td>Bật/Tắt Driver công suất</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Terminal Log trực quan -->
+        <div class="terminal-box">
+          <div class="terminal-header">
+            <span>NHẬT KÝ THỰC THI (LIVE LOGS)</span>
+            <button class="btn-clear" onclick="clearLogs()">Xóa</button>
+          </div>
+          <div class="terminal-body" id="log-output">
+            <div class="log-entry sys">[HỆ THỐNG] Đã sẵn sàng kết nối Robot Carrier.</div>
+            <div class="log-entry info">[THÔNG TIN] 2 Bánh Trái: J_M1 (Trước) & J_M2 (Sau).</div>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Đồ Án Tốt Nghiệp • Hệ Thống Nhúng & Mạch Động Lực Robot Carrier • 2026</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
