@@ -12,11 +12,16 @@ Thư mục này chứa toàn bộ mã nguồn điều khiển phần cứng củ
   - `AIN1_L` (Chiều quay 1): **BCM GPIO 4** (Header Pin 7)
   - `AIN2_L` (Chiều quay 2): **BCM GPIO 3** (Header Pin 5)
   - `STBY_L` (Bật driver) : **BCM GPIO 17** (Header Pin 11)
+  - `VCC` (Nguồn logic 5V) : **Header Pin 2 (+5V_PI_1)**
+  - `VM` (Nguồn động cơ)  : **Pin 11.1V qua công tắc nguồn**
+
 - **Cụm Bánh Phải (U_TB2)**:
   - `PWMA_R` (Điều tốc PWM): **BCM GPIO 13** (Header Pin 33)
   - `AIN1_R` (Chiều quay 1): **BCM GPIO 26** (Header Pin 37)
   - `AIN2_R` (Chiều quay 2): **BCM GPIO 19** (Header Pin 35)
   - `STBY_R` (Bật driver) : **BCM GPIO 20** (Header Pin 38)
+  - `VCC` (Nguồn logic 5V) : **Header Pin 4 (+5V_PI_2)**
+  - `VM` (Nguồn động cơ)  : **Pin 11.1V qua công tắc nguồn**
 
 ### B. Hệ thống 2 Cảm biến Siêu âm HC-SR04
 - **Cảm biến Trái (U_US1)**:
@@ -30,20 +35,33 @@ Thư mục này chứa toàn bộ mã nguồn điều khiển phần cứng củ
 
 ## 2. Các Kịch Bản Chạy Kiểm Thử & Vận Hành
 
-### Kịch bản 1: Test Cảm biến Siêu âm (`test_ultrasonic.py`)
-Kiểm tra độ nhạy, cự ly và độ lệch chuẩn của 2 cảm biến siêu âm với giao diện trực quan 10Hz:
+### Kịch bản 1: Chẩn đoán & Kiểm tra Động cơ Bánh Phải (`test_right_motors.py`)
+Dành riêng để chẩn đoán nguyên nhân bánh phải không quay:
 ```bash
-python3 test_ultrasonic.py
+python3 test_right_motors.py
 ```
+- **Chế độ 1**: Chẩn đoán trực tiếp không băm xung (Bypass Test - cấp trực tiếp mức HIGH vào chân PWM và STBY trong 3 giây để xác minh nguồn 5V và Driver).
+- **Chế độ 2**: Tự động tăng giảm tốc PWM.
+- **Chế độ 3**: Điều khiển thủ công phím W/S/B/X.
 
-### Kịch bản 2: Test Động cơ Bánh Trái (`test_left_motors.py`)
-Kiểm tra từng bước các chế độ tiến, lùi, phanh gấp và điều khiển thủ công bàn phím cho cụm bánh trái:
+### Kịch bản 2: Kiểm tra Động cơ Bánh Trái (`test_left_motors.py`)
 ```bash
 python3 test_left_motors.py
 ```
 
-### Kịch bản 3: TỰ HÀNH NÉ VẬT CẢN THÔNG MINH (`auto_drive.py`)
-Kịch bản tự động hóa chính của xe: Quét liên tục 2 cảm biến siêu âm, tự động giảm tốc, bẻ lái né vật cản, hoặc lùi và xoay góc thoát hiểm khi gặp vật cản quá gần:
+### Kịch bản 3: Kiểm tra Đồng bộ Cả 4 Bánh Xe (`test_all_motors.py`)
+Kiểm tra phối hợp 4 bánh: Tiến, Lùi, Rẽ vi sai mượt, Xoay tròn tại chỗ (Tank Turn) và lái tự do:
+```bash
+python3 test_all_motors.py
+```
+
+### Kịch bản 4: Test Cảm biến Siêu âm (`test_ultrasonic.py`)
+```bash
+python3 test_ultrasonic.py
+```
+
+### Kịch bản 5: TỰ HÀNH NÉ VẬT CẢN THÔNG MINH (`auto_drive.py`)
+Kịch bản tự động hóa chính của xe: Quét liên tục 2 cảm biến siêu âm, tự động giảm tốc, bẻ lái né vật cản, hoặc lùi và xoay góc thoát hiểm:
 ```bash
 python3 auto_drive.py
 ```

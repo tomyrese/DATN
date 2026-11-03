@@ -51,6 +51,7 @@ class TB6612Driver:
         self.current_direction = "STOP"
         self.is_enabled = False
         self.pwm = None
+        self.pwm_fallback = False  # True nếu băm xung phần mềm PWM gặp lỗi và chuyển sang On/Off kỹ thuật số
         self.is_simulated = not HAVE_RPI_GPIO
 
         self._setup_hardware()
@@ -66,17 +67,29 @@ class TB6612Driver:
                 GPIO.setup(self.stby_pin, GPIO.OUT, initial=GPIO.LOW)
                 GPIO.setup(self.pwm_pin, GPIO.OUT, initial=GPIO.LOW)
 
-                self.pwm = GPIO.PWM(self.pwm_pin, self.freq)
-                self.pwm.start(0)
+                try:
+                    self.pwm = GPIO.PWM(self.pwm_pin, self.freq)
+                    self.pwm.start(0)
+                    self.pwm_fallback = False
+                except Exception as pwm_err:
+                    print(f"[{self.name}] CẢNH BÁO: Không tạo được đối tượng PWM trên GPIO {self.pwm_pin} ({pwm_err}).")
+                    print(f"[{self.name}] -> Kích hoạt chế độ Digital Fallback (Bật/Tắt trực tiếp GPIO).")
+                    self.pwm = None
+                    self.pwm_fallback = True
+
+                print(f"[{self.name}] Khởi tạo phần cứng thành công: PWM={self.pwm_pin}, IN1={self.in1_pin}, IN2={self.in2_pin}, STBY={self.stby_pin}")
             except Exception as e:
+                print(f"[{self.name}] LỖI KHỞI TẠO GPIO: {e}. Chuyển sang chế độ mô phỏng.")
                 self.is_simulated = True
 
     def enable(self):
+        """Kích hoạt Driver (kéo chân STBY lên mức HIGH)"""
         self.is_enabled = True
         if not self.is_simulated:
             GPIO.output(self.stby_pin, GPIO.HIGH)
 
     def disable(self):
+        """Tắt Driver (kéo STBY xuống mức LOW để ngắt toàn bộ cầu H)"""
         self.stop()
         self.is_enabled = False
         if not self.is_simulated:
@@ -85,10 +98,18 @@ class TB6612Driver:
     def _set_pwm(self, duty):
         duty = max(0, min(100, duty))
         self.current_speed = duty
-        if not self.is_simulated and self.pwm:
-            self.pwm.ChangeDutyCycle(duty)
+        if not self.is_simulated:
+            if self.pwm and not self.pwm_fallback:
+                try:
+                    self.pwm.ChangeDutyCycle(duty)
+                except Exception as e:
+                    print(f"[{self.name}] Lỗi ChangeDutyCycle: {e}")
+            else:
+                # Digital fallback: nếu duty > 0 thì kéo pin lên HIGH, ngược lại LOW
+                GPIO.output(self.pwm_pin, GPIO.HIGH if duty > 0 else GPIO.LOW)
 
     def forward(self, speed=DEFAULT_SPEED):
+        """Quay TIẾN: IN1=HIGH, IN2=LOW, PWM=speed"""
         if not self.is_enabled:
             self.enable()
         speed = max(0, min(100, speed))
@@ -101,6 +122,7 @@ class TB6612Driver:
             self._set_pwm(speed)
 
     def reverse(self, speed=DEFAULT_SPEED):
+        """Quay LÙI: IN1=LOW, IN2=HIGH, PWM=speed"""
         if not self.is_enabled:
             self.enable()
         speed = max(0, min(100, speed))
@@ -113,6 +135,7 @@ class TB6612Driver:
             self._set_pwm(speed)
 
     def brake(self):
+        """HÃM PHANH (Short Brake): IN1=HIGH, IN2=HIGH, PWM=100"""
         self.current_direction = "BRAKE"
         if not self.is_simulated:
             GPIO.output(self.in1_pin, GPIO.HIGH)
@@ -122,6 +145,7 @@ class TB6612Driver:
             self._set_pwm(100)
 
     def stop(self):
+        """DỪNG TRÔI (Coast): IN1=LOW, IN2=LOW, PWM=0"""
         self.current_direction = "STOP"
         self._set_pwm(0)
         if not self.is_simulated:
@@ -129,6 +153,7 @@ class TB6612Driver:
             GPIO.output(self.in2_pin, GPIO.LOW)
 
     def cleanup(self):
+        """Dọn dẹp và trả chân GPIO về trạng thái an toàn"""
         self.stop()
         self.disable()
         if not self.is_simulated:
@@ -177,6 +202,11 @@ class Robot4WD:
         self.right = TB6612RightMotors(freq=freq)
         self.is_simulated = self.left.is_simulated or self.right.is_simulated
         self.current_state = "DỪNG"
+
+        print(f"[Robot4WD] Khởi động hệ truyền động 4WD - Chế độ: {'MÔ PHỎNG (PC)' if self.is_simulated else 'PHẦN CỨNG THẬT (Pi 4)'}")
+        if not self.is_simulated:
+            print(f"  * Cụm Trái: {'Sẵn sàng' if not self.left.is_simulated else 'Lỗi'}")
+            print(f"  * Cụm Phải: {'Sẵn sàng' if not self.right.is_simulated else 'Lỗi'}")
 
     def enable(self):
         """Kích hoạt cả 2 Driver"""
