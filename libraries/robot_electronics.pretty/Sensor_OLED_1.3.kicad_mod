@@ -1,0 +1,141 @@
+(footprint "Sensor_OLED_1.3"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "OLED 1.3 inch I2C Display Header 1x04 pitch 2.54mm (1:VCC, 2:GND, 3:SCL, 4:SDA)")
+	(property "Reference" "REF**"
+		(at 0 -4.5 0)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0001-4000-8000-000000000001")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Display_OLED_1.3_I2C"
+		(at 0 4.5 0)
+		(layer "F.Fab")
+		(uuid "a0e1d2c3-0002-4000-8000-000000000002")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a0e1d2c3-0003-4000-8000-000000000003")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" "OLED 1.3 inch I2C Display Header 1x04 pitch 2.54mm"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a0e1d2c3-0004-4000-8000-000000000004")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -5.2 -2)
+		(end 5.2 2)
+		(stroke
+			(width 0.15)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0005-4000-8000-000000000005")
+	)
+	(fp_text user "VCC"
+		(at -3.81 -2.8 0)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0006-4000-8000-000000000006")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(fp_text user "GND"
+		(at -1.27 -2.8 0)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0007-4000-8000-000000000007")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(fp_text user "SCL"
+		(at 1.27 -2.8 0)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0008-4000-8000-000000000008")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(fp_text user "SDA"
+		(at 3.81 -2.8 0)
+		(layer "F.SilkS")
+		(uuid "a0e1d2c3-0009-4000-8000-000000000009")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.12)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at -3.81 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "a0e1d2c3-0010-4000-8000-000000000010")
+	)
+	(pad "2" thru_hole circle
+		(at -1.27 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "a0e1d2c3-0011-4000-8000-000000000011")
+	)
+	(pad "3" thru_hole circle
+		(at 1.27 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "a0e1d2c3-0012-4000-8000-000000000012")
+	)
+	(pad "4" thru_hole circle
+		(at 3.81 0)
+		(size 1.4 1.4)
+		(drill 0.8)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "a0e1d2c3-0013-4000-8000-000000000013")
+	)
+	(embedded_fonts no)
+)
+

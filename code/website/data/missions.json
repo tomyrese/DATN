@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ĐƠN-004",
+    "store": "Highlands Coffee",
+    "destination": "Bàn A-15 (Tầng 1)",
+    "customer": "Khách tại bàn",
+    "phone": "0901234567",
+    "item": "1x Trà Sen Vàng (Size L)",
+    "otp": "460056",
+    "compartment": 1,
+    "status": "COMPLETED",
+    "createdAt": "23:48 - 02/11/2026",
+    "completedAt": "2026-11-02T23:48:59.446604"
+  },
+  {
+    "id": "MSN-2026-001",
+    "store": "Highlands Coffee (Tầng 1)",
+    "destination": "Bàn A-12 (Khu vực Sảnh Trung Tâm)",
+    "customer": "Chị Lan Anh",
+    "phone": "0987654321",
+    "item": "02 Cà phê Phin Sữa Đá + 01 Bánh Mì Que",
+    "otp": "829145",
+    "compartment": 1,
+    "status": "ARRIVED",
+    "createdAt": "2026-11-02T10:15:00Z",
+    "notes": "Robot đã đến vị trí bàn A-12 và đang chờ khách nhập OTP mở hộc"
+  },
+  {
+    "id": "MSN-2026-002",
+    "store": "Phúc Long Tea (Tầng 2)",
+    "destination": "Quầy Thông Tin & Kỹ Thuật (Tầng 1)",
+    "customer": "Anh Tuấn Hùng",
+    "phone": "0908123456",
+    "item": "01 Trà Đào Dầm Size L (Ít ngọt, ít đá)",
+    "otp": "635201",
+    "compartment": 2,
+    "status": "EN_ROUTE",
+    "createdAt": "2026-11-02T10:28:00Z",
+    "notes": "Đang di chuyển qua khu vực thang cuốn Tầng 2"
+  },
+  {
+    "id": "MSN-2026-003",
+    "store": "Nhà Thuốc An Khang (Tầng B1)",
+    "destination": "Khu Vui Chơi Trẻ Em TiNiWorld (Tầng 3)",
+    "customer": "Bác Hoàng Minh",
+    "phone": "0933998877",
+    "item": "Hộp băng dán cá nhân Urgo + Dung dịch sát khuẩn",
+    "otp": "114920",
+    "compartment": 1,
+    "status": "COMPLETED",
+    "createdAt": "2026-11-02T09:40:00Z",
+    "notes": "Giao thành công, khách hàng đánh giá 5 sao"
+  }
+]

@@ -540,23 +540,7 @@
       "version": 5
     },
     "net_colors": {},
-    "netclass_assignments": {
-      "/+5V_PI": [
-        "Power"
-      ],
-      "/BAT+": [
-        "Power"
-      ],
-      "/FUSE_IN": [
-        "Power"
-      ],
-      "/VM_MOTOR": [
-        "Power"
-      ],
-      "GND": [
-        "Power"
-      ]
-    },
+    "netclass_assignments": {},
     "netclass_patterns": []
   },
   "pcbnew": {

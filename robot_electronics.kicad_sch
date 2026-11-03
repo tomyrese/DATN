@@ -610,6 +610,157 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "robot_electronics:Display_OLED_1.3_I2C"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 0 10.16 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.5 1.5)
+					)
+				)
+			)
+			(property "Value" "Display_OLED_1.3_I2C"
+				(at 0 -10.16 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.5 1.5)
+					)
+				)
+			)
+			(property "Footprint" "robot_electronics:Sensor_OLED_1.3"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "OLED 1.3 inch I2C Display Module (SSD1306/SH1106)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Display_OLED_1.3_I2C_0_1"
+				(rectangle
+					(start -10.16 7.62)
+					(end 10.16 -7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "Display_OLED_1.3_I2C_1_1"
+				(pin power_in line
+					(at -15.24 3.81 0)
+					(length 5.08)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -15.24 -3.81 0)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 15.24 3.81 180)
+					(length 5.08)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 15.24 -3.81 180)
+					(length 5.08)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "robot_electronics:Fuse"
 			(pin_names
 				(offset 0)
@@ -2824,7 +2975,7 @@
 		)
 		(uuid "dadff1e4-1043-4b10-ab1f-a0bf854360ac")
 	)
-	(text "KHOI 3: TIN HIEU & CAM BIEN (2x HC-SR04 + CHIA AP, 1x TCRT5000 3-CH)"
+	(text "KHOI 3: TIN HIEU & CAM BIEN (2x HC-SR04, 1x TCRT5000 3-CH, 1x OLED 1.3\" I2C)"
 		(exclude_from_sim no)
 		(at 200.66 26.67 0)
 		(effects
@@ -2877,10 +3028,6 @@
 		(uuid "0b926643-f114-4104-b1ac-e5d498fbe169")
 	)
 	(no_connect
-		(at 67.31 198.12)
-		(uuid "0e346ce0-31ab-4018-8404-96a2e7cef40b")
-	)
-	(no_connect
 		(at 143.51 167.64)
 		(uuid "0e51fa87-84cb-4457-b870-81e9550d25fb")
 	)
@@ -2903,10 +3050,6 @@
 	(no_connect
 		(at 67.31 228.6)
 		(uuid "3c3aba12-acb7-465f-910a-6e0f9a9f7c25")
-	)
-	(no_connect
-		(at 143.51 198.12)
-		(uuid "570b0c4d-9f2f-455b-9cd2-ae76435cfe38")
 	)
 	(no_connect
 		(at 143.51 208.28)
@@ -3118,7 +3261,7 @@
 	)
 	(wire
 		(pts
-			(xy 373.38 68.58) (xy 386.08 68.58)
+			(xy 373.38 50.8) (xy 386.08 50.8)
 		)
 		(stroke
 			(width 0)
@@ -3208,7 +3351,7 @@
 	)
 	(wire
 		(pts
-			(xy 373.38 73.66) (xy 386.08 73.66)
+			(xy 373.38 55.88) (xy 386.08 55.88)
 		)
 		(stroke
 			(width 0)
@@ -3378,7 +3521,7 @@
 	)
 	(wire
 		(pts
-			(xy 373.38 63.5) (xy 386.08 63.5)
+			(xy 373.38 45.72) (xy 386.08 45.72)
 		)
 		(stroke
 			(width 0)
@@ -3435,6 +3578,66 @@
 			(type default)
 		)
 		(uuid "a0d14d6f-83ff-449e-b600-77ff2a4d1397")
+	)
+	(wire
+		(pts
+			(xy 340.36 92.71) (xy 330.2 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-2001-4000-8000-000000000001")
+	)
+	(wire
+		(pts
+			(xy 340.36 100.33) (xy 340.36 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-2003-4000-8000-000000000003")
+	)
+	(wire
+		(pts
+			(xy 370.84 92.71) (xy 381 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-2004-4000-8000-000000000004")
+	)
+	(wire
+		(pts
+			(xy 370.84 100.33) (xy 381 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-2006-4000-8000-000000000006")
+	)
+	(wire
+		(pts
+			(xy 67.31 198.12) (xy 53.34 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-3001-4000-8000-000000000001")
+	)
+	(wire
+		(pts
+			(xy 143.51 198.12) (xy 157.48 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0e1d2c3-3003-4000-8000-000000000003")
 	)
 	(wire
 		(pts
@@ -3658,7 +3861,7 @@
 	)
 	(wire
 		(pts
-			(xy 337.82 60.96) (xy 325.12 60.96)
+			(xy 337.82 43.18) (xy 325.12 43.18)
 		)
 		(stroke
 			(width 0)
@@ -4116,6 +4319,56 @@
 		)
 		(uuid "a0d8a1e3-31f0-4a47-b6b5-25054b1f9a56")
 	)
+	(label "+3V3_LOGIC"
+		(at 330.2 92.71 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a0e1d2c3-2002-4000-8000-000000000002")
+	)
+	(label "I2C_SCL"
+		(at 381 92.71 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a0e1d2c3-2005-4000-8000-000000000005")
+	)
+	(label "I2C_SDA"
+		(at 381 100.33 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a0e1d2c3-2007-4000-8000-000000000007")
+	)
+	(label "I2C_SDA"
+		(at 53.34 198.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "a0e1d2c3-3002-4000-8000-000000000002")
+	)
+	(label "I2C_SCL"
+		(at 157.48 198.12 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a0e1d2c3-3004-4000-8000-000000000004")
+	)
 	(label "AIN2_L"
 		(at 205.74 158.75 180)
 		(effects
@@ -4137,7 +4390,7 @@
 		(uuid "a4ced620-d60b-406b-a1b7-446a1ba4e40a")
 	)
 	(label "LINE_L"
-		(at 386.08 73.66 0)
+		(at 386.08 55.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4157,7 +4410,7 @@
 		(uuid "a6ce2d1e-dc52-427c-a4a5-73cc5229009c")
 	)
 	(label "GND_LINE"
-		(at 337.82 76.2 180)
+		(at 337.82 58.42 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4167,7 +4420,7 @@
 		(uuid "abf516ee-a1d2-4481-bb08-73db95002001")
 	)
 	(label "+3V3_LOGIC"
-		(at 325.12 60.96 180)
+		(at 325.12 43.18 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4307,7 +4560,7 @@
 		(uuid "de72d60c-c51f-4781-95a5-9313dc1d7889")
 	)
 	(label "LINE_R"
-		(at 386.08 63.5 0)
+		(at 386.08 45.72 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4327,7 +4580,7 @@
 		(uuid "f4f3ef2b-7deb-45c6-9ab8-7b97793e1130")
 	)
 	(label "LINE_C"
-		(at 386.08 68.58 0)
+		(at 386.08 50.8 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5234,7 +5487,7 @@
 	)
 	(symbol
 		(lib_id "robot_electronics:Sensor_Line_TCRT5000_3CH")
-		(at 355.6 68.58 0)
+		(at 355.6 50.8 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5244,7 +5497,7 @@
 		(dnp no)
 		(uuid "66119519-1a5b-46b9-bbb6-358340b3be51")
 		(property "Reference" "U_LINE"
-			(at 355.6 64.77 0)
+			(at 355.6 46.99 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5254,7 +5507,7 @@
 			)
 		)
 		(property "Value" "TCRT5000_3CH"
-			(at 355.6 72.39 0)
+			(at 355.6 54.61 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5264,7 +5517,7 @@
 			)
 		)
 		(property "Footprint" "robot_electronics:Sensor_Line_TCRT5000_3CH"
-			(at 355.6 76.2 0)
+			(at 355.6 58.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5275,7 +5528,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 355.6 68.58 0)
+			(at 355.6 50.8 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5285,7 +5538,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 355.6 68.58 0)
+			(at 355.6 50.8 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6124,6 +6377,166 @@
 			(project "robot_electronics"
 				(path "/d0a1b2c3-0000-0000-0000-000000000001"
 					(reference "U_US2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "robot_electronics:Display_OLED_1.3_I2C")
+		(at 355.6 96.52 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a0e1d2c3-1000-4000-8000-000000000001")
+		(property "Reference" "J_OLED"
+			(at 355.6 86.36 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.5 1.5)
+				)
+			)
+		)
+		(property "Value" "OLED_1.3_I2C"
+			(at 355.6 106.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.5 1.5)
+				)
+			)
+		)
+		(property "Footprint" "robot_electronics:Sensor_OLED_1.3"
+			(at 355.6 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 355.6 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "OLED 1.3 inch I2C Display Module (SSD1306/SH1106)"
+			(at 355.6 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a0e1d2c3-1001-4000-8000-000000000001")
+		)
+		(pin "2"
+			(uuid "a0e1d2c3-1002-4000-8000-000000000002")
+		)
+		(pin "3"
+			(uuid "a0e1d2c3-1003-4000-8000-000000000003")
+		)
+		(pin "4"
+			(uuid "a0e1d2c3-1004-4000-8000-000000000004")
+		)
+		(instances
+			(project "robot_electronics"
+				(path "/d0a1b2c3-0000-0000-0000-000000000001"
+					(reference "J_OLED")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "robot_electronics:GND")
+		(at 340.36 105.41 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a0e1d2c3-1005-4000-8000-000000000005")
+		(property "Reference" "#PWR_OLED_GND"
+			(at 340.36 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 340.36 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 340.36 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 340.36 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 340.36 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a0e1d2c3-1006-4000-8000-000000000006")
+		)
+		(instances
+			(project "robot_electronics"
+				(path "/d0a1b2c3-0000-0000-0000-000000000001"
+					(reference "#PWR_OLED_GND")
 					(unit 1)
 				)
 			)

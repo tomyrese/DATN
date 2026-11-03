@@ -1,0 +1,65 @@
+{
+  "53c2bb54f7b78093a8fd24847406317000679f67": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "53c2bb54f7b78093a8fd24847406317000679f67"
+  },
+  "8c322158c957b2f8e8ef27b9d594f17fb5bcf360": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "8c322158c957b2f8e8ef27b9d594f17fb5bcf360"
+  },
+  "c39dd17fa6d69807ed3ff8ad1f3ed4d32018d59f": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "c39dd17fa6d69807ed3ff8ad1f3ed4d32018d59f"
+  },
+  "652b4f9bd7ec95e71b3ecc9ed8c043857e837c97": {
+    "id": "usr_admin_01",
+    "username": "admin",
+    "role": "admin",
+    "fullName": "Nguyễn Phú Quý (Admin Hệ Thống)",
+    "token": "652b4f9bd7ec95e71b3ecc9ed8c043857e837c97"
+  },
+  "9569a2044cf2b0edab13ba7d17351f70402ba616": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "9569a2044cf2b0edab13ba7d17351f70402ba616"
+  },
+  "e8303207d87239802c0b57912040623d524cbfb9": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "e8303207d87239802c0b57912040623d524cbfb9"
+  },
+  "4623d3b07e0a00a6a1f576c89dfaf1be85a8fd8e": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "4623d3b07e0a00a6a1f576c89dfaf1be85a8fd8e"
+  },
+  "217bdb05ed3226c94bbb4eac1d58a5e19d18ea1d": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "217bdb05ed3226c94bbb4eac1d58a5e19d18ea1d"
+  },
+  "3168ac77f43b672950902a586a3dcbac2cfa2396": {
+    "id": "usr_mgr_01",
+    "username": "manager",
+    "role": "manager",
+    "fullName": "Lê Minh Ngọc (Điều Phối Viên)",
+    "token": "3168ac77f43b672950902a586a3dcbac2cfa2396"
+  }
+}

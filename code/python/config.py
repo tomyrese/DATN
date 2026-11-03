@@ -30,6 +30,23 @@ LEFT_MOTORS_CONFIG = {
 }
 
 # ==============================================================================
+# BẢNG ÁNH XẠ CHÂN 2 CẢM BIẾN SIÊU ÂM HC-SR04 (TRÁI & PHẢI)
+# Bảo vệ chân Echo 5V qua cầu phân áp 1kΩ / 2kΩ xuống mức an toàn 3.3V cho Pi 4
+# ==============================================================================
+ULTRASONIC_CONFIG = {
+    # Cảm biến siêu âm Trái (U_US1)
+    "LEFT": {
+        "TRIG_PIN": 27,  # Physical Pin 13 (BCM GPIO 27) - Output 3.3V phát xung
+        "ECHO_PIN": 22,  # Physical Pin 15 (BCM GPIO 22) - Input 3.3V nhận xung phản hồi
+    },
+    # Cảm biến siêu âm Phải (U_US2)
+    "RIGHT": {
+        "TRIG_PIN": 5,   # Physical Pin 29 (BCM GPIO 5)  - Output 3.3V phát xung
+        "ECHO_PIN": 6,   # Physical Pin 31 (BCM GPIO 6)  - Input 3.3V nhận xung phản hồi
+    }
+}
+
+# ==============================================================================
 # BẢNG THAM CHIẾU CHÂN VẬT LÝ (PHYSICAL PIN HEADER 2x20)
 # ==============================================================================
 LEFT_MOTORS_PHYSICAL_PINS = {
@@ -37,6 +54,13 @@ LEFT_MOTORS_PHYSICAL_PINS = {
     "AIN2_L": 5,   # Physical Pin 5  (BCM GPIO 3)
     "AIN1_L": 7,   # Physical Pin 7  (BCM GPIO 4)
     "STBY_L": 11,  # Physical Pin 11 (BCM GPIO 17)
+}
+
+ULTRASONIC_PHYSICAL_PINS = {
+    "TRIG_L": 13,  # Physical Pin 13 (BCM GPIO 27)
+    "ECHO_L": 15,  # Physical Pin 15 (BCM GPIO 22)
+    "TRIG_R": 29,  # Physical Pin 29 (BCM GPIO 5)
+    "ECHO_R": 31,  # Physical Pin 31 (BCM GPIO 6)
 }
 
 # ==============================================================================

@@ -8,16 +8,25 @@
 *.bak
 *.lck
 ~*.lck
+~$*
 _autosave*
 *.tmp
 
-# KiCad DRC/ERC Reports
+# Temporary Test PCB Boards
+temp_drc*.kicad_pcb
+test_*.kicad_pcb
+
+# KiCad DRC/ERC Reports & Logs
 *-drc.rpt
 *-erc.rpt
 *-drc.json
 *violations.json
 current_drc.rpt
 ref_drc*.rpt
+*.rpt
+drc_*.txt
+erc_*.txt
+report.txt
 
 # Python Cache & Virtual Environments
 __pycache__/
@@ -28,12 +37,25 @@ __pycache__/
 venv/
 env/
 
+# IDE & Editor Local History
+.history/
+.vscode/
+.idea/
+
 # OS Artifacts
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Scratch / MCP backups
+# Scratch & Archive
 scratch/
 .mcp-backups/
-report.txt
+scripts/archive/
+slides_*.txt
+slides_detailed.json
+slide_full_analysis.txt
+theme_analysis.txt
+
+# Temporary docx backups
+*_backup*.docx
+*_user_original*.docx

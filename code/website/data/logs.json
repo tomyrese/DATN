@@ -1,0 +1,177 @@
+[
+  {
+    "id": "LOG-275382",
+    "time": "00:24:35",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Bé Robi hoàn thành lộ trình di chuyển tới: Highlands Coffee.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-797739",
+    "time": "00:16:37",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Bé Robi hoàn thành lộ trình di chuyển tới: Nhà Vệ Sinh & Thang Máy.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-268312",
+    "time": "00:07:48",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Bé Robi hoàn thành lộ trình di chuyển tới: Siêu Thị MegaMarket.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-265376",
+    "time": "00:07:45",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Bé Robi hoàn thành lộ trình di chuyển tới: Bàn A-01.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-238791",
+    "time": "00:07:18",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Bé Robi hoàn thành lộ trình di chuyển tới: Highlands Coffee.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-238782",
+    "time": "00:07:18",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-487544",
+    "time": "23:54:47",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Đang tiến (60%).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-487533",
+    "time": "23:54:47",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-139447",
+    "time": "23:48:59",
+    "category": "HỘC CHỨA",
+    "message": "Khách nhập đúng mã PIN 460056, mở hộc 1 (1x Trà Sen Vàng (Size L)).",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-130695",
+    "time": "23:48:50",
+    "category": "GIAO HÀNG",
+    "message": "Cửa hàng 'Highlands Coffee' tạo đơn #ĐƠN-004: 1x Trà Sen Vàng (Size L) -> Bàn A-15 (Tầng 1) (Hộc 1, Mã PIN: 460056).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-130684",
+    "time": "23:48:50",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Đang tiến (65%).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-130676",
+    "time": "23:48:50",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-056028",
+    "time": "23:47:36",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Đang tiến (65%).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-056018",
+    "time": "23:47:36",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-045291",
+    "time": "23:47:25",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-034881",
+    "time": "23:47:14",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Đang rẽ phải (60%).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-863966",
+    "time": "23:44:23",
+    "category": "HỆ THỐNG",
+    "message": "Nguyễn Phú Quý (Admin Hệ Thống) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-858396",
+    "time": "23:44:18",
+    "category": "HỆ THỐNG",
+    "message": "Lê Minh Ngọc (Điều Phối Viên) đăng nhập thành công.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-102941",
+    "time": "23:30:15",
+    "category": "GIAO HÀNG",
+    "message": "Đơn #MSN-001 đã tới Bàn A-12, chờ nhập mã PIN.",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-102940",
+    "time": "23:28:40",
+    "category": "ĐIỀU HƯỚNG",
+    "message": "Đang tiến sảnh Tầng 1 (60%).",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-102939",
+    "time": "23:25:12",
+    "category": "CẢM BIẾN",
+    "message": "Phát hiện vật cản an toàn: 42.5 cm.",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-102938",
+    "time": "23:20:00",
+    "category": "HỆ THỐNG",
+    "message": "Điều phối viên Lê Minh Ngọc đã đăng nhập.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-102937",
+    "time": "23:14:22",
+    "category": "HỘC CHỨA",
+    "message": "Khách nhập PIN 829145 thành công, mở Hộc 1.",
+    "level": "SUCCESS"
+  },
+  {
+    "id": "LOG-102936",
+    "time": "23:10:05",
+    "category": "AI TRỢ LÝ",
+    "message": "Tư vấn quán ăn Tầng 4 cho khách hàng.",
+    "level": "INFO"
+  },
+  {
+    "id": "LOG-102935",
+    "time": "23:05:40",
+    "category": "BẢO MẬT",
+    "message": "Ngăn chặn yêu cầu truy xuất dữ liệu trái phép.",
+    "level": "WARNING"
+  }
+]

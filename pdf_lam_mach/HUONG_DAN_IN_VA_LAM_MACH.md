@@ -1,46 +1,36 @@
 # HƯỚNG DẪN IN ẤN VÀ LÀM MẠCH IN THỦ CÔNG (PCB DIY GUIDE)
 ## BẢN THIẾT KẾ MỚI NHẤT & BẢN GHÉP TẤM (PANEL 4X & 2X TRÊN KHỔ A4)
 
-Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ lệ vật lý **1:1 (Scale 100%)** với các tùy chọn tối ưu cho từng phương pháp làm mạch in thủ công 1 lớp (`B.Cu`).
+Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ lệ vật lý **1:1 (Scale 100%)** với các tùy chọn tối ưu cho phương pháp làm mạch in thủ công 1 lớp (`B.Cu`).
 
 ---
 
-## 1. Thông số kích thước thực tế của bo mạch
-* **Chiều rộng (Width):** **`111.63 mm`** (khoảng **`11.16 cm`**)
-* **Chiều dài / Chiều dọc (Height):** **`72.94 mm`** (khoảng **`7.29 cm`**)
-* **Diện tích bo mạch:** **`81.43 cm²`** (giảm gần **`48% diện tích`** so với bản ban đầu $154.5\text{ cm}^2$).
-* **Tọa độ đường cắt viền bo (Edge.Cuts):**
-  * Góc trên - trái: $(49.00\text{ mm}, 37.23\text{ mm})$
-  * Góc trên - phải: $(160.46\text{ mm}, 37.23\text{ mm})$
-  * Góc dưới - phải: $(160.46\text{ mm}, 110.00\text{ mm})$
-  * Góc dưới - trái: $(49.00\text{ mm}, 110.00\text{ mm})$
-* **Quy cách ghép tấm A4 (Panel 4X):**
-  * Khổ giấy A4: $297 \times 210\text{ mm}$.
-  * Kích thước tổng cụm 4 mạch ($2 \times 2$): **$227.5 \times 150.8\text{ mm}$**.
-  * Khoảng hở giữa các mạch: $4.5\text{ mm}$ (ngang) và $5.2\text{ mm}$ (dọc) để cưa/cắt mạch dễ dàng.
-  * Lề an toàn của giấy in A4: lề ngang $\approx 3.5\text{ cm}$, lề dọc $\approx 3.0\text{ cm}$ (đảm bảo mọi loại máy in không bị kẹt hay mất góc).
+## 1. Thông số kỹ thuật & Cải tiến độ dày đồng (Vành khuyên Pad)
+* **Kích thước bo mạch:** **`111.63 mm` $\times$ `72.94 mm`** (Diện tích: **`81.43 cm²`**).
+* **Độ dày đường mạch (Trace Width):**
+  * Đường tín hiệu (Signal): **`1.00 mm`** (rất to, chống đứt khi ủi nhiệt).
+  * Đường nguồn & Động cơ (Power / Motor): **`1.40 mm`** (chịu dòng cao tới $3\text{A}$).
+* **Kích thước chân hàn (Pad Size) & Lỗ khoan (Drill Hole) - ĐÃ ĐIỀU CHỈNH THEO YÊU CẦU:**
+  * **Kích thước Pad (Size X / Size Y):** Chuẩn hóa toàn bộ về **`2.00 mm x 2.00 mm`** (theo đúng yêu cầu đưa toàn bộ Size X về 2.0mm).
+  * **Đường kính lỗ khoan (Hole Size X / Y):** Giữ nguyên chuẩn **`0.80 mm`**.
+  * **Vành khuyên đồng (Annular Ring):** $(2.00 - 0.80) / 2 = \mathbf{0.60\text{ mm}}$ (vành đồng siêu dày, bám chì hàn cực tốt, chống bong tróc tuyệt đối khi hàn nhiệt và khoan tay).
+  * **Khoảng hở cách ly giữa các chân (Clearance):** $2.54 - 2.00 = \mathbf{0.54\text{ mm}}$ (độ hở cách ly an toàn $>0.5\text{ mm}$, loại bỏ hoàn toàn nguy cơ dính chập thiếc khi làm mạch thủ công).
+  * **Tối ưu góc đường mạch:** Toàn bộ các góc rẽ vuông 90° đã được vát chéo chuẩn hóa thành góc cong vát **45° (Chamfer / Mitre)**, loại bỏ bẫy axit và đảm bảo dòng tín hiệu trơn tru.
+* **Chế độ xuất hình dạng lỗ khoan (Drill Shape Option):**
+  * Toàn bộ các file PDF mạch đáy (`B.Cu`) được xuất ở chế độ **lỗ khoan thực tế (Actual Drill Shape 0.8mm)**.
+  * Lỗ tròn màu trắng có đường kính **`0.80 mm`**, bao bọc xung quanh là vành đồng đen dày **`0.60 mm`** rất nổi bật.
+  * Khi khoan lỗ: Dùng mũi khoan **$0.8\text{ mm}$** (hoặc $1.0\text{ mm}$), vành đồng $0.60\text{ mm}$ vẫn giữ nguyên vẹn và bám chì hàn siêu chắc.
 
 ---
 
-## 2. Danh sách các file PDF trong thư mục
+## 2. Danh sách 4 File PDF Chuẩn để In Mạch (Không rườm rà)
 
-### A. Ghép nhiều bản trên 1 trang A4 (Khuyên dùng - Tiết kiệm tối đa)
-| Tên File | Quy Cách | Công Dụng & Phương Pháp |
-| :--- | :--- | :--- |
-| **`01_Panel_4x_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | **Lật gương (Mirror)**, Đen trắng. Chuyên dùng để **ủi nhiệt** (giấy bóng, decal nhiệt) làm 4 bo mạch cùng lúc. |
-| **`02_PANEL_4X_A4_B_Cu_DIRECT_In_Film.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | **Chiều thuận (Direct)**, Đen trắng. Dùng **in phim trong suốt** để rọi đèn UV cảm quang hoặc máy CNC. |
-| **`03_PANEL_4X_A4_F_Silkscreen.pdf`** | **Ghép 4 mạch (2x2)** trên 1 tờ A4 | Mặt trên vị trí linh kiện (Silkscreen), dùng in lụa hoặc dán decal định vị cắm chân. |
-| **`04_PANEL_2X_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** | **Ghép 2 mạch (2x1)** trên 1 tờ A4 | Lật gương, dùng cho phôi đồng dạng thanh dài hoặc làm 2 bo mạch. |
-| **`05_PANEL_2X_A4_B_Cu_DIRECT_In_Film.pdf`** | **Ghép 2 mạch (2x1)** trên 1 tờ A4 | Chiều thuận in film rọi UV cho 2 bo mạch. |
-
-### B. Bản in mạch đơn (1 mạch lẻ)
-| Tên File | Công Dụng | Đặc Tính Kỹ Thuật |
-| :--- | :--- | :--- |
-| **`06_Don_1X_Mach_Day_B_Cu_MIRROR_Ui_Nhiet.pdf`** | In 1 mạch đơn để ủi nhiệt | Tỷ lệ 1:1, Lật gương, có tâm lỗ khoan (`Drill Mark`). |
-| **`07_Don_1X_Mach_Day_B_Cu_DIRECT_In_Film.pdf`** | In 1 mạch đơn để rọi film UV | Tỷ lệ 1:1, Chiều thuận. |
-| **`08_Don_1X_Mat_Tren_F_Silkscreen.pdf`** | Mặt linh kiện đơn | Tỷ lệ 1:1, Chiều thuận. |
-| **`09_Don_1X_Huong_Dan_Lap_Rap_Mau.pdf`** | Bản vẽ màu đối chiếu lắp ráp | Đầy đủ màu sắc, pad thực tế để soi khi hàn linh kiện. |
-| **`10_So_Do_Nguyen_Ly_Schematic.pdf`** | Sơ đồ nguyên lý toàn mạch | Khổ A3 tiêu chuẩn, rõ ràng từng nhãn mạng. |
+| TT | Tên File PDF | Quy Cách & Lớp In | Công Dụng & Phương Pháp Gia Công |
+| :---: | :--- | :--- | :--- |
+| **01** | **`01_Mat_Day_B_Cu_MIRROR_Ui_Nhiet.pdf`** | Khổ A4, **Lật gương (Mirror)**, Đen trắng, ghép 4 mạch | Chuyên dùng để **in giấy decal/giấy bóng ủi nhiệt** lên phôi đồng. Bản lật gương đảm bảo khi áp mặt giấy vào đồng và là nóng sẽ tạo ra đường mạch đúng chiều. |
+| **02** | **`02_Mat_Day_B_Cu_DIRECT_In_Film.pdf`** | Khổ A4, **Chiều thuận (Direct)**, Đen trắng, ghép 4 mạch | Chuyên dùng để **in film nhựa trong suốt rọi tia UV** (phương pháp cảm quang) hoặc đưa vào máy soi / khắc CNC. |
+| **03** | **`03_Mat_Tren_F_Silkscreen.pdf`** | Khổ A4, **Chiều thuận (Direct)**, Đen trắng, ghép 4 mạch | In mặt trên linh kiện (tên linh kiện, chân Pi, vị trí 6 cầu nối Jumper) để ủi/in lụa lên mặt phíp trước khi cắm chân. |
+| **04** | **`04_So_Do_Nguyen_Ly_Schematic.pdf`** | Khổ A3 tiêu chuẩn, Toàn bộ sơ đồ nguyên lý | Dùng để in ra giấy hoặc mở trên màn hình để đối chiếu nhãn mạng, giá trị linh kiện khi lắp ráp. |
 
 ---
 
@@ -62,7 +52,7 @@ Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ l�
    * Phôi đồng 1 mặt: Nếu in file **`Panel_4x`** cần tấm phôi khoảng $235 \times 160\text{ mm}$; nếu in mạch đơn cần phôi tối thiểu $115 \times 75\text{ mm}$.
    * Máy in laser đen trắng (In đậm nhất có thể, mật độ mực cao - High Quality).
 2. **In mạch:**
-   * Sử dụng file: **`01_Panel_4x_A4_B_Cu_MIRROR_Ui_Nhiet.pdf`** (hoặc `06_Don_1X_...` nếu làm mạch đơn).
+   * Sử dụng file: **`01_Mat_Day_B_Cu_MIRROR_Ui_Nhiet.pdf`**.
 3. **Ủi mực sang phôi đồng:**
    * Làm sạch và đánh bóng mặt đồng bằng bùi nhùi nhôm hoặc giấy ráp mịn (P1000 - P1500).
    * Đặt mặt giấy in mực úp vào phôi đồng, dùng băng dính nhiệt cố định mép.
@@ -71,5 +61,27 @@ Bộ tài liệu PDF này được xuất chuẩn từ KiCad 10, đúng tỷ l�
 4. **Ăn mòn & Khoan lỗ:**
    * Ăn mòn bằng dung dịch muối Sắt III Clorua ($FeCl_3$) hoặc hỗn hợp $H_2O_2 + HCl$.
    * Sau khi ăn mòn xong, rửa sạch và lau lớp mực bảo vệ bằng cồn / acetone.
-   * Dùng mũi khoan $0.8\text{ mm}$ khoan các lỗ linh kiện (tâm lỗ khoan trắng nhỏ trên pad sẽ tự định tâm mũi khoan chính xác).
-   * Dùng mũi khoan $3.2\text{ mm}$ khoan 4 lỗ bắt ốc vít góc M3 (nếu có).
+   * Dùng mũi khoan **$1.0\text{ mm}$** khoan đồng loạt tất cả các lỗ chân linh kiện, header Raspberry Pi, TB6612, via jumper và cọc nguồn (chấm tâm định vị trên pad sẽ tự động hút và dẫn hướng mũi khoan chính xác $100\%$).
+   * Dùng mũi khoan $3.2\text{ mm}$ khoan 4 lỗ bắt ốc vít góc M3.
+
+---
+
+## 5. Hướng dẫn hàn linh kiện & 6 Cầu nối dây (Jumpers)
+
+Mạch được thiết kế chuẩn **1 lớp đồng đáy (B.Cu)** kết hợp **6 cầu nối dây ngắn** ở mặt trên linh kiện (đã in rõ tên và vị trí trên lớp Silkscreen mặt trước):
+
+| Ký hiệu Jumper | Tín hiệu | Khoảng cách | Ghi chú thi công |
+| :---: | :---: | :---: | :--- |
+| **JMP1: SDA** | Tín hiệu I2C SDA | **32 mm** | Dây bọc cách điện nối từ via cạnh Pi sang via cạnh OLED |
+| **JMP2: +3V3** | Nguồn logic 3.3V | **53 mm** | Dây bọc cách điện cấp 3.3V từ Pi sang thanh bus 3.3V cảm biến |
+| **JMP3: GND_L** | Mass Driver Trái | **13 mm** | Dây nối mass ngắn qua cụm Driver trái |
+| **JMP4: GND_TCRT** | Mass Cảm biến Line | **14 mm** | Dây nối mass cho cụm TCRT5000 |
+| **JMP5: GND_PI4** | Mass Chân Pi 4 | **14 mm** | Dây nối mass từ chân GND của Pi 4 |
+| **JMP6: VM** | Nguồn động cơ Motor | **6 mm** | Cầu nối nguồn động cơ cực ngắn |
+
+### Thứ tự hàn linh kiện tối ưu:
+1. **Bước 1:** Hàn 6 cầu nối dây jumper mặt trên trước tiên (dùng chân linh kiện cắt thừa hoặc dây điện nhỏ bọc cách điện).
+2. **Bước 2:** Hàn các điện trở phân áp $1\text{ k}\Omega$ và $2\text{ k}\Omega$.
+3. **Bước 3:** Hàn hàng socket cái 40 chân cho Raspberry Pi 4 và socket cho 2 module TB6612FNG, OLED 1.3".
+4. **Bước 4:** Hàn các cọc đấu dây vặn ốc Domino KF301 (nguồn pin và động cơ).
+5. **Bước 5:** Dùng đồng hồ VOM thang đo thông mạch để kiểm tra không bị chạm chập giữa VCC ($5\text{V}$, $3.3\text{V}$) và GND trước khi cắm Raspberry Pi và cấp nguồn!

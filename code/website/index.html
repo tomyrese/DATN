@@ -2,192 +2,1238 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Robot 4WD Carrier - Bảng Điều Khiển Trực Tuyến</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bé Robi - Robot Phục Vụ MegaMall</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lexend:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <div class="background-glow"></div>
   <div class="app-container">
 
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-brand">
-        <div class="robot-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="10" rx="3"></rect>
-            <circle cx="12" cy="5" r="2"></circle>
-            <path d="M12 7v4"></path>
-            <line x1="8" y1="16" x2="8.01" y2="16"></line>
-            <line x1="16" y1="16" x2="16.01" y2="16"></line>
-          </svg>
-        </div>
-        <div>
-          <h1 class="header-title">ROBOT 4WD CARRIER CONTROLLER</h1>
-          <p class="header-subtitle">Bo mạch Carrier 1 Lớp • Raspberry Pi 4 • Driver TB6612</p>
-        </div>
-      </div>
+    <!-- Top Navigation Bar (Tinh gọn, Chống phình nút, Pin Animation) -->
+    <header class="topbar">
+      <div class="topbar-inner">
+        <!-- Logo thương hiệu tối giản -->
+        <a href="/home" class="brand-link" onclick="navigateRoute('/home', event)">
+          <div class="brand-avatar-mini">
+            <span class="avatar-eye left"></span>
+            <span class="avatar-eye right"></span>
+          </div>
+          <span class="brand-name">Bé Robi</span>
+        </a>
 
-      <div class="header-status">
-        <div class="status-badge" id="connection-badge">
-          <span class="status-dot"></span>
-          <span id="connection-text">SẴN SÀNG</span>
+        <!-- Chỉ giữ lại Icon Pin Động + % Pin (Tối giản, loại bỏ hoàn toàn chữ) -->
+        <div class="top-battery-badge" title="Dung lượng pin Bé Robi">
+          <div class="battery-anim-widget">
+            <div class="battery-shell">
+              <div class="battery-level-fill" id="top-battery-fill" style="width: 88%;"></div>
+              <div class="battery-glow-pulse"></div>
+            </div>
+            <span class="battery-pct-text" id="top-battery-text">88%</span>
+          </div>
         </div>
-        <div class="battery-indicator">
-          <span class="battery-icon">⚡</span>
-          <span class="battery-text">Pin 3S 11.1V: <strong>11.8V</strong></span>
+
+        <!-- Các tab điều hướng chính -->
+        <nav class="main-nav" id="main-nav">
+          <a href="/home" class="nav-tab active" data-route="/home" onclick="navigateRoute('/home', event)">Trang Chủ</a>
+          <a href="/map" class="nav-tab" data-route="/map" onclick="navigateRoute('/map', event)">Bản Đồ 2D</a>
+          <a href="/chat" class="nav-tab" data-route="/chat" onclick="navigateRoute('/chat', event)">Trò Chuyện</a>
+          <a href="/don-hang" class="nav-tab tab-staff-only hidden" id="tab-don-hang" data-route="/don-hang" onclick="navigateRoute('/don-hang', event)">Tạo Đơn Hàng</a>
+          <a href="/dieu-hanh" class="nav-tab tab-staff-only hidden" id="tab-dieu-hanh" data-route="/dieu-hanh" onclick="navigateRoute('/dieu-hanh', event)">Điều Phối</a>
+          <a href="/logs" class="nav-tab tab-staff-only hidden" id="tab-logs" data-route="/logs" onclick="navigateRoute('/logs', event)">Nhật Ký & Camera</a>
+          <a href="/cai-dat" class="nav-tab tab-admin-only hidden" id="tab-cai-dat" data-route="/cai-dat" onclick="navigateRoute('/cai-dat', event)">Cài Đặt</a>
+        </nav>
+
+        <!-- Vai trò người dùng gọn nhẹ -->
+        <div class="auth-area">
+          <button class="role-btn-compact" id="user-role-card" onclick="openLoginModal()" title="Bấm để đăng nhập hoặc đổi vai trò">
+            <span class="role-icon" id="role-avatar">👤</span>
+            <span class="role-title" id="role-badge-text">Khách</span>
+          </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Grid -->
-    <main class="dashboard-grid">
+    <!-- Bottom Dock Navigation cho Mobile -->
+    <!-- Bottom Dock Navigation cho Mobile (Vector Icons Hiện Đại & Hiệu Ứng Active) -->
+    <nav class="bottom-dock" id="bottom-dock">
+      <a href="/home" class="dock-item active" data-route="/home" onclick="navigateRoute('/home', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </span>
+        <span class="dock-label">Trang Chủ</span>
+      </a>
 
-      <!-- Panel Trái: Điều khiển Bánh Trái -->
-      <section class="control-panel card">
-        <div class="card-header">
-          <h2>ĐIỀU KHIỂN THỬ 2 BÁNH BÊN TRÁI</h2>
-          <span class="badge-tag">Driver U_TB1</span>
+      <a href="/map" class="dock-item" data-route="/map" onclick="navigateRoute('/map', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+        </span>
+        <span class="dock-label">Bản Đồ 2D</span>
+      </a>
+
+      <a href="/chat" class="dock-item" data-route="/chat" onclick="navigateRoute('/chat', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="10" rx="3"></rect>
+            <circle cx="8.5" cy="16" r="1.5" fill="currentColor"></circle>
+            <circle cx="15.5" cy="16" r="1.5" fill="currentColor"></circle>
+            <path d="M12 2v4"></path>
+            <path d="M8 6h8"></path>
+            <line x1="2" y1="16" x2="3" y2="16"></line>
+            <line x1="21" y1="16" x2="22" y2="16"></line>
+          </svg>
+        </span>
+        <span class="dock-label">Bé Robi</span>
+      </a>
+
+      <a href="/don-hang" class="dock-item dock-staff-only hidden" id="dock-don-hang" data-route="/don-hang" onclick="navigateRoute('/don-hang', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <line x1="12" y1="11" x2="12" y2="17"></line>
+            <line x1="9" y1="14" x2="15" y2="14"></line>
+          </svg>
+        </span>
+        <span class="dock-label">Tạo Đơn</span>
+      </a>
+
+      <a href="/dieu-hanh" class="dock-item dock-staff-only hidden" id="dock-dieu-hanh" data-route="/dieu-hanh" onclick="navigateRoute('/dieu-hanh', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+          </svg>
+        </span>
+        <span class="dock-label">Điều Phối</span>
+      </a>
+
+      <a href="/logs" class="dock-item dock-staff-only hidden" id="dock-logs" data-route="/logs" onclick="navigateRoute('/logs', event)">
+        <span class="dock-svg-wrap">
+          <svg class="dock-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+        </span>
+        <span class="dock-label">Nhật Ký</span>
+      </a>
+    </nav>
+
+    <!-- ======================================================== -->
+    <!-- NỘI DUNG CHÍNH (CÁC TRANG CON / VIEW CONTAINERS)          -->
+    <!-- ======================================================== -->
+    <main class="page-viewport" id="page-viewport">
+
+      <!-- ======================================================== -->
+      <!-- 1. TRANG CHỦ (/home) - THIẾT KẾ ĐẲNG CẤP & ĐIỂM NHẤN      -->
+      <!-- ======================================================== -->
+      <section class="page-view active" id="view-home">
+        <!-- Hero Banner Sinh Động Có Tương Tác Cảm Xúc -->
+        <div class="hero-clean-card">
+          <div class="hero-robi-box">
+            <div class="robi-robot-face" id="robi-face-main" onclick="cycleRobotEmotion()" title="Bấm vào Bé Robi để đổi biểu cảm vui nhộn">
+              <div class="face-antenna"><span class="antenna-ball"></span></div>
+              <div class="face-screen">
+                <div class="face-eye eye-left"><span class="pupil"></span></div>
+                <div class="face-eye eye-right"><span class="pupil"></span></div>
+                <div class="face-cheek cheek-left"></div>
+                <div class="face-cheek cheek-right"></div>
+                <div class="face-mouth mouth-happy" id="robi-mouth"></div>
+              </div>
+            </div>
+
+            <!-- Emotion Selector Chips (Tương tác trực quan) -->
+            <div class="robi-emotion-chips">
+              <button class="emo-chip active" onclick="setRobotEmotionDirect('happy')">😊 Vui vẻ</button>
+              <button class="emo-chip" onclick="setRobotEmotionDirect('wink')">😉 Nháy mắt</button>
+              <button class="emo-chip" onclick="setRobotEmotionDirect('excited')">🤩 Hào hứng</button>
+              <button class="emo-chip" onclick="setRobotEmotionDirect('love')">❤️ Yêu mến</button>
+            </div>
+          </div>
+
+          <div class="hero-content-clean">
+            <div class="hero-tag-badge">
+              <span class="live-dot-pulse"></span>
+              <span id="hero-robot-status-txt">Đang trực tại Sảnh Trung Tâm (Tầng 1)</span>
+            </div>
+
+            <h1 class="hero-heading">Chào bạn, mình là Bé Robi!</h1>
+            <p class="hero-subtext">Robot tự hành giao đồ ăn, nước uống tận bàn và chỉ đường mua sắm thông minh tại Trung Tâm Thương Mại MegaMall.</p>
+            
+            <div class="hero-quick-buttons">
+              <button class="btn btn-primary btn-action" onclick="navigateRoute('/map', event)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                <span>Bản Đồ 2D Siêu Thị & Gian Hàng</span>
+              </button>
+              <button class="btn btn-outline btn-action" onclick="navigateRoute('/chat', event)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="3"></rect><circle cx="8.5" cy="16" r="1.5" fill="currentColor"></circle><circle cx="15.5" cy="16" r="1.5" fill="currentColor"></circle><path d="M12 2v4"></path><path d="M8 6h8"></path></svg>
+                <span>Trò Chuyện Cùng Bé Robi</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Trạng thái hoạt động tức thời -->
-        <div class="telemetry-bar">
-          <div class="telemetry-item">
-            <span class="telemetry-label">TRẠNG THÁI</span>
-            <span class="telemetry-value highlight" id="motor-direction">STOP</span>
+        <!-- Thanh Thống Kê Hoạt Động (Live Stats Bar) -->
+        <div class="mall-stats-bar">
+          <div class="stat-pill-item">
+            <span class="stat-icon-glow">📦</span>
+            <div class="stat-meta">
+              <span class="stat-num" id="stat-order-count">1,420+</span>
+              <span class="stat-lbl">Đơn giao tận bàn</span>
+            </div>
           </div>
-          <div class="telemetry-item">
-            <span class="telemetry-label">TỐC ĐỘ</span>
-            <span class="telemetry-value" id="motor-speed-display">60%</span>
+          <div class="stat-pill-item">
+            <span class="stat-icon-glow">⚡</span>
+            <div class="stat-meta">
+              <span class="stat-num">100%</span>
+              <span class="stat-lbl">Tự động thông minh</span>
+            </div>
           </div>
-          <div class="telemetry-item">
-            <span class="telemetry-label">DRIVER CHÍNH</span>
-            <span class="telemetry-value" id="driver-state">ENABLED</span>
+          <div class="stat-pill-item">
+            <span class="stat-icon-glow">🚶</span>
+            <div class="stat-meta">
+              <span class="stat-num">18.5 km</span>
+              <span class="stat-lbl">Quãng đường đã lăn</span>
+            </div>
+          </div>
+          <div class="stat-pill-item">
+            <span class="stat-icon-glow">⭐</span>
+            <div class="stat-meta">
+              <span class="stat-num">4.9 / 5.0</span>
+              <span class="stat-lbl">Độ hài lòng khách hàng</span>
+            </div>
           </div>
         </div>
 
-        <!-- Bộ trượt chỉnh tốc độ -->
-        <div class="speed-control-box">
-          <div class="speed-header">
-            <label for="speed-slider">Cài Đặt Tốc Độ PWM (0 - 100%)</label>
-            <span class="speed-number" id="speed-val">60%</span>
+        <!-- 3 Dịch Vụ Cốt Lõi Của Bé Robi (Service Feature Cards) -->
+        <div class="section-container">
+          <div class="section-header-compact">
+            <h2 class="section-title-sm">Dịch Vụ Cốt Lõi Của Bé Robi</h2>
+            <span class="badge-subtle">Hệ Sinh Thái Phục Vụ Thông Minh</span>
           </div>
-          <input type="range" id="speed-slider" min="20" max="100" value="60" step="5" class="custom-slider">
-          <div class="speed-ticks">
-            <span>20% (Chậm)</span>
-            <span>60% (Vừa)</span>
-            <span>100% (Tối đa)</span>
+
+          <div class="home-services-grid">
+            <div class="service-box" onclick="navigateRoute('/map', event)">
+              <div class="service-icon-box bg-blue-subtle">🥡</div>
+              <h3 class="service-title">Giao Đồ Ăn Tận Bàn</h3>
+              <p class="service-desc">Mô hình giao thức uống tự hành: Cửa hàng đặt món, robot vận chuyển an toàn tới tận bàn khách qua 2 hộc bảo mật.</p>
+              <span class="service-link-act">Xem trên sơ đồ 2D →</span>
+            </div>
+
+            <div class="service-box" onclick="navigateRoute('/map', event)">
+              <div class="service-icon-box bg-purple-subtle">🗺️</div>
+              <h3 class="service-title">Sơ Đồ 2D Siêu Thị</h3>
+              <p class="service-desc">Bản đồ mặt bằng trực quan giúp bạn xem vị trí hơn 200 gian hàng, theo dõi Bé Robi di chuyển và dẫn đường thời gian thực.</p>
+              <span class="service-link-act">Mở bản đồ 2D →</span>
+            </div>
+
+            <div class="service-box" onclick="navigateRoute('/chat', event)">
+              <div class="service-icon-box bg-emerald-subtle">💬</div>
+              <h3 class="service-title">Trợ Lý AI Thân Thiện</h3>
+              <p class="service-desc">Hỏi đáp bằng tiếng Việt tự nhiên: gợi ý món lẩu ngon, rạp chiếu CGV, nhà vệ sinh hay các chương trình khuyến mãi hôm nay.</p>
+              <span class="service-link-act">Hỏi đáp cùng Robi →</span>
+            </div>
           </div>
         </div>
 
-        <!-- Cụm Phím Thao Tác Bánh Trái -->
-        <div class="action-buttons-group">
-          <button id="btn-forward" class="btn btn-primary" onclick="sendMotorCmd('forward')">
-            <span class="btn-icon">▲</span>
-            <span class="btn-text">TIẾN BÁNH TRÁI</span>
-            <span class="btn-hint">[Phím W]</span>
-          </button>
+        <!-- Trạng Thái 2 Hộc Chứa Đồ Trực Quan (Dành riêng cho Nhân viên & Quản lý) -->
+        <div class="section-container hidden" id="home-compartments-section">
+          <div class="section-header-compact">
+            <h2 class="section-title-sm">Trạng Thái Hộc Đồ Của Bé Robi</h2>
+            <span class="badge-subtle" id="glance-total-mission">Đang có 2 đơn hàng</span>
+          </div>
 
-          <div class="button-row">
-            <button id="btn-brake" class="btn btn-warning" onclick="sendMotorCmd('brake')">
-              <span class="btn-icon">⏹</span>
-              <span class="btn-text">HÃM PHANH</span>
-              <span class="btn-hint">[Phím B]</span>
+          <div class="compartments-clean-grid">
+            <div class="comp-box" id="card-comp-1">
+              <div class="comp-header-row">
+                <span class="comp-tag">HỘC 1 (NGĂN TRÊN)</span>
+                <span class="comp-lock-status" id="comp-1-text">ĐANG KHÓA</span>
+              </div>
+              <div class="comp-order-title" id="comp-1-order">Highlands Coffee • Trà Sen Vàng</div>
+              <div class="comp-action-row">
+                <span class="comp-security-pill">🛡️ Khóa an toàn • Quản trị điều phối</span>
+                <button class="btn btn-sm btn-outline btn-staff-comp hidden" id="btn-comp1-staff" onclick="forceUnlockCompartment(1)">Mở Hộc</button>
+              </div>
+            </div>
+
+            <div class="comp-box" id="card-comp-2">
+              <div class="comp-header-row">
+                <span class="comp-tag">HỘC 2 (NGĂN DƯỚI)</span>
+                <span class="comp-lock-status" id="comp-2-text">ĐANG KHÓA</span>
+              </div>
+              <div class="comp-order-title" id="comp-2-order">Phúc Long Tea • Trà Đào Cam Sả</div>
+              <div class="comp-action-row">
+                <span class="comp-security-pill">🛡️ Khóa an toàn • Quản trị điều phối</span>
+                <button class="btn btn-sm btn-outline btn-staff-comp hidden" id="btn-comp2-staff" onclick="forceUnlockCompartment(2)">Mở Hộc</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gian Hàng Nổi Bật & Liên Kết Nhanh Bản Đồ 2D -->
+        <div class="section-container">
+          <div class="section-header-compact">
+            <h2 class="section-title-sm">Gian Hàng Được Yêu Thích Tại MegaMall</h2>
+            <span class="badge-subtle">Bấm để định vị trên Bản đồ 2D</span>
+          </div>
+
+          <div class="home-stores-cards-grid">
+            <div class="store-spot-card" onclick="locateStoreOn2DMap('Highlands Coffee')">
+              <div class="store-spot-icon">☕</div>
+              <div class="store-spot-info">
+                <div class="store-spot-name">Highlands Coffee</div>
+                <div class="store-spot-desc">Trà sen vàng, Phin sữa đá</div>
+                <span class="store-spot-tag">Tầng 1 (Sảnh Chính)</span>
+              </div>
+              <button class="btn-spot-locate" title="Định vị">📍</button>
+            </div>
+
+            <div class="store-spot-card" onclick="locateStoreOn2DMap('Phúc Long Tea')">
+              <div class="store-spot-icon">🍃</div>
+              <div class="store-spot-info">
+                <div class="store-spot-name">Phúc Long Tea</div>
+                <div class="store-spot-desc">Trà đào cam sả, Trà sữa</div>
+                <span class="store-spot-tag">Tầng 1 (Cánh Tây)</span>
+              </div>
+              <button class="btn-spot-locate" title="Định vị">📍</button>
+            </div>
+
+            <div class="store-spot-card" onclick="locateStoreOn2DMap('Siêu Thị MegaMarket')">
+              <div class="store-spot-icon">🛒</div>
+              <div class="store-spot-info">
+                <div class="store-spot-name">Siêu Thị MegaMarket</div>
+                <div class="store-spot-desc">Rau củ tươi, Thực phẩm bách hóa</div>
+                <span class="store-spot-tag">Tầng 1 (Cánh Đông)</span>
+              </div>
+              <button class="btn-spot-locate" title="Định vị">📍</button>
+            </div>
+
+            <div class="store-spot-card" onclick="locateStoreOn2DMap('Zara Quốc Tế')">
+              <div class="store-spot-icon">👗</div>
+              <div class="store-spot-info">
+                <div class="store-spot-name">Zara Quốc Tế</div>
+                <div class="store-spot-desc">Thời trang Nam Nữ cao cấp</div>
+                <span class="store-spot-tag">Tầng 1 (Cánh Bắc)</span>
+              </div>
+              <button class="btn-spot-locate" title="Định vị">📍</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hộp Trợ Giúp Nhanh Cùng Bé Robi (Prompt Chips) -->
+        <div class="section-container">
+          <div class="home-chat-prompt-card">
+            <div class="chat-prompt-left">
+              <div class="chat-prompt-avatar">💬</div>
+              <div>
+                <h3 class="chat-prompt-title">Cần Hỏi Đường Hoặc Tư Vấn Mua Sắm?</h3>
+                <p class="chat-prompt-desc">Bé Robi đã sẵn sàng trả lời ngay các thắc mắc của bạn bằng tiếng Việt.</p>
+              </div>
+            </div>
+            <div class="chat-prompt-chips">
+              <button class="chip-bubble" onclick="jumpToChatWithPrompt('Nhà vệ sinh và thang máy gần nhất ở đâu?')">🚻 Nhà vệ sinh ở đâu?</button>
+              <button class="chip-bubble" onclick="jumpToChatWithPrompt('Hôm nay Highlands và Phúc Long có khuyến mãi gì không?')">🎁 Khuyến mãi F&B?</button>
+              <button class="chip-bubble" onclick="jumpToChatWithPrompt('Bé Robi có thể dẫn đường cho tôi tới gian hàng Zara không?')">👗 Dẫn đường tới Zara</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chân Trang Đẳng Cấp (MegaMall Footer) -->
+        <footer class="megamall-footer">
+          <div class="footer-inner">
+            <div class="footer-col-brand">
+              <div class="footer-brand-title">
+                <div class="footer-avatar-mini">
+                  <span class="avatar-eye left"></span>
+                  <span class="avatar-eye right"></span>
+                </div>
+                <span>Bé Robi • MegaMall</span>
+              </div>
+              <p class="footer-brand-desc">Robot tự hành thông minh hỗ trợ phục vụ khách hàng, giao thức uống tận bàn và dẫn đường mua sắm tại Trung Tâm Thương Mại MegaMall.</p>
+              <div class="footer-status-pill">
+                <span class="live-dot-pulse"></span>
+                <span>Hệ thống trực tuyến 24/7</span>
+              </div>
+            </div>
+
+            <div class="footer-col-links">
+              <h4>Dịch Vụ Khách Hàng</h4>
+              <ul>
+                <li><a href="/map" onclick="navigateRoute('/map', event)">Bản đồ 2D siêu thị & gian hàng</a></li>
+                <li><a href="/chat" onclick="navigateRoute('/chat', event)">Hỏi đáp trợ lý Bé Robi AI</a></li>
+                <li><a href="javascript:void(0)" onclick="openLoginModal()">Cổng đăng nhập nhân viên</a></li>
+              </ul>
+            </div>
+
+            <div class="footer-col-links">
+              <h4>Thông Tin MegaMall</h4>
+              <ul>
+                <li><strong>Giờ mở cửa:</strong> 09:00 - 22:00 (Hàng ngày)</li>
+                <li><strong>Địa chỉ:</strong> Số 01 Đại Lộ MegaMall, TP. Hồ Chí Minh</li>
+                <li><strong>Hotline hỗ trợ:</strong> 1900 6868 (Miễn phí)</li>
+                <li><strong>Trạm kỹ thuật:</strong> Phòng điều hành tầng B1</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="footer-bottom-bar">
+            <span>© 2026 Trung Tâm Thương Mại MegaMall. Đề Tài Khóa Luận Tốt Nghiệp Robot Tự Hành.</span>
+            <span>Phiên bản v2.8 • Thiết kế thân thiện người dùng</span>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 2. TRANG BẢN ĐỒ 2D SIÊU THỊ & GIAN HÀNG (/map)          -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-map">
+        <!-- Header Bản Đồ & Trạng Thái Robot Trực Tuyến -->
+        <div class="map-top-bar-header">
+          <div class="map-title-zone">
+            <h2 class="subpage-title">Sơ Đồ 2D Siêu Thị & Gian Hàng MegaMall</h2>
+            <div class="map-live-loc-chip">
+              <span class="live-dot-pulse"></span>
+              <span id="current-floor-robot-loc">📍 Bé Robi: Sảnh Trung Tâm (Tầng 1) • Đứng yên</span>
+            </div>
+          </div>
+
+          <div class="map-quick-actions">
+            <button class="btn btn-outline btn-sm" onclick="sendRobotHome()" title="Đưa robot về vị trí trạm sạc trung tâm">
+              🏠 Về Trạm Sạc
             </button>
-            <button id="btn-stop" class="btn btn-secondary" onclick="sendMotorCmd('stop')">
-              <span class="btn-icon">⏸</span>
-              <span class="btn-text">DỪNG TRÔI</span>
-              <span class="btn-hint">[Phím Space]</span>
+            <button class="btn btn-primary btn-sm" id="btn-demo-tour" onclick="startDemoTour()" title="Bé Robi tự hành chạy tuần tra mô phỏng qua các gian hàng">
+              🚀 Chạy Thử Lộ Trình
             </button>
           </div>
-
-          <button id="btn-reverse" class="btn btn-primary" onclick="sendMotorCmd('reverse')">
-            <span class="btn-icon">▼</span>
-            <span class="btn-text">LÙI BÁNH TRÁI</span>
-            <span class="btn-hint">[Phím S]</span>
-          </button>
         </div>
 
-        <!-- Tự động kiểm tra -->
-        <div class="test-suite-box">
-          <button id="btn-auto-test" class="btn btn-accent" onclick="runAutoTest()">
-            <span>⚡ CHẠY QUY TRÌNH KIỂM TRA TỰ ĐỘNG (AUTO TEST)</span>
-          </button>
+        <!-- Thanh Chọn Tầng Siêu Thị -->
+        <div class="floor-pill-bar">
+          <button class="floor-pill" data-floor="B1" onclick="switchFloor('B1')">Tầng B1 (Kho & Bãi Đỗ)</button>
+          <button class="floor-pill active" data-floor="1" onclick="switchFloor('1')">Tầng 1 (Sảnh Chính & Siêu Thị)</button>
+          <button class="floor-pill" data-floor="2" onclick="switchFloor('2')">Tầng 2 (Mỹ Phẩm & Phụ Kiện)</button>
+          <button class="floor-pill" data-floor="3" onclick="switchFloor('3')">Tầng 3 (Khu Trẻ Em & Vui Chơi)</button>
+          <button class="floor-pill" data-floor="4" onclick="switchFloor('4')">Tầng 4 (Ẩm Thực Quốc Tế)</button>
+          <button class="floor-pill" data-floor="5" onclick="switchFloor('5')">Tầng 5 (Rạp Chiếu Phim CGV)</button>
+        </div>
+
+        <!-- Khung Bản Đồ 2D Tương Tác Trực Quan -->
+        <div class="mall-map-wrapper">
+          <div class="map-canvas-container" id="mall-map-container">
+            <svg id="svg-mall-map" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <!-- Filter đổ bóng mềm cho Robot Bé Robi -->
+                <filter id="robot-shadow-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0284c7" flood-opacity="0.45"/>
+                </filter>
+                
+                <!-- Sóng Radar quét xung quanh robot -->
+                <radialGradient id="radar-pulse-grad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5"/>
+                  <stop offset="65%" stop-color="#38bdf8" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                </radialGradient>
+
+                <!-- Gradient màu cho hành lang & các gian hàng -->
+                <linearGradient id="floor-hall-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#f8fafc"/>
+                  <stop offset="100%" stop-color="#f1f5f9"/>
+                </linearGradient>
+
+                <linearGradient id="grad-highlands" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fff7ed"/>
+                  <stop offset="100%" stop-color="#ffedd5"/>
+                </linearGradient>
+
+                <linearGradient id="grad-phuclong" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#f0fdf4"/>
+                  <stop offset="100%" stop-color="#dcfce7"/>
+                </linearGradient>
+
+                <linearGradient id="grad-zara" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#faf5ff"/>
+                  <stop offset="100%" stop-color="#f3e8ff"/>
+                </linearGradient>
+
+                <linearGradient id="grad-uniqlo" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fef2f2"/>
+                  <stop offset="100%" stop-color="#fee2e2"/>
+                </linearGradient>
+
+                <linearGradient id="grad-market" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#eff6ff"/>
+                  <stop offset="100%" stop-color="#dbeafe"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Nền mặt sàn siêu thị -->
+              <rect x="0" y="0" width="960" height="600" rx="16" fill="#f8fafc"/>
+
+              <!-- Vách bao TTTM MegaMall -->
+              <rect x="20" y="20" width="920" height="560" rx="14" fill="url(#floor-hall-grad)" stroke="#cbd5e1" stroke-width="2.5"/>
+
+              <!-- Lưới sàn gạch nhẹ nhàng -->
+              <g stroke="#e2e8f0" stroke-width="1" stroke-dasharray="6,6">
+                <line x1="300" y1="20" x2="300" y2="580"/>
+                <line x1="640" y1="20" x2="640" y2="580"/>
+                <line x1="20" y1="225" x2="940" y2="225"/>
+                <line x1="20" y1="415" x2="940" y2="415"/>
+              </g>
+
+              <!-- HÀNH LANG CHÍNH (Đường lăn bánh của Bé Robi) -->
+              <rect x="290" y="30" width="340" height="540" fill="#ffffff" opacity="0.85"/>
+              <line x1="460" y1="40" x2="460" y2="540" stroke="#93c5fd" stroke-width="2" stroke-dasharray="10,8" opacity="0.6"/>
+
+              <!-- GIAN HÀNG 1: Highlands Coffee (Tây Bắc) -->
+              <g class="map-store-node" id="node-highlands" onclick="selectMapStore('Highlands Coffee')">
+                <rect x="40" y="40" width="240" height="170" rx="12" fill="url(#grad-highlands)" stroke="#f97316" stroke-width="2"/>
+                <text x="160" y="85" text-anchor="middle" font-weight="800" font-size="16" fill="#9a3412">☕ Highlands Coffee</text>
+                <text x="160" y="112" text-anchor="middle" font-size="12" fill="#c2410c">Trà Sen Vàng • Phin Sữa Đá</text>
+                <rect x="95" y="132" width="130" height="26" rx="6" fill="#ea580c"/>
+                <text x="160" y="149" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">ĐẶT GIAO MÓN</text>
+              </g>
+
+              <!-- GIAN HÀNG 2: Phúc Long Tea (Tây Nam) -->
+              <g class="map-store-node" id="node-phuclong" onclick="selectMapStore('Phúc Long Tea')">
+                <rect x="40" y="235" width="240" height="165" rx="12" fill="url(#grad-phuclong)" stroke="#16a34a" stroke-width="2"/>
+                <text x="160" y="280" text-anchor="middle" font-weight="800" font-size="16" fill="#14532d">🍃 Phúc Long Tea</text>
+                <text x="160" y="307" text-anchor="middle" font-size="12" fill="#15803d">Trà Đào Cam Sả • Trà Sữa</text>
+                <rect x="95" y="325" width="130" height="26" rx="6" fill="#16a34a"/>
+                <text x="160" y="342" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">ĐẶT GIAO MÓN</text>
+              </g>
+
+              <!-- KHU VỰC TIỆN ÍCH: Thang Máy & Nhà Vệ Sinh (Góc Tây Dưới) -->
+              <g class="map-store-node static-zone" onclick="selectMapStore('Nhà Vệ Sinh & Thang Máy')">
+                <rect x="40" y="425" width="115" height="135" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="97" y="485" text-anchor="middle" font-size="22">🚻</text>
+                <text x="97" y="515" text-anchor="middle" font-weight="700" font-size="11" fill="#475569">Nhà Vệ Sinh</text>
+
+                <rect x="165" y="425" width="115" height="135" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+                <text x="222" y="485" text-anchor="middle" font-size="22">🛗</text>
+                <text x="222" y="515" text-anchor="middle" font-weight="700" font-size="11" fill="#475569">Thang Máy</text>
+              </g>
+
+              <!-- GIAN HÀNG 3: Zara Quốc Tế (Đông Bắc) -->
+              <g class="map-store-node" id="node-zara" onclick="selectMapStore('Zara Quốc Tế')">
+                <rect x="650" y="40" width="270" height="170" rx="12" fill="url(#grad-zara)" stroke="#9333ea" stroke-width="2"/>
+                <text x="785" y="85" text-anchor="middle" font-weight="800" font-size="16" fill="#581c87">👗 Zara Quốc Tế</text>
+                <text x="785" y="112" text-anchor="middle" font-size="12" fill="#7e22ce">Thời trang Nam Nữ & Phụ Kiện</text>
+                <rect x="720" y="132" width="130" height="26" rx="6" fill="#9333ea"/>
+                <text x="785" y="149" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">XEM GIAN HÀNG</text>
+              </g>
+
+              <!-- GIAN HÀNG 4: Uniqlo LifeWear (Đông Trung Tâm) -->
+              <g class="map-store-node" id="node-uniqlo" onclick="selectMapStore('Uniqlo LifeWear')">
+                <rect x="650" y="235" width="270" height="165" rx="12" fill="url(#grad-uniqlo)" stroke="#dc2626" stroke-width="2"/>
+                <text x="785" y="280" text-anchor="middle" font-weight="800" font-size="16" fill="#7f1d1d">🔴 Uniqlo LifeWear</text>
+                <text x="785" y="307" text-anchor="middle" font-size="12" fill="#b91c1c">Thời trang công nghệ AIRism</text>
+                <rect x="720" y="325" width="130" height="26" rx="6" fill="#dc2626"/>
+                <text x="785" y="342" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">XEM GIAN HÀNG</text>
+              </g>
+
+              <!-- GIAN HÀNG 5: Siêu Thị MegaMarket (Đông Nam) -->
+              <g class="map-store-node" id="node-megamarket" onclick="selectMapStore('Siêu Thị MegaMarket')">
+                <rect x="650" y="425" width="270" height="135" rx="12" fill="url(#grad-market)" stroke="#2563eb" stroke-width="2"/>
+                <text x="785" y="470" text-anchor="middle" font-weight="800" font-size="16" fill="#1e3a8a">🛒 Siêu Thị MegaMarket</text>
+                <text x="785" y="495" text-anchor="middle" font-size="12" fill="#1d4ed8">Rau củ tươi, thực phẩm & gia dụng</text>
+                <rect x="715" y="512" width="140" height="24" rx="6" fill="#2563eb"/>
+                <text x="785" y="528" text-anchor="middle" font-size="10" font-weight="700" fill="#ffffff">KHÁM PHÁ SIÊU THỊ</text>
+              </g>
+
+              <!-- SẢNH TRUNG TÂM & BÀN ĂN KHÁCH HÀNG (A-01 -> A-12) -->
+              <g id="zone-tables-group">
+                <text x="460" y="60" text-anchor="middle" font-weight="800" font-size="12" fill="#64748b" letter-spacing="1">KHU VỰC BÀN ĂN & GIAO HÀNG TẬN NƠI</text>
+
+                <!-- Hàng Bàn 1 -->
+                <g class="map-table-node" id="table-a01" onclick="selectMapStore('Bàn A-01')">
+                  <circle cx="350" cy="130" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="350" y="134" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-01</text>
+                </g>
+                <g class="map-table-node" id="table-a02" onclick="selectMapStore('Bàn A-02')">
+                  <circle cx="460" cy="130" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="460" y="134" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-02</text>
+                </g>
+                <g class="map-table-node" id="table-a03" onclick="selectMapStore('Bàn A-03')">
+                  <circle cx="570" cy="130" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="570" y="134" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-03</text>
+                </g>
+
+                <!-- Hàng Bàn 2 -->
+                <g class="map-table-node" id="table-a10" onclick="selectMapStore('Bàn A-10')">
+                  <circle cx="350" cy="270" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="350" y="274" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-10</text>
+                </g>
+                <g class="map-table-node" id="table-a11" onclick="selectMapStore('Bàn A-11')">
+                  <circle cx="460" cy="270" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="460" y="274" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-11</text>
+                </g>
+                <g class="map-table-node" id="table-a12" onclick="selectMapStore('Bàn A-12')">
+                  <circle cx="570" cy="270" r="24" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+                  <text x="570" y="274" text-anchor="middle" font-weight="800" font-size="11" fill="#1d4ed8">A-12</text>
+                </g>
+              </g>
+
+              <!-- Quầy Lễ Tân MegaMall -->
+              <g class="map-store-node" id="node-info" onclick="selectMapStore('Quầy Lễ Tân')">
+                <rect x="380" y="440" width="160" height="52" rx="10" fill="#f0f9ff" stroke="#0284c7" stroke-width="2"/>
+                <text x="460" y="471" text-anchor="middle" font-weight="800" font-size="13" fill="#0369a1">ℹ️ Quầy Lễ Tân Sảnh</text>
+              </g>
+
+              <!-- Cổng Vào Chính -->
+              <rect x="360" y="546" width="200" height="26" rx="6" fill="#0f172a"/>
+              <text x="460" y="563" text-anchor="middle" font-size="11" font-weight="800" fill="#f8fafc">CỔNG VÀO CHÍNH TTTM</text>
+
+              <!-- Đường Dẫn Hướng Navigation Trail (Vẽ nối vị trí robot và đích đến) -->
+              <polyline id="map-nav-trail" points="" fill="none" stroke="#0284c7" stroke-width="4" stroke-dasharray="8,6" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- ============================================== -->
+              <!-- ICON ROBOT BÉ ROBI DI CHUYỂN REALTIME TRÊN MAP -->
+              <!-- ============================================== -->
+              <g id="map-robot-marker" transform="translate(480, 280) rotate(0)">
+                <!-- Vòng radar quét sóng xung quanh -->
+                <circle cx="0" cy="0" r="38" fill="url(#radar-pulse-grad)" class="robot-pulse-ring"/>
+
+                <!-- Tia quét cảm biến / Vision cone phía trước -->
+                <path d="M 0 -8 L -38 -75 L 38 -75 Z" fill="rgba(56, 189, 248, 0.28)" stroke="rgba(56, 189, 248, 0.6)" stroke-width="1.2"/>
+
+                <!-- Thân robot Bé Robi tròn sang trọng -->
+                <circle cx="0" cy="0" r="20" fill="#0f172a" stroke="#38bdf8" stroke-width="3.5" filter="url(#robot-shadow-glow)"/>
+
+                <!-- Mũi tên chỉ hướng tiến (Orientation arrow) -->
+                <polygon points="0,-18 -7,-7 7,-7" fill="#38bdf8"/>
+
+                <!-- Màn hình mắt LED của Robi -->
+                <rect x="-11" y="-8" width="22" height="15" rx="4" fill="#0f172a"/>
+                <rect x="-7" y="-4" width="3.5" height="7" rx="1.5" fill="#38bdf8" class="map-robi-eye"/>
+                <rect x="3.5" y="-4" width="3.5" height="7" rx="1.5" fill="#38bdf8" class="map-robi-eye"/>
+
+                <!-- Nón ăng-ten đỉnh đầu phát tín hiệu -->
+                <line x1="0" y1="-8" x2="0" y2="-13" stroke="#38bdf8" stroke-width="1.8"/>
+                <circle cx="0" cy="-14" r="2.5" fill="#f43f5e" class="map-robi-beacon"/>
+
+                <!-- Nhãn tên Bé Robi gắn liền -->
+                <g transform="translate(0, 30)">
+                  <rect x="-38" y="-10" width="76" height="20" rx="10" fill="#0f172a" opacity="0.92"/>
+                  <text x="0" y="4" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff" letter-spacing="0.5">BÉ ROBI</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Bảng Chi Tiết Gian Hàng Khi Bấm Chọn (Store Detail Drawer) -->
+          <div class="map-store-drawer hidden" id="map-store-drawer">
+            <div class="drawer-header">
+              <div class="drawer-title-box">
+                <h3 id="drawer-store-name">Highlands Coffee</h3>
+                <span class="drawer-badge" id="drawer-store-floor">Tầng 1 (Sảnh Chính)</span>
+              </div>
+              <button class="drawer-close-btn" onclick="closeStoreDrawer()" title="Đóng">✕</button>
+            </div>
+
+            <div class="drawer-body">
+              <p class="drawer-desc" id="drawer-store-desc">Thương hiệu cà phê phin và thức uống thơm ngon với Trà Sen Vàng trứ danh.</p>
+              <div class="drawer-meta-row">
+                <span class="meta-tag">⏰ 09:00 - 22:00</span>
+                <span class="meta-tag" id="drawer-robot-dist">📍 Vị trí: Sảnh Tầng 1</span>
+              </div>
+            </div>
+
+            <div class="drawer-actions">
+              <button class="btn btn-primary" id="btn-drawer-navigate" onclick="navigateRobotToCurrentSelectedStore()">
+                🚀 Bé Robi Đi Tới Đây
+              </button>
+              <button class="btn btn-outline" id="btn-drawer-order" onclick="createOrderForCurrentSelectedStore()">
+                📋 Đặt Giao Món Tại Đây
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danh Sách Gian Hàng Tầng Tóm Tắt Bên Dưới -->
+        <div class="map-card-clean">
+          <div class="map-card-header">
+            <h3 id="current-floor-title">TẦNG 1: SẢNH TRUNG TÂM & THỜI TRANG</h3>
+            <span class="badge-status-time">09:00 - 22:00</span>
+          </div>
+          <div class="stores-clean-list" id="floor-stores-list"></div>
         </div>
       </section>
 
-      <!-- Panel Phải: Phần cứng & Nhật ký lệnh -->
-      <aside class="info-panel card">
-        <div class="card-header">
-          <h2>SƠ ĐỒ CHÂN PHẦN CỨNG</h2>
-          <span class="badge-tag">Chuẩn 1 Lớp</span>
-        </div>
+      <!-- ======================================================== -->
+      <!-- 4. TRANG TRÒ CHUYỆN (/chat)                              -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-chat">
+        <div class="chat-wrapper-clean">
+          <div class="chat-top-toolbar">
+            <div class="chat-helper-status">
+              <span class="status-dot-green"></span>
+              <span class="status-title-text">Bé Robi Trợ Lý</span>
+              <span class="role-pill-inline" id="chat-current-role-badge">Khách</span>
+            </div>
 
-        <!-- Bảng chân GPIO Pi 4 kết nối TB6612 -->
-        <div class="pinout-table-wrapper">
-          <table class="pinout-table">
-            <thead>
-              <tr>
-                <th>Tín hiệu</th>
-                <th>Header Pi 4</th>
-                <th>BCM GPIO</th>
-                <th>Chức năng</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="pin-badge pwr">PWMA_L</span></td>
-                <td><strong>Pin 3</strong></td>
-                <td>GPIO 2</td>
-                <td>PWM Tốc độ kênh A & B</td>
-              </tr>
-              <tr>
-                <td><span class="pin-badge sig">AIN1_L</span></td>
-                <td><strong>Pin 7</strong></td>
-                <td>GPIO 4</td>
-                <td>Định hướng AIN1 & BIN1</td>
-              </tr>
-              <tr>
-                <td><span class="pin-badge sig">AIN2_L</span></td>
-                <td><strong>Pin 5</strong></td>
-                <td>GPIO 3</td>
-                <td>Định hướng AIN2 & BIN2</td>
-              </tr>
-              <tr>
-                <td><span class="pin-badge stby">STBY_L</span></td>
-                <td><strong>Pin 11</strong></td>
-                <td>GPIO 17</td>
-                <td>Bật/Tắt Driver công suất</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Terminal Log trực quan -->
-        <div class="terminal-box">
-          <div class="terminal-header">
-            <span>NHẬT KÝ THỰC THI (LIVE LOGS)</span>
-            <button class="btn-clear" onclick="clearLogs()">Xóa</button>
+            <div class="chat-voice-control">
+              <span class="voice-lbl">🔊 Đọc Tiếng Việt</span>
+              <label class="switch-sm">
+                <input type="checkbox" id="voice-enable-toggle" checked>
+                <span class="slider-sm round"></span>
+              </label>
+            </div>
           </div>
-          <div class="terminal-body" id="log-output">
-            <div class="log-entry sys">[HỆ THỐNG] Đã sẵn sàng kết nối Robot Carrier.</div>
-            <div class="log-entry info">[THÔNG TIN] 2 Bánh Trái: J_M1 (Trước) & J_M2 (Sau).</div>
+
+          <div class="prompt-chips-bar" id="quick-prompts-list">
+            <button class="prompt-chip" onclick="sendQuickMessage('Ăn gì ở Tầng 4 vậy Robi?')">🍲 Ăn gì Tầng 4?</button>
+            <button class="prompt-chip" onclick="sendQuickMessage('Cửa hàng Zara và Uniqlo ở đâu?')">👗 Tìm Zara, Uniqlo</button>
+            <button class="prompt-chip" onclick="sendQuickMessage('Rạp CGV Tầng 5 có phim gì?')">🎬 Rạp phim CGV</button>
+            <button class="prompt-chip" onclick="sendQuickMessage('Nhà vệ sinh gần nhất ở đâu?')">🚻 Nhà vệ sinh</button>
+            <button class="prompt-chip" onclick="sendQuickMessage('Kiểm tra giúp tôi đơn hàng mã 829145')">📦 Tra cứu đơn hàng</button>
+          </div>
+
+          <div class="chat-thread" id="chat-messages-container">
+            <div class="chat-row row-robi">
+              <div class="chat-bubble bubble-robi">
+                <div class="bubble-sender">Bé Robi</div>
+                <div class="bubble-text">
+                  Dạ em Robi chào anh/chị ạ! Em có thể giúp anh/chị tìm đường đến các gian hàng (Zara, Uniqlo), quán ăn Tầng 4, rạp chiếu phim CGV hay hỗ trợ kiểm tra đơn nhận đồ ăn tận bàn. Anh/chị cần em hỗ trợ gì ạ?
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" id="chat-input-field" class="chat-textbox" placeholder="Hỏi Bé Robi (Ví dụ: Nhà vệ sinh ở đâu, Quán lẩu nào ngon?)..." onkeypress="handleChatKeyPress(event)">
+            <button class="btn btn-primary btn-send" id="btn-chat-send" onclick="sendChatMessage()">Gửi</button>
           </div>
         </div>
-      </aside>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 5. TRANG TẠO ĐƠN HÀNG (/don-hang) - TÁCH RIÊNG           -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-don-hang">
+        <div class="dispatch-two-cols order-management-grid">
+          <!-- Cột Trái: Form Tạo Đơn Trực Tiếp -->
+          <div class="staff-card order-form-card">
+            <div class="card-title-bar">
+              <h3>+ Tạo Đơn Mới</h3>
+              <span class="badge-accent">Giao Tận Nơi</span>
+            </div>
+
+            <form id="inline-mission-form" onsubmit="submitInlineCreateMission(event)">
+              <div class="form-field">
+                <label class="field-label">Gian hàng (*)</label>
+                <select class="field-input" id="inline-store" required>
+                  <option value="Highlands Coffee (Tầng 1)">Highlands Coffee (Tầng 1)</option>
+                  <option value="Phúc Long Tea (Tầng 2)">Phúc Long Tea (Tầng 2)</option>
+                  <option value="Haidilao Hotpot (Tầng 4)">Haidilao Hotpot (Tầng 4)</option>
+                  <option value="King BBQ (Tầng 4)">King BBQ (Tầng 4)</option>
+                  <option value="Zara Outlet (Tầng 1)">Zara Outlet (Tầng 1)</option>
+                  <option value="Uniqlo LifeWear (Tầng 2)">Uniqlo LifeWear (Tầng 2)</option>
+                  <option value="Nhà Thuốc An Khang (Tầng B1)">Nhà Thuốc An Khang (Tầng B1)</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Món đồ (*)</label>
+                <input type="text" class="field-input" id="inline-item" placeholder="Ví dụ: 02 Cà phê Phin Sữa Đá..." required>
+              </div>
+
+              <div class="form-field">
+                <label class="field-label">Nơi nhận (*)</label>
+                <input type="text" class="field-input" id="inline-dest" placeholder="Ví dụ: Bàn A-12 Sảnh Tầng 1..." required>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label class="field-label">Hộc chứa</label>
+                  <select class="field-input" id="inline-compartment">
+                    <option value="1">Hộc 1 (Trên)</option>
+                    <option value="2">Hộc 2 (Dưới)</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label class="field-label">Mã PIN</label>
+                  <div class="pin-input-group">
+                    <input type="text" class="field-input field-mono" id="inline-otp" readonly>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="generateNewInlineOtp()" title="Tạo mã PIN ngẫu nhiên khác">🎲</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-field">
+                  <label class="field-label">Tên khách</label>
+                  <input type="text" class="field-input" id="inline-customer" placeholder="Chị Lan Anh">
+                </div>
+                <div class="form-field">
+                  <label class="field-label">Số điện thoại</label>
+                  <input type="tel" class="field-input" id="inline-phone" placeholder="09xxxxxxxx">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block" style="margin-top: 0.5rem; font-weight: 700;">
+                🚀 Tạo Đơn Cho Bé Robi
+              </button>
+            </form>
+          </div>
+
+          <!-- Cột Phải: Bảng Danh Sách Đơn Giao Hôm Nay -->
+          <div class="staff-card order-list-card">
+            <div class="card-title-bar">
+              <div>
+                <h3>Đơn Giao Hôm Nay</h3>
+                <span class="sub-muted-note" id="order-count-note">Đang tải danh sách...</span>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="fetchMissions()">🔄 Tải Lại</button>
+            </div>
+
+            <div class="table-scroll-wrapper">
+              <table class="table-clean" id="missions-table">
+                <thead>
+                  <tr>
+                    <th>Mã</th>
+                    <th>Cửa Hàng</th>
+                    <th>Món Đồ</th>
+                    <th>Nơi Nhận</th>
+                    <th>Hộc</th>
+                    <th>Mã PIN</th>
+                    <th>Trạng Thái</th>
+                  </tr>
+                </thead>
+                <tbody id="missions-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 6. TRANG ĐIỀU PHỐI ROBOT (/dieu-hanh)                    -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-dieu-hanh">
+        <div class="dispatch-two-cols dispatch-robot-grid">
+          <!-- Cột Trái: Giám Sát Camera Mini & Trạng Thái 2 Hộc -->
+          <div class="staff-card dispatch-status-card">
+            <div class="card-title-bar">
+              <h3>Camera & Trạng Thái</h3>
+              <span class="badge-status-time" id="drive-telemetry-tag">Sẵn sàng</span>
+            </div>
+
+            <!-- Mini Live Camera Preview -->
+            <div class="mini-camera-feed" onclick="navigateRoute('/logs', event)" title="Bấm để xem Camera toàn màn hình">
+              <canvas id="mini-cam-canvas" width="340" height="190"></canvas>
+              <div class="camera-live-badge"><span class="rec-dot"></span> LIVE FPV</div>
+              <div class="camera-click-hint">🔍 Xem Camera Toàn Màn Hình</div>
+            </div>
+
+            <!-- Trạng thái 2 Hộc Chứa Đồ Trực Quan -->
+            <div class="dispatch-compartments-box">
+              <div class="dispatch-comp-item">
+                <div class="comp-meta">
+                  <span class="comp-badge">HỘC 1 (TRÊN)</span>
+                  <span class="comp-state-lbl" id="dieu-comp-1-state">ĐANG KHÓA</span>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="forceUnlockCompartment(1)">Mở Hộc</button>
+              </div>
+
+              <div class="dispatch-comp-item">
+                <div class="comp-meta">
+                  <span class="comp-badge">HỘC 2 (DƯỚI)</span>
+                  <span class="comp-state-lbl" id="dieu-comp-2-state">ĐANG KHÓA</span>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="forceUnlockCompartment(2)">Mở Hộc</button>
+              </div>
+            </div>
+
+            <!-- Thẻ Thông Số Cảm Biến Realtime -->
+            <div class="dispatch-metrics-bar">
+              <div class="metric-pill">
+                <span class="metric-icon">📡</span>
+                <span class="metric-val" id="dieu-obstacle-val">42.5 cm</span>
+              </div>
+              <div class="metric-pill">
+                <span class="metric-icon">📍</span>
+                <span class="metric-val" id="dieu-location-val">Sảnh Tầng 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột Phải: Bộ điều khiển di chuyển (WASD / Joystick) -->
+          <div class="staff-card control-hub-card">
+            <div class="card-title-bar">
+              <h3>Điều Khiển Bé Robi</h3>
+              <span class="badge-status-time" id="drive-status-tag">Đứng yên</span>
+            </div>
+
+            <!-- Khu vực điều khiển tự động nhận diện -->
+            <div class="controller-interactive-area">
+              <!-- Giao diện WASD cho Laptop -->
+              <div class="wasd-layout" id="wasd-keyboard-view">
+                <div class="wasd-row">
+                  <div class="keycap key-w" id="keycap-w" title="Phím W hoặc Mũi tên lên">
+                    <span class="key-letter">W</span>
+                    <span class="key-desc">Tiến</span>
+                  </div>
+                </div>
+                <div class="wasd-row">
+                  <div class="keycap key-a" id="keycap-a" title="Phím A hoặc Mũi tên trái">
+                    <span class="key-letter">A</span>
+                    <span class="key-desc">Trái</span>
+                  </div>
+                  <div class="keycap key-s" id="keycap-s" title="Phím S hoặc Mũi tên xuống">
+                    <span class="key-letter">S</span>
+                    <span class="key-desc">Lùi</span>
+                  </div>
+                  <div class="keycap key-d" id="keycap-d" title="Phím D hoặc Mũi tên phải">
+                    <span class="key-letter">D</span>
+                    <span class="key-desc">Phải</span>
+                  </div>
+                </div>
+                <div class="controller-hint-text">⌨️ Laptop: Bấm giữ <strong>W - A - S - D</strong> hoặc Click để lái</div>
+              </div>
+
+              <!-- Cần Gạt Ảo cho Mobile -->
+              <div class="joystick-wrapper" id="joystick-touch-view">
+                <div class="joystick-base" id="joystick-base">
+                  <div class="joystick-ring-decor"></div>
+                  <div class="joystick-knob" id="joystick-knob">
+                    <div class="knob-inner-dot"></div>
+                  </div>
+                </div>
+                <div class="controller-hint-text">📱 Cảm ứng: Kéo gạt Joystick để điều hướng</div>
+              </div>
+            </div>
+
+            <!-- Tốc độ & Nút Dừng Khẩn Cấp -->
+            <div class="control-bottom-tools">
+              <div class="speed-slider-row">
+                <span class="tool-lbl">Tốc độ: <strong id="speed-display-val">60%</strong></span>
+                <input type="range" min="30" max="100" value="60" class="speed-range-clean" id="speed-range" oninput="updateSpeedVal(this.value)">
+              </div>
+
+              <div class="emergency-force-row">
+                <button class="btn btn-danger-clean btn-block" onclick="stopDrive()" style="font-weight: 800; padding: 0.75rem;">
+                  🛑 DỪNG ROBOT NGAY
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 7. TRANG NHẬT KÝ & CAMERA (/logs)                        -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-logs">
+        <div class="logs-page-grid">
+          <!-- Khung Camera Live FPV -->
+          <div class="staff-card camera-monitor-card">
+            <div class="card-title-bar compact-cam-header">
+              <div class="cam-title-group">
+                <h3>Camera FPV</h3>
+                <span class="live-stream-pill"><span class="rec-dot"></span> LIVE</span>
+              </div>
+              <div class="cam-actions-group">
+                <button class="btn btn-outline btn-sm icon-btn" onclick="takeSnapshot()" title="Chụp ảnh FPV">📸</button>
+                <button class="btn btn-outline btn-sm icon-btn" onclick="toggleFullscreenCam()" title="Toàn màn hình">⛶</button>
+              </div>
+            </div>
+
+            <!-- Live Video / Canvas Monitor -->
+            <div class="main-camera-monitor" id="main-cam-container">
+              <canvas id="main-cam-canvas" width="640" height="360"></canvas>
+              
+              <!-- HUD FPV Telemetry Overlay (Gọn gàng, không chữ thừa kỹ thuật) -->
+              <div class="cam-hud-overlay">
+                <div class="hud-top-row">
+                  <span class="hud-tag">BÉ ROBI • CAM 01</span>
+                  <span class="hud-tag" id="hud-clock">23:05:00</span>
+                </div>
+                <div class="hud-crosshair"></div>
+                <div class="hud-bottom-row">
+                  <span class="hud-pill" id="hud-radar">📡 42.5 cm</span>
+                  <span class="hud-pill" id="hud-speed">⚡ 60%</span>
+                  <span class="hud-pill" id="hud-loc">📍 Sảnh Tầng 1</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="camera-footer-bar compact-cam-footer">
+              <div class="cam-source-selector">
+                <label class="source-lbl">Nguồn Camera:</label>
+                <select class="source-select" id="cam-source-select" onchange="changeCameraSource(this.value)">
+                  <option value="simulated">Mô Phỏng MegaMall</option>
+                  <option value="pi_cam">Pi Camera OV5647</option>
+                  <option value="esp32_cam">ESP32-CAM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bảng Nhật Ký Hoạt Động Hệ Thống -->
+          <div class="staff-card logs-feed-card">
+            <div class="card-title-bar">
+              <h3>Nhật Ký Sự Kiện</h3>
+              <button class="btn btn-outline btn-sm" onclick="fetchSystemLogs()">🔄 Làm Mới</button>
+            </div>
+
+            <!-- Bộ lọc danh mục nhật ký (Smooth Horizontal Scroll) -->
+            <div class="logs-filter-bar">
+              <button class="filter-pill active" onclick="filterLogs('ALL')">Tất Cả</button>
+              <button class="filter-pill" onclick="filterLogs('GIAO HÀNG')">Giao Hàng</button>
+              <button class="filter-pill" onclick="filterLogs('ĐIỀU HƯỚNG')">Điều Hướng</button>
+              <button class="filter-pill" onclick="filterLogs('HỘC CHỨA')">Hộc Chứa</button>
+              <button class="filter-pill" onclick="filterLogs('BẢO MẬT')">Bảo Mật</button>
+            </div>
+
+            <!-- Danh sách log stream -->
+            <div class="logs-stream-container" id="logs-stream-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- 7. TRANG CÀI ĐẶT (/cai-dat)                              -->
+      <!-- ======================================================== -->
+      <section class="page-view" id="view-cai-dat">
+        <div class="subpage-header-clean">
+          <h2 class="subpage-title">Quản Trị Hệ Thống & Phân Quyền</h2>
+          <p class="subpage-desc">Quản lý danh sách tài khoản nhân viên và chính sách bảo mật dữ liệu.</p>
+        </div>
+
+        <div class="staff-layout-grid">
+          <div class="staff-card">
+            <div class="card-title-bar">
+              <h3>Danh Sách Tài Khoản</h3>
+              <button class="btn btn-primary btn-sm" onclick="openCreateUserModal()">+ Cấp Tài Khoản</button>
+            </div>
+            <div class="table-scroll-wrapper">
+              <table class="table-clean" id="users-table">
+                <thead>
+                  <tr>
+                    <th>Tên Đăng Nhập</th>
+                    <th>Họ Tên</th>
+                    <th>Vai Trò</th>
+                  </tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="staff-card">
+            <div class="card-title-bar">
+              <h3>Chính Sách Rào Chắn Bảo Mật AI</h3>
+            </div>
+            <ul class="policy-bullet-list">
+              <li><strong>Chống câu lệnh giả mạo:</strong> Tự động chặn và từ chối các yêu cầu đọc mật khẩu hoặc truy xuất dữ liệu trái phép.</li>
+              <li><strong>Phân tách dữ liệu theo vai trò (Data Scoping):</strong> Khách mua sắm chỉ xem được thông tin công cộng. Chỉ khi nhập đúng 6 số mã OTP mới tra cứu được đơn hàng của chính mình.</li>
+              <li><strong>Thuần Việt 100%:</strong> Không dùng từ ngữ kỹ thuật phức tạp gây bối rối cho khách hàng.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-      <p>Đồ Án Tốt Nghiệp • Hệ Thống Nhúng & Mạch Động Lực Robot Carrier • 2026</p>
-    </footer>
+    <!-- ======================================================== -->
+    <!-- POPUPS & MODALS                                          -->
+    <!-- ======================================================== -->
+
+    <!-- POPUP 2: MỞ HỘC THÀNH CÔNG -->
+    <div class="modal-overlay hidden" id="modal-unlock-success" onclick="closeModalOnBackdrop(event, 'modal-unlock-success')">
+      <div class="modal-box modal-success-box" onclick="event.stopPropagation()">
+        <div class="success-icon-wrap">🎉</div>
+        <h3 class="modal-title" id="unlock-success-title">Mở Hộc Chứa Thành Công!</h3>
+        <p class="modal-desc" id="unlock-success-desc">Cửa hộc chứa đã bật mở. Bạn vui lòng lấy đồ ra nhé!</p>
+
+        <div class="countdown-badge-circle">
+          <span class="countdown-val" id="unlock-countdown">30</span>
+          <span class="countdown-unit">giây</span>
+        </div>
+        <p class="countdown-sub">Cửa sẽ tự động đóng lại khi hết thời gian.</p>
+
+        <button class="btn btn-primary btn-full" onclick="finishOrderTakeout()">Đã Lấy Đồ Xong</button>
+      </div>
+    </div>
+
+    <!-- POPUP 3: ĐĂNG NHẬP NHÂN VIÊN -->
+    <!-- POPUP 3: CỔNG ĐĂNG NHẬP NHÂN VIÊN CAO CẤP & ĐIỂM NHẤN HIỆN ĐẠI -->
+    <div class="modal-overlay hidden" id="modal-login" onclick="closeModalOnBackdrop(event, 'modal-login')">
+      <div class="modal-box premium-login-card" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeLoginModal()" title="Đóng">✕</button>
+        
+        <!-- Mascot Bé Robi & Header có điểm nhấn nhận diện thương hiệu -->
+        <div class="login-brand-header">
+          <div class="login-mascot-wrap">
+            <div class="login-mascot-screen">
+              <span class="mascot-eye left"></span>
+              <span class="mascot-eye right"></span>
+              <span class="mascot-smile"></span>
+            </div>
+          </div>
+          <h3 class="login-main-title">Cổng Nhân Viên MegaMall</h3>
+          <p class="login-sub-title">Chọn vai trò hoặc nhập tài khoản để đăng nhập</p>
+        </div>
+
+        <!-- 2 Thẻ chọn vai trò tương tác nhanh (Điểm nhấn trực quan 1-chạm) -->
+        <div class="role-selector-grid">
+          <div class="role-card active" id="card-role-manager" onclick="selectLoginRole('manager')">
+            <div class="role-card-icon">👔</div>
+            <div class="role-card-info">
+              <div class="role-card-name">Điều Phối</div>
+              <div class="role-card-desc">Lái robot & tạo đơn</div>
+            </div>
+            <div class="role-radio-dot"></div>
+          </div>
+
+          <div class="role-card" id="card-role-admin" onclick="selectLoginRole('admin')">
+            <div class="role-card-icon">🛡️</div>
+            <div class="role-card-info">
+              <div class="role-card-name">Quản Trị</div>
+              <div class="role-card-desc">Toàn quyền hệ thống</div>
+            </div>
+            <div class="role-radio-dot"></div>
+          </div>
+        </div>
+
+        <!-- Các ô nhập tài khoản với biểu tượng trực quan -->
+        <div class="login-inputs-wrap">
+          <div class="fancy-input-field">
+            <span class="field-leading-icon">👤</span>
+            <input type="text" class="fancy-text-input" id="login-username" value="manager" placeholder="Tên đăng nhập" onkeydown="if(event.key==='Enter') submitLogin()">
+          </div>
+
+          <div class="fancy-input-field">
+            <span class="field-leading-icon">🔒</span>
+            <input type="password" class="fancy-text-input" id="login-password" value="manager123" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter') submitLogin()">
+            <button type="button" class="field-trailing-btn" onclick="togglePasswordVisibility()" title="Ẩn/Hiện mật khẩu">👁️</button>
+          </div>
+        </div>
+
+        <div class="login-error-text" id="login-error-msg"></div>
+
+        <!-- Nút bấm Đăng nhập & Thoát làm khách -->
+        <div class="login-cta-stack">
+          <button type="button" class="btn-login-glow" onclick="submitLogin()">
+            <span>Đăng Nhập Vào Hệ Thống</span>
+            <span class="btn-arrow">→</span>
+          </button>
+          <button type="button" class="btn-guest-ghost" onclick="continueAsGuest()">
+            Tiếp tục xem với vai trò Khách hàng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POPUP 4: TẠO ĐƠN GIAO MỚI -->
+    <div class="modal-overlay hidden" id="modal-new-mission" onclick="closeModalOnBackdrop(event, 'modal-new-mission')">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeNewMissionModal()">✕</button>
+        <div class="modal-header-simple">
+          <h3 class="modal-title">Tạo Đơn Giao Hàng</h3>
+          <p class="modal-desc">Gửi món ăn hoặc nước uống để Bé Robi vận chuyển đến bàn.</p>
+        </div>
+
+        <div class="form-clean">
+          <div class="form-field">
+            <label class="field-label">Cửa hàng gửi:</label>
+            <select class="field-input" id="new-store">
+              <option value="Highlands Coffee">Highlands Coffee (Tầng 1)</option>
+              <option value="Phúc Long Tea">Phúc Long Tea (Tầng 2)</option>
+              <option value="Haidilao Hotpot">Haidilao Hotpot (Tầng 4)</option>
+              <option value="Pizza 4P's">Pizza 4P's (Tầng 4)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Tên món đồ:</label>
+            <input type="text" class="field-input" id="new-item" placeholder="Ví dụ: 2 Cà phê Phin Sữa Đá">
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">Điểm đến:</label>
+            <input type="text" class="field-input" id="new-dest" placeholder="Ví dụ: Bàn 12 - Sảnh Tầng 1">
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-field">
+              <label class="field-label">Hộc chứa:</label>
+              <select class="field-input" id="new-compartment">
+                <option value="1">Hộc 1 (Ngăn Trên)</option>
+                <option value="2">Hộc 2 (Ngăn Dưới)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Mã PIN (6 số):</label>
+              <input type="text" class="field-input" id="new-otp" maxlength="6" placeholder="Tự sinh mã">
+            </div>
+          </div>
+
+          <div class="modal-btn-row">
+            <button class="btn btn-secondary" onclick="closeNewMissionModal()">Hủy</button>
+            <button class="btn btn-primary" onclick="submitCreateMission()">Bắt Đầu Giao</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POPUP 5: CẤP TÀI KHOẢN MỚI -->
+    <div class="modal-overlay hidden" id="modal-create-user" onclick="closeModalOnBackdrop(event, 'modal-create-user')">
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeCreateUserModal()">✕</button>
+        <div class="modal-header-simple">
+          <h3 class="modal-title">Cấp Tài Khoản Mới</h3>
+          <p class="modal-desc">Thêm tài khoản nhân viên vận hành hoặc quản lý cửa hàng</p>
+        </div>
+
+        <div class="form-clean">
+          <div class="form-field">
+            <label class="field-label">Tên đăng nhập:</label>
+            <input type="text" class="field-input" id="new-user-username" placeholder="Ví dụ: nhanvien_hl">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Họ và tên:</label>
+            <input type="text" class="field-input" id="new-user-fullname" placeholder="Ví dụ: Trần Văn Nam">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Mật khẩu:</label>
+            <input type="password" class="field-input" id="new-user-password" placeholder="Nhập mật khẩu...">
+          </div>
+          <div class="form-field">
+            <label class="field-label">Vai trò:</label>
+            <select class="field-input" id="new-user-role">
+              <option value="manager">Nhân Viên Điều Phối (Quản Lý)</option>
+              <option value="guest">Khách Mua Sắm (Guest)</option>
+              <option value="admin">Quản Trị Viên (Admin)</option>
+            </select>
+          </div>
+
+          <div class="modal-btn-row">
+            <button class="btn btn-secondary" onclick="closeCreateUserModal()">Hủy</button>
+            <button class="btn btn-primary" onclick="submitCreateUser()">Tạo Tài Khoản</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông Báo Toast Toàn Cục -->
+    <div class="toast-box hidden" id="global-toast">
+      <span class="toast-icon" id="toast-icon">✨</span>
+      <span class="toast-msg" id="toast-text">Thông báo</span>
+    </div>
 
   </div>
 
-  <script src="app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>
