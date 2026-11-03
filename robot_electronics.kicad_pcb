@@ -156,7 +156,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_1")
+			(net "/+5V_PWR")
 			(uuid "9bcb4cb0-3a3b-4426-a0d3-aa5a1adc7381")
 		)
 		(pad "2" thru_hole circle
@@ -638,7 +638,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_1")
+			(net "/+5V_PWR")
 			(uuid "6b31eda1-9444-42b0-a9f1-6db4adb4d8f6")
 		)
 		(pad "11" thru_hole circle
@@ -995,7 +995,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_1")
+			(net "/+5V_PWR")
 			(uuid "f0294c54-c483-40be-87f8-0e665989f6f4")
 		)
 		(pad "3" thru_hole circle
@@ -1013,7 +1013,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_2")
+			(net "/+5V_PWR")
 			(uuid "7031cb57-89e1-4545-9bbf-7382cdf8ef57")
 		)
 		(pad "5" thru_hole circle
@@ -1202,7 +1202,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/GND_LINE")
+			(net "GND")
 			(uuid "59552bee-ec1b-4b1a-8864-67214c2469c2")
 		)
 		(pad "26" thru_hole circle
@@ -2023,7 +2023,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_2")
+			(net "/+5V_PWR")
 			(uuid "56057610-44e0-4c70-92ae-d4fa90a98744")
 		)
 		(pad "11" thru_hole circle
@@ -2151,7 +2151,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/GND_LINE")
+			(net "GND")
 			(uuid "8726fb2d-4ecd-4b43-9f33-5e4742d556a3")
 		)
 		(pad "2" thru_hole circle
@@ -2454,7 +2454,7 @@
 			(drill 0.8)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net "/+5V_PI_1")
+			(net "/+5V_PWR")
 			(uuid "a4fe0d5a-74b6-4903-a424-0b6a9bbe6e0b")
 		)
 		(pad "2" thru_hole circle
@@ -2780,12 +2780,20 @@
 			)
 		)
 	)
-	(segment
+		(segment
+		(start 79.06 96.0975)
+		(end 81.6 96.0975)
+		(width 1.4)
+		(layer "B.Cu")
+		(net "/+5V_PWR")
+		(uuid "eb9e8e1a-b6a6-4b12-b38e-6e11db3e791a")
+	)
+(segment
 		(start 85.8 44.4425)
 		(end 113.3 44.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "005411f1-9f4f-4be5-845e-e5be036398c0")
 	)
 	(segment
@@ -2793,7 +2801,7 @@
 		(end 114.605917 45.748417)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "3387f01e-8e17-4f08-8319-2382a0d1c591")
 	)
 	(segment
@@ -2801,7 +2809,7 @@
 		(end 54.5 68.5)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "396fb112-ed2b-427e-8932-c31c1af4b7a8")
 	)
 	(segment
@@ -2809,7 +2817,7 @@
 		(end 86.38 50.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "472090b4-3271-4fb5-99ed-90f2ce0f6d77")
 	)
 	(segment
@@ -2817,7 +2825,7 @@
 		(end 54.5 92)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "4892d04c-57c3-4b94-8761-3cea50e0dc25")
 	)
 	(segment
@@ -2825,7 +2833,7 @@
 		(end 114.605917 50.513844)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "4b51c5be-329a-4574-8876-698955a73abe")
 	)
 	(segment
@@ -2833,7 +2841,7 @@
 		(end 58.5975 96.0975)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "4cafddae-0ce2-42c4-9632-2b465b89d10c")
 	)
 	(segment
@@ -2841,7 +2849,7 @@
 		(end 57.1725 65.8275)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "637ecc9d-5952-42bd-a86d-8ce52a619e1c")
 	)
 	(segment
@@ -2849,7 +2857,7 @@
 		(end 61.34 46.9025)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "6791cc99-f85d-4c4b-a8f1-cca6f66c37c6")
 	)
 	(segment
@@ -2857,7 +2865,7 @@
 		(end 59.84 65.8275)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "686ed1c5-cc6f-4148-a51c-0f2b23594896")
 	)
 	(segment
@@ -2865,7 +2873,7 @@
 		(end 63.8 44.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "6934b2f8-7fab-47bf-b0f1-7a89ab9c0afb")
 	)
 	(segment
@@ -2873,7 +2881,7 @@
 		(end 79.06 96.0975)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "770e6f45-e8a3-4a3e-8f83-12a380b8f5da")
 	)
 	(segment
@@ -2881,7 +2889,7 @@
 		(end 85.8 44.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "a1d34b95-227c-4cf1-b6ff-b8a062c01524")
 	)
 	(segment
@@ -2889,7 +2897,7 @@
 		(end 61.34 64.3275)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_1")
+		(net "/+5V_PWR")
 		(uuid "b3eafda7-e67a-431c-bc6f-53f9c2ebb893")
 	)
 	(segment
@@ -3178,11 +3186,19 @@
 	)
 	(segment
 		(start 128.3 65.4425)
+		(end 136.88 65.4425)
+		(width 1.4)
+		(layer "B.Cu")
+		(net "GND")
+		(uuid "eb5c3607-2417-4712-835f-60de77d6a2d4")
+	)
+	(segment
+		(start 136.88 65.4425)
 		(end 147.58 65.4425)
 		(width 1.4)
 		(layer "B.Cu")
 		(net "GND")
-		(uuid "8bd6c083-0bd1-4a03-98d7-730179ac3533")
+		(uuid "7eed593d-f6c3-4b98-88f7-54466dab1339")
 	)
 	(segment
 		(start 63.88 61.2075)
@@ -3857,7 +3873,7 @@
 		(end 154.3 48.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "0c0f0f5e-0f6f-4c6a-af7c-434f5a388613")
 	)
 	(segment
@@ -3865,7 +3881,7 @@
 		(end 157.34 100.9025)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "0ece16dd-81b1-4e38-b8fd-f1e20002ccc8")
 	)
 	(segment
@@ -3873,7 +3889,7 @@
 		(end 85.3575 107)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "15d8d7a6-1000-45db-8d21-3425f1694222")
 	)
 	(segment
@@ -3881,7 +3897,7 @@
 		(end 81.6 96.0975)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "16b197d8-7919-4da1-83ff-8b36aa10e34e")
 	)
 	(segment
@@ -3889,7 +3905,7 @@
 		(end 157.34 51.4825)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "2a015f1c-12e9-4cd3-a38f-4d737acdc99d")
 	)
 	(segment
@@ -3897,7 +3913,7 @@
 		(end 137.3 48.4425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "9fee33c3-2318-4840-b948-c66042de8808")
 	)
 	(segment
@@ -3905,7 +3921,7 @@
 		(end 134.34 51.4025)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "c3384efc-e7ab-458f-acbc-ad92a3681f88")
 	)
 	(segment
@@ -3913,7 +3929,7 @@
 		(end 151.2425 107)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "e3ea8be2-f072-4524-99d9-7a82d52db437")
 	)
 	(segment
@@ -3921,7 +3937,7 @@
 		(end 81.6 103.2425)
 		(width 1.4)
 		(layer "B.Cu")
-		(net "/+5V_PI_2")
+		(net "/+5V_PWR")
 		(uuid "f37731fc-ab5c-4048-9dda-509b1b630fbe")
 	)
 	(via
@@ -3985,7 +4001,7 @@
 		(end 109.54 93.5575)
 		(width 1)
 		(layer "B.Cu")
-		(net "/GND_LINE")
+		(net "GND")
 		(uuid "9a6844c6-8611-4c4c-9dce-750b4c32884f")
 	)
 	(via

@@ -3910,7 +3910,7 @@
 		)
 		(uuid "060b78f2-4265-4aca-9ec0-dd6dffa924ab")
 	)
-	(label "+5V_PI_1"
+	(label "+5V_PWR"
 		(at 213.36 43.18 180)
 		(effects
 			(font
@@ -3970,7 +3970,7 @@
 		)
 		(uuid "22797949-e167-4dd0-871e-860ff988126d")
 	)
-	(label "+5V_PI_2"
+	(label "+5V_PWR"
 		(at 167.64 137.16 0)
 		(effects
 			(font
@@ -3990,7 +3990,7 @@
 		)
 		(uuid "333675f3-0e58-4c36-81d8-8f04a06dd613")
 	)
-	(label "+5V_PI_1"
+	(label "+5V_PWR"
 		(at 213.36 81.28 180)
 		(effects
 			(font
@@ -4050,7 +4050,7 @@
 		)
 		(uuid "5daf40c8-5398-40a5-b43e-6718f16aa7f6")
 	)
-	(label "+5V_PI_1"
+	(label "+5V_PWR"
 		(at 271.78 158.75 0)
 		(effects
 			(font
@@ -4070,7 +4070,7 @@
 		)
 		(uuid "64c3366e-c6b5-4b98-ae60-f3671d3b3278")
 	)
-	(label "+5V_PI_1"
+	(label "+5V_PWR"
 		(at 167.64 132.08 0)
 		(effects
 			(font
@@ -4080,7 +4080,7 @@
 		)
 		(uuid "64dd76c3-d207-49b5-ac82-d27fb057c43a")
 	)
-	(label "+5V_PI_1"
+	(label "+5V_PWR"
 		(at 177.8 55.88 0)
 		(effects
 			(font
@@ -4210,7 +4210,7 @@
 		)
 		(uuid "78438a8d-6b09-4653-af21-3c989b2b8456")
 	)
-	(label "+5V_PI_2"
+	(label "+5V_PWR"
 		(at 384.81 160.02 0)
 		(effects
 			(font
@@ -4300,7 +4300,7 @@
 		)
 		(uuid "a6ce2d1e-dc52-427c-a4a5-73cc5229009c")
 	)
-	(label "GND_LINE"
+	(label "GND"
 		(at 337.82 76.2 180)
 		(effects
 			(font
@@ -4340,7 +4340,7 @@
 		)
 		(uuid "b689048f-2235-466c-b316-6a03cbd87bd1")
 	)
-	(label "GND_LINE"
+	(label "GND"
 		(at 67.31 193.04 180)
 		(effects
 			(font
