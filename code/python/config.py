@@ -30,6 +30,30 @@ LEFT_MOTORS_CONFIG = {
 }
 
 # ==============================================================================
+# BẢNG ÁNH XẠ CHÂN ĐIỀU KHIỂN DRIVER TB6612 BÊN PHẢI (U_TB2)
+# Điều khiển đồng thời 2 bánh bên phải:
+#   - Động cơ trước phải (J_M3 - Motor Front Right)
+#   - Động cơ sau phải   (J_M4 - Motor Rear Right)
+# ==============================================================================
+RIGHT_MOTORS_CONFIG = {
+    # Chân băm xung PWM điều khiển tốc độ (Kênh A & B nối song song)
+    # Header Pi 4 Pin 33 -> BCM GPIO 13
+    "PWM_PIN": 13,
+    
+    # Chân định hướng 1 (AIN1 & BIN1 nối song song)
+    # Header Pi 4 Pin 37 -> BCM GPIO 26
+    "IN1_PIN": 26,
+    
+    # Chân định hướng 2 (AIN2 & BIN2 nối song song)
+    # Header Pi 4 Pin 35 -> BCM GPIO 19
+    "IN2_PIN": 19,
+    
+    # Chân kích hoạt Standby (STBY = HIGH để cho phép driver hoạt động)
+    # Header Pi 4 Pin 38 -> BCM GPIO 20
+    "STBY_PIN": 20,
+}
+
+# ==============================================================================
 # BẢNG ÁNH XẠ CHÂN 2 CẢM BIẾN SIÊU ÂM HC-SR04 (TRÁI & PHẢI)
 # Bảo vệ chân Echo 5V qua cầu phân áp 1kΩ / 2kΩ xuống mức an toàn 3.3V cho Pi 4
 # ==============================================================================
@@ -54,6 +78,13 @@ LEFT_MOTORS_PHYSICAL_PINS = {
     "AIN2_L": 5,   # Physical Pin 5  (BCM GPIO 3)
     "AIN1_L": 7,   # Physical Pin 7  (BCM GPIO 4)
     "STBY_L": 11,  # Physical Pin 11 (BCM GPIO 17)
+}
+
+RIGHT_MOTORS_PHYSICAL_PINS = {
+    "PWMA_R": 33,  # Physical Pin 33 (BCM GPIO 13)
+    "AIN2_R": 35,  # Physical Pin 35 (BCM GPIO 19)
+    "AIN1_R": 37,  # Physical Pin 37 (BCM GPIO 26)
+    "STBY_R": 38,  # Physical Pin 38 (BCM GPIO 20)
 }
 
 ULTRASONIC_PHYSICAL_PINS = {

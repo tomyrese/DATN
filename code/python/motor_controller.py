@@ -1,6 +1,13 @@
 """
-Lớp điều khiển 2 Động cơ bên trái qua Driver TB6612 (U_TB1)
-Tự động nhận diện môi trường Raspberry Pi hoặc chế độ Giả lập (Simulation trên PC).
+Mô-đun điều khiển Động cơ 4WD Robot Carrier qua 2 Driver TB6612 (U_TB1 & U_TB2)
+Bo mạch Robot Carrier 1 Lớp - Raspberry Pi 4
+Tác giả: Nhóm Đồ Án Tốt Nghiệp Robot Tự Hành
+
+Đặc tính phần cứng:
+  - Driver Trái (U_TB1): Điều khiển 2 bánh trái (M1 Trước-Trái & M2 Sau-Trái)
+    * PWMA_L = BCM 2 (Pin 3), AIN1_L = BCM 4 (Pin 7), AIN2_L = BCM 3 (Pin 5), STBY_L = BCM 17 (Pin 11)
+  - Driver Phải (U_TB2): Điều khiển 2 bánh phải (M3 Trước-Phải & M4 Sau-Phải)
+    * PWMA_R = BCM 13 (Pin 33), AIN1_R = BCM 26 (Pin 37), AIN2_R = BCM 19 (Pin 35), STBY_R = BCM 20 (Pin 38)
 """
 
 import time
@@ -13,7 +20,12 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
     except Exception:
         pass
 
-from config import LEFT_MOTORS_CONFIG, PWM_FREQUENCY_HZ, DEFAULT_SPEED
+from config import (
+    LEFT_MOTORS_CONFIG,
+    RIGHT_MOTORS_CONFIG,
+    PWM_FREQUENCY_HZ,
+    DEFAULT_SPEED
+)
 
 # Kiểm tra thư viện điều khiển GPIO trên Raspberry Pi
 HAVE_RPI_GPIO = False
@@ -24,19 +36,17 @@ except (ImportError, RuntimeError):
     HAVE_RPI_GPIO = False
 
 
-class TB6612LeftMotors:
-    """
-    Điều khiển 2 động cơ bên trái (Front-Left & Rear-Left)
-    kết nối chung qua kênh A và B của Driver TB6612 (U_TB1).
-    """
+class TB6612Driver:
+    """Lớp điều khiển cơ sở cho 1 cụm Driver TB6612FNG"""
 
-    def __init__(self, pwm_pin=None, in1_pin=None, in2_pin=None, stby_pin=None, freq=PWM_FREQUENCY_HZ):
-        self.pwm_pin = pwm_pin or LEFT_MOTORS_CONFIG["PWM_PIN"]
-        self.in1_pin = in1_pin or LEFT_MOTORS_CONFIG["IN1_PIN"]
-        self.in2_pin = in2_pin or LEFT_MOTORS_CONFIG["IN2_PIN"]
-        self.stby_pin = stby_pin or LEFT_MOTORS_CONFIG["STBY_PIN"]
+    def __init__(self, name, pwm_pin, in1_pin, in2_pin, stby_pin, freq=PWM_FREQUENCY_HZ):
+        self.name = name
+        self.pwm_pin = pwm_pin
+        self.in1_pin = in1_pin
+        self.in2_pin = in2_pin
+        self.stby_pin = stby_pin
         self.freq = freq
-        
+
         self.current_speed = 0
         self.current_direction = "STOP"
         self.is_enabled = False
@@ -46,64 +56,43 @@ class TB6612LeftMotors:
         self._setup_hardware()
 
     def _setup_hardware(self):
-        """Khởi tạo chân GPIO hoặc kích hoạt chế độ Giả lập"""
         if not self.is_simulated:
             try:
                 GPIO.setmode(GPIO.BCM)
                 GPIO.setwarnings(False)
 
-                # Cấu hình các chân điều khiển làm OUTPUT
                 GPIO.setup(self.in1_pin, GPIO.OUT, initial=GPIO.LOW)
                 GPIO.setup(self.in2_pin, GPIO.OUT, initial=GPIO.LOW)
                 GPIO.setup(self.stby_pin, GPIO.OUT, initial=GPIO.LOW)
                 GPIO.setup(self.pwm_pin, GPIO.OUT, initial=GPIO.LOW)
 
-                # Khởi tạo đối tượng PWM
                 self.pwm = GPIO.PWM(self.pwm_pin, self.freq)
                 self.pwm.start(0)
-                print("[HARDWARE] Đã kết nối thành công GPIO Raspberry Pi 4!")
-                print(f"           STBY=BCM{self.stby_pin}, PWM=BCM{self.pwm_pin}, IN1=BCM{self.in1_pin}, IN2=BCM{self.in2_pin}")
             except Exception as e:
-                print(f"[CẢNH BÁO] Không thể khởi tạo RPi.GPIO: {e}. Chuyển sang chế độ GIẢ LẬP.")
                 self.is_simulated = True
 
-        if self.is_simulated:
-            print("[SIMULATION] Đang chạy ở chế độ GIẢ LẬP (PC). Không có phần cứng Pi 4.")
-            print(f"             Mô phỏng chân: STBY=BCM{self.stby_pin}, PWM=BCM{self.pwm_pin}, IN1=BCM{self.in1_pin}, IN2=BCM{self.in2_pin}")
-
     def enable(self):
-        """Bật Driver (Kéo STBY lên HIGH)"""
         self.is_enabled = True
         if not self.is_simulated:
             GPIO.output(self.stby_pin, GPIO.HIGH)
-        print(f"[TB6612] ENABLED (STBY = HIGH)")
 
     def disable(self):
-        """Tắt Driver (Kéo STBY về LOW) để tiết kiệm điện và ngắt công suất"""
         self.stop()
         self.is_enabled = False
         if not self.is_simulated:
             GPIO.output(self.stby_pin, GPIO.LOW)
-        print(f"[TB6612] DISABLED (STBY = LOW)")
 
     def _set_pwm(self, duty):
-        """Thiết lập độ rộng xung PWM (0 - 100%)"""
         duty = max(0, min(100, duty))
         self.current_speed = duty
         if not self.is_simulated and self.pwm:
             self.pwm.ChangeDutyCycle(duty)
 
     def forward(self, speed=DEFAULT_SPEED):
-        """
-        Quay TIẾN 2 bánh bên trái (M1 & M2 cùng tiến)
-        Bảng trạng thái: STBY=1, IN1=1, IN2=0, PWM=speed
-        """
         if not self.is_enabled:
             self.enable()
-
         speed = max(0, min(100, speed))
         self.current_direction = "FORWARD"
-        
         if not self.is_simulated:
             GPIO.output(self.in1_pin, GPIO.HIGH)
             GPIO.output(self.in2_pin, GPIO.LOW)
@@ -111,19 +100,11 @@ class TB6612LeftMotors:
         else:
             self._set_pwm(speed)
 
-        print(f"[BÁNH TRÁI] >> TIẾN (FORWARD) | Tốc độ: {speed:3d}% | IN1=HIGH, IN2=LOW")
-
     def reverse(self, speed=DEFAULT_SPEED):
-        """
-        Quay LÙI 2 bánh bên trái (M1 & M2 cùng lùi)
-        Bảng trạng thái: STBY=1, IN1=0, IN2=1, PWM=speed
-        """
         if not self.is_enabled:
             self.enable()
-
         speed = max(0, min(100, speed))
         self.current_direction = "REVERSE"
-
         if not self.is_simulated:
             GPIO.output(self.in1_pin, GPIO.LOW)
             GPIO.output(self.in2_pin, GPIO.HIGH)
@@ -131,14 +112,7 @@ class TB6612LeftMotors:
         else:
             self._set_pwm(speed)
 
-        print(f"[BÁNH TRÁI] << LÙI  (REVERSE) | Tốc độ: {speed:3d}% | IN1=LOW, IN2=HIGH")
-
     def brake(self):
-        """
-        HÃM DỪNG NHANH (Short Brake)
-        Bảng trạng thái: STBY=1, IN1=1, IN2=1, PWM=100
-        Ngắn mạch 2 cực động cơ để sinh lực hãm quán tính.
-        """
         self.current_direction = "BRAKE"
         if not self.is_simulated:
             GPIO.output(self.in1_pin, GPIO.HIGH)
@@ -147,23 +121,14 @@ class TB6612LeftMotors:
         else:
             self._set_pwm(100)
 
-        print(f"[BÁNH TRÁI] == HÃM CỨNG (BRAKE) | IN1=HIGH, IN2=HIGH")
-
     def stop(self):
-        """
-        DỪNG TỰ NHIÊN / THẢ TRÔI (Coast / Stop)
-        Bảng trạng thái: IN1=0, IN2=0, PWM=0
-        """
         self.current_direction = "STOP"
         self._set_pwm(0)
         if not self.is_simulated:
             GPIO.output(self.in1_pin, GPIO.LOW)
             GPIO.output(self.in2_pin, GPIO.LOW)
 
-        print(f"[BÁNH TRÁI] -- DỪNG TRÔI (COAST) | IN1=LOW, IN2=LOW, PWM=0%")
-
     def cleanup(self):
-        """Giải phóng tài nguyên chân GPIO an toàn khi thoát"""
         self.stop()
         self.disable()
         if not self.is_simulated:
@@ -172,5 +137,121 @@ class TB6612LeftMotors:
                     self.pwm.stop()
                 GPIO.cleanup([self.pwm_pin, self.in1_pin, self.in2_pin, self.stby_pin])
             except Exception:
-                GPIO.cleanup()
-        print("[TB6612] Đã giải phóng toàn bộ chân GPIO an toàn.")
+                pass
+
+
+class TB6612LeftMotors(TB6612Driver):
+    """Điều khiển 2 động cơ bên trái (Front-Left & Rear-Left - Driver U_TB1)"""
+    def __init__(self, pwm_pin=None, in1_pin=None, in2_pin=None, stby_pin=None, freq=PWM_FREQUENCY_HZ):
+        super().__init__(
+            name="BÁNH TRÁI",
+            pwm_pin=pwm_pin or LEFT_MOTORS_CONFIG["PWM_PIN"],
+            in1_pin=in1_pin or LEFT_MOTORS_CONFIG["IN1_PIN"],
+            in2_pin=in2_pin or LEFT_MOTORS_CONFIG["IN2_PIN"],
+            stby_pin=stby_pin or LEFT_MOTORS_CONFIG["STBY_PIN"],
+            freq=freq
+        )
+
+
+class TB6612RightMotors(TB6612Driver):
+    """Điều khiển 2 động cơ bên phải (Front-Right & Rear-Right - Driver U_TB2)"""
+    def __init__(self, pwm_pin=None, in1_pin=None, in2_pin=None, stby_pin=None, freq=PWM_FREQUENCY_HZ):
+        super().__init__(
+            name="BÁNH PHẢI",
+            pwm_pin=pwm_pin or RIGHT_MOTORS_CONFIG["PWM_PIN"],
+            in1_pin=in1_pin or RIGHT_MOTORS_CONFIG["IN1_PIN"],
+            in2_pin=in2_pin or RIGHT_MOTORS_CONFIG["IN2_PIN"],
+            stby_pin=stby_pin or RIGHT_MOTORS_CONFIG["STBY_PIN"],
+            freq=freq
+        )
+
+
+class Robot4WD:
+    """
+    Lớp điều phối vận hành toàn bộ 4 Bánh xe (Hệ thống truyền động 4WD).
+    Đồng bộ cả 2 Driver TB6612 Trái và Phải.
+    """
+
+    def __init__(self, freq=PWM_FREQUENCY_HZ):
+        self.left = TB6612LeftMotors(freq=freq)
+        self.right = TB6612RightMotors(freq=freq)
+        self.is_simulated = self.left.is_simulated or self.right.is_simulated
+        self.current_state = "DỪNG"
+
+    def enable(self):
+        """Kích hoạt cả 2 Driver"""
+        self.left.enable()
+        self.right.enable()
+
+    def disable(self):
+        """Tắt cả 2 Driver"""
+        self.left.disable()
+        self.right.disable()
+
+    def forward(self, speed=DEFAULT_SPEED):
+        """TIẾN THẲNG: 4 bánh cùng quay tới"""
+        self.current_state = f"TIẾN ({speed}%)"
+        self.left.forward(speed)
+        self.right.forward(speed)
+
+    def reverse(self, speed=DEFAULT_SPEED):
+        """LÙI THẲNG: 4 bánh cùng quay lùi"""
+        self.current_state = f"LÙI ({speed}%)"
+        self.left.reverse(speed)
+        self.right.reverse(speed)
+
+    def turn_left(self, speed=DEFAULT_SPEED, diff_ratio=0.3):
+        """
+        RẼ TRÁI MƯỢT (Cua vi sai):
+        Bánh phải chạy tốc độ `speed`, bánh trái chạy chậm lại `speed * diff_ratio`.
+        Xe đổi hướng êm ái, không bị khựng quán tính.
+        """
+        self.current_state = f"RẼ TRÁI ({speed}%)"
+        left_spd = int(speed * diff_ratio)
+        self.left.forward(left_spd)
+        self.right.forward(speed)
+
+    def turn_right(self, speed=DEFAULT_SPEED, diff_ratio=0.3):
+        """
+        RẼ PHẢI MƯỢT (Cua vi sai):
+        Bánh trái chạy tốc độ `speed`, bánh phải chạy chậm lại `speed * diff_ratio`.
+        """
+        self.current_state = f"RẼ PHẢI ({speed}%)"
+        right_spd = int(speed * diff_ratio)
+        self.left.forward(speed)
+        self.right.forward(right_spd)
+
+    def spin_left(self, speed=DEFAULT_SPEED):
+        """
+        XOAY TRÒN TẠI CHỖ SANG TRÁI (Tank Turn / Pivot Turn):
+        Bánh trái lùi, Bánh phải tiến. Quay 90° cực nhanh tại chỗ.
+        """
+        self.current_state = f"XOAY TRÁI ({speed}%)"
+        self.left.reverse(speed)
+        self.right.forward(speed)
+
+    def spin_right(self, speed=DEFAULT_SPEED):
+        """
+        XOAY TRÒN TẠI CHỖ SANG PHẢI (Tank Turn / Pivot Turn):
+        Bánh trái tiến, Bánh phải lùi.
+        """
+        self.current_state = f"XOAY PHẢI ({speed}%)"
+        self.left.forward(speed)
+        self.right.reverse(speed)
+
+    def brake(self):
+        """HÃM PHANH KHẨN CẤP cả 4 bánh"""
+        self.current_state = "HÃM PHANH"
+        self.left.brake()
+        self.right.brake()
+
+    def stop(self):
+        """DỪNG TRÔI / NGẮT XUNG cả 4 bánh"""
+        self.current_state = "DỪNG TRÔI"
+        self.left.stop()
+        self.right.stop()
+
+    def cleanup(self):
+        """Dọn dẹp và giải phóng GPIO"""
+        self.left.cleanup()
+        self.right.cleanup()
