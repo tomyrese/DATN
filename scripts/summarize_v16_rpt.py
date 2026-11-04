@@ -10,3 +10,4 @@ for t, desc in types:
 print("DRC final v16 summary:")
 for t, c in sorted(type_counts.items(), key=lambda x: -x[1]):
     print(f"  [{t}]: {c} occurrences")
+

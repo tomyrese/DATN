@@ -6,3 +6,4 @@ print("Length:", len(text))
 idx = text.find('jumper')
 if idx != -1:
     print(text[idx-50:idx+400])
+

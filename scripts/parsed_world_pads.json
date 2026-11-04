@@ -1,0 +1,2047 @@
+{
+  "BT1": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      50.0,
+      42.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 47.46,
+        "wy": 42.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 7,
+        "net_name": "/BAT+",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 52.54,
+        "wy": 42.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "SW1": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      50.0,
+      56.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 47.46,
+        "wy": 56.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 7,
+        "net_name": "/BAT+",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 52.54,
+        "wy": 56.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 10,
+        "net_name": "/FUSE_IN",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "F1": {
+    "fp_name": "robot_electronics:Fuseholder_Blade_Mini_Keystone_3568",
+    "at": [
+      50.0,
+      70.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 46.0,
+        "wy": 70.0,
+        "lx": -4.0,
+        "ly": 0.0,
+        "net_id": 10,
+        "net_name": "/FUSE_IN",
+        "size": [
+          2.5,
+          3.0
+        ],
+        "drill": 1.5
+      },
+      "2": {
+        "wx": 54.0,
+        "wy": 70.0,
+        "lx": 4.0,
+        "ly": 0.0,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.5,
+          3.0
+        ],
+        "drill": 1.5
+      }
+    }
+  },
+  "U1": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-4-5.08",
+    "at": [
+      50.0,
+      88.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 42.38,
+        "wy": 88.0,
+        "lx": -7.62,
+        "ly": 0.0,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 47.46,
+        "wy": 88.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "3": {
+        "wx": 52.54,
+        "wy": 88.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "4": {
+        "wx": 57.62,
+        "wy": 88.0,
+        "lx": 7.62,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "C1": {
+    "fp_name": "robot_electronics:CP_Radial_D8.0mm_P3.50mm",
+    "at": [
+      53.0,
+      48.0
+    ],
+    "rot": 90.0,
+    "pads": {
+      "1": {
+        "wx": 53.0,
+        "wy": 46.25,
+        "lx": -1.75,
+        "ly": 0.0,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 53.0,
+        "wy": 49.75,
+        "lx": 1.75,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "J_M1": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      68.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 65.46,
+        "wy": 45.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 17,
+        "net_name": "/M1_A",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 70.54,
+        "wy": 45.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 18,
+        "net_name": "/M1_B",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "J_M2": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      77.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 74.46,
+        "wy": 45.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 20,
+        "net_name": "/M2_B",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 79.54,
+        "wy": 45.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 19,
+        "net_name": "/M2_A",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "U_TB1": {
+    "fp_name": "robot_electronics:Module_TB6612FNG_Breakout",
+    "at": [
+      68.0,
+      68.0
+    ],
+    "rot": 270.0,
+    "pads": {
+      "1": {
+        "wx": 59.11,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -8.89,
+        "net_id": 25,
+        "net_name": "/PWMA_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 61.65,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -6.35,
+        "net_id": 5,
+        "net_name": "/AIN2_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 64.19,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -3.81,
+        "net_id": 3,
+        "net_name": "/AIN1_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 66.73,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -1.27,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "5": {
+        "wx": 69.27,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 1.27,
+        "net_id": 3,
+        "net_name": "/AIN1_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "6": {
+        "wx": 71.81,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 3.81,
+        "net_id": 5,
+        "net_name": "/AIN2_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "7": {
+        "wx": 74.35,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 6.35,
+        "net_id": 25,
+        "net_name": "/PWMA_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "8": {
+        "wx": 76.89,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 8.89,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "9": {
+        "wx": 59.11,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -8.89,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "10": {
+        "wx": 61.65,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -6.35,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "11": {
+        "wx": 64.19,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -3.81,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "12": {
+        "wx": 66.73,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -1.27,
+        "net_id": 17,
+        "net_name": "/M1_A",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "13": {
+        "wx": 69.27,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 1.27,
+        "net_id": 18,
+        "net_name": "/M1_B",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "14": {
+        "wx": 71.81,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 3.81,
+        "net_id": 20,
+        "net_name": "/M2_B",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "15": {
+        "wx": 74.35,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 6.35,
+        "net_id": 19,
+        "net_name": "/M2_A",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "16": {
+        "wx": 76.89,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 8.89,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "U_US1": {
+    "fp_name": "robot_electronics:Sensor_HC_SR04",
+    "at": [
+      92.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 88.19,
+        "wy": 45.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 90.73,
+        "wy": 45.0,
+        "lx": -1.27,
+        "ly": 0.0,
+        "net_id": 27,
+        "net_name": "/TRIG_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 93.27,
+        "wy": 45.0,
+        "lx": 1.27,
+        "ly": 0.0,
+        "net_id": 33,
+        "net_name": "Net-(U_US1-ECHO)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 95.81,
+        "wy": 45.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R1": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      92.0,
+      58.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 88.19,
+        "wy": 58.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 33,
+        "net_name": "Net-(U_US1-ECHO)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 95.81,
+        "wy": 58.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 8,
+        "net_name": "/ECHO_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R2": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      92.0,
+      66.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 88.19,
+        "wy": 66.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 8,
+        "net_name": "/ECHO_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 95.81,
+        "wy": 66.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "U_LINE": {
+    "fp_name": "robot_electronics:Sensor_Line_TCRT5000_3CH",
+    "at": [
+      106.0,
+      45.0
+    ],
+    "rot": 180.0,
+    "pads": {
+      "1": {
+        "wx": 111.08,
+        "wy": 45.0,
+        "lx": -5.08,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 108.54,
+        "wy": 45.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 16,
+        "net_name": "/LINE_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 106.0,
+        "wy": 45.0,
+        "lx": 0.0,
+        "ly": 0.0,
+        "net_id": 14,
+        "net_name": "/LINE_C",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 103.46,
+        "wy": 45.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 15,
+        "net_name": "/LINE_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "5": {
+        "wx": 100.92,
+        "wy": 45.0,
+        "lx": 5.08,
+        "ly": 0.0,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "U_US2": {
+    "fp_name": "robot_electronics:Sensor_HC_SR04",
+    "at": [
+      120.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 116.19,
+        "wy": 45.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 118.73,
+        "wy": 45.0,
+        "lx": -1.27,
+        "ly": 0.0,
+        "net_id": 28,
+        "net_name": "/TRIG_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 121.27,
+        "wy": 45.0,
+        "lx": 1.27,
+        "ly": 0.0,
+        "net_id": 34,
+        "net_name": "Net-(U_US2-ECHO)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 123.81,
+        "wy": 45.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R3": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      120.0,
+      58.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 116.19,
+        "wy": 58.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 34,
+        "net_name": "Net-(U_US2-ECHO)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 123.81,
+        "wy": 58.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 9,
+        "net_name": "/ECHO_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R4": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      120.0,
+      66.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 116.19,
+        "wy": 66.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 9,
+        "net_name": "/ECHO_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 123.81,
+        "wy": 66.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "C2": {
+    "fp_name": "robot_electronics:CP_Radial_D8.0mm_P3.50mm",
+    "at": [
+      133.0,
+      52.0
+    ],
+    "rot": 90.0,
+    "pads": {
+      "1": {
+        "wx": 133.0,
+        "wy": 50.25,
+        "lx": -1.75,
+        "ly": 0.0,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 133.0,
+        "wy": 53.75,
+        "lx": 1.75,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "J_M3": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      140.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 137.46,
+        "wy": 45.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 21,
+        "net_name": "/M3_A",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 142.54,
+        "wy": 45.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 22,
+        "net_name": "/M3_B",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "J_M4": {
+    "fp_name": "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08",
+    "at": [
+      149.0,
+      45.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 146.46,
+        "wy": 45.0,
+        "lx": -2.54,
+        "ly": 0.0,
+        "net_id": 24,
+        "net_name": "/M4_B",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      },
+      "2": {
+        "wx": 151.54,
+        "wy": 45.0,
+        "lx": 2.54,
+        "ly": 0.0,
+        "net_id": 23,
+        "net_name": "/M4_A",
+        "size": [
+          2.8,
+          2.8
+        ],
+        "drill": 1.4
+      }
+    }
+  },
+  "U_TB2": {
+    "fp_name": "robot_electronics:Module_TB6612FNG_Breakout",
+    "at": [
+      140.0,
+      68.0
+    ],
+    "rot": 270.0,
+    "pads": {
+      "1": {
+        "wx": 131.11,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -8.89,
+        "net_id": 26,
+        "net_name": "/PWMA_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 133.65,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -6.35,
+        "net_id": 6,
+        "net_name": "/AIN2_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 136.19,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -3.81,
+        "net_id": 4,
+        "net_name": "/AIN1_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 138.73,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": -1.27,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "5": {
+        "wx": 141.27,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 1.27,
+        "net_id": 4,
+        "net_name": "/AIN1_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "6": {
+        "wx": 143.81,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 3.81,
+        "net_id": 6,
+        "net_name": "/AIN2_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "7": {
+        "wx": 146.35,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 6.35,
+        "net_id": 26,
+        "net_name": "/PWMA_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "8": {
+        "wx": 148.89,
+        "wy": 75.62,
+        "lx": -7.62,
+        "ly": 8.89,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "9": {
+        "wx": 131.11,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -8.89,
+        "net_id": 29,
+        "net_name": "/VM_MOTOR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "10": {
+        "wx": 133.65,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -6.35,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "11": {
+        "wx": 136.19,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -3.81,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "12": {
+        "wx": 138.73,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": -1.27,
+        "net_id": 21,
+        "net_name": "/M3_A",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "13": {
+        "wx": 141.27,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 1.27,
+        "net_id": 22,
+        "net_name": "/M3_B",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "14": {
+        "wx": 143.81,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 3.81,
+        "net_id": 24,
+        "net_name": "/M4_B",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "15": {
+        "wx": 146.35,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 6.35,
+        "net_id": 23,
+        "net_name": "/M4_A",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "16": {
+        "wx": 148.89,
+        "wy": 60.38,
+        "lx": 7.62,
+        "ly": 8.89,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "U_PI4": {
+    "fp_name": "robot_electronics:PinSocket_2x20_P2.54mm_Vertical",
+    "at": [
+      103.19,
+      94.83
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 127.32,
+        "wy": 93.56,
+        "lx": 24.13,
+        "ly": -1.27,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 127.32,
+        "wy": 96.1,
+        "lx": 24.13,
+        "ly": 1.27,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 124.78,
+        "wy": 93.56,
+        "lx": 21.59,
+        "ly": -1.27,
+        "net_id": 13,
+        "net_name": "/I2C_SDA",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 124.78,
+        "wy": 96.1,
+        "lx": 21.59,
+        "ly": 1.27,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "5": {
+        "wx": 122.24,
+        "wy": 93.56,
+        "lx": 19.05,
+        "ly": -1.27,
+        "net_id": 12,
+        "net_name": "/I2C_SCL",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "6": {
+        "wx": 122.24,
+        "wy": 96.1,
+        "lx": 19.05,
+        "ly": 1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "7": {
+        "wx": 119.7,
+        "wy": 93.56,
+        "lx": 16.51,
+        "ly": -1.27,
+        "net_id": 38,
+        "net_name": "unconnected-(U_PI4-GPIO4_AIN1_L-Pad7)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "8": {
+        "wx": 119.7,
+        "wy": 96.1,
+        "lx": 16.51,
+        "ly": 1.27,
+        "net_id": 43,
+        "net_name": "unconnected-(U_PI4-GPIO14_TXD-Pad8)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "9": {
+        "wx": 117.16,
+        "wy": 93.56,
+        "lx": 13.97,
+        "ly": -1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "10": {
+        "wx": 117.16,
+        "wy": 96.1,
+        "lx": 13.97,
+        "ly": 1.27,
+        "net_id": 44,
+        "net_name": "unconnected-(U_PI4-GPIO15_RXD-Pad10)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "11": {
+        "wx": 114.62,
+        "wy": 93.56,
+        "lx": 11.43,
+        "ly": -1.27,
+        "net_id": 27,
+        "net_name": "/TRIG_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "12": {
+        "wx": 114.62,
+        "wy": 96.1,
+        "lx": 11.43,
+        "ly": 1.27,
+        "net_id": 45,
+        "net_name": "unconnected-(U_PI4-GPIO18_PWMB_L-Pad12)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "13": {
+        "wx": 112.08,
+        "wy": 93.56,
+        "lx": 8.89,
+        "ly": -1.27,
+        "net_id": 8,
+        "net_name": "/ECHO_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "14": {
+        "wx": 112.08,
+        "wy": 96.1,
+        "lx": 8.89,
+        "ly": 1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "15": {
+        "wx": 109.54,
+        "wy": 93.56,
+        "lx": 6.35,
+        "ly": -1.27,
+        "net_id": 47,
+        "net_name": "unconnected-(U_PI4-GPIO22_BIN2_L-Pad15)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "16": {
+        "wx": 109.54,
+        "wy": 96.1,
+        "lx": 6.35,
+        "ly": 1.27,
+        "net_id": 28,
+        "net_name": "/TRIG_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "17": {
+        "wx": 107.0,
+        "wy": 93.56,
+        "lx": 3.81,
+        "ly": -1.27,
+        "net_id": 35,
+        "net_name": "unconnected-(U_PI4-+3V3_PWR-Pad17)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "18": {
+        "wx": 107.0,
+        "wy": 96.1,
+        "lx": 3.81,
+        "ly": 1.27,
+        "net_id": 9,
+        "net_name": "/ECHO_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "19": {
+        "wx": 104.46,
+        "wy": 93.56,
+        "lx": 1.27,
+        "ly": -1.27,
+        "net_id": 15,
+        "net_name": "/LINE_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "20": {
+        "wx": 104.46,
+        "wy": 96.1,
+        "lx": 1.27,
+        "ly": 1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "21": {
+        "wx": 101.92,
+        "wy": 93.56,
+        "lx": -1.27,
+        "ly": -1.27,
+        "net_id": 14,
+        "net_name": "/LINE_C",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "22": {
+        "wx": 101.92,
+        "wy": 96.1,
+        "lx": -1.27,
+        "ly": 1.27,
+        "net_id": 48,
+        "net_name": "unconnected-(U_PI4-GPIO25_TRIG_R-Pad22)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "23": {
+        "wx": 99.38,
+        "wy": 93.56,
+        "lx": -3.81,
+        "ly": -1.27,
+        "net_id": 16,
+        "net_name": "/LINE_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "24": {
+        "wx": 99.38,
+        "wy": 96.1,
+        "lx": -3.81,
+        "ly": 1.27,
+        "net_id": 42,
+        "net_name": "unconnected-(U_PI4-GPIO8_CE0-Pad24)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "25": {
+        "wx": 96.84,
+        "wy": 93.56,
+        "lx": -6.35,
+        "ly": -1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "26": {
+        "wx": 96.84,
+        "wy": 96.1,
+        "lx": -6.35,
+        "ly": 1.27,
+        "net_id": 41,
+        "net_name": "unconnected-(U_PI4-GPIO7_CE1-Pad26)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "27": {
+        "wx": 94.3,
+        "wy": 93.56,
+        "lx": -8.89,
+        "ly": -1.27,
+        "net_id": 36,
+        "net_name": "unconnected-(U_PI4-GPIO0_ID_SD-Pad27)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "28": {
+        "wx": 94.3,
+        "wy": 96.1,
+        "lx": -8.89,
+        "ly": 1.27,
+        "net_id": 37,
+        "net_name": "unconnected-(U_PI4-GPIO1_ID_SC-Pad28)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "29": {
+        "wx": 91.76,
+        "wy": 93.56,
+        "lx": -11.43,
+        "ly": -1.27,
+        "net_id": 39,
+        "net_name": "unconnected-(U_PI4-GPIO5_AIN2_L-Pad29)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "30": {
+        "wx": 91.76,
+        "wy": 96.1,
+        "lx": -11.43,
+        "ly": 1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "31": {
+        "wx": 89.22,
+        "wy": 93.56,
+        "lx": -13.97,
+        "ly": -1.27,
+        "net_id": 40,
+        "net_name": "unconnected-(U_PI4-GPIO6_BIN1_L-Pad31)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "32": {
+        "wx": 89.22,
+        "wy": 96.1,
+        "lx": -13.97,
+        "ly": 1.27,
+        "net_id": 30,
+        "net_name": "Net-(U_PI4-GPIO12_PWMB_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "33": {
+        "wx": 86.68,
+        "wy": 93.56,
+        "lx": -16.51,
+        "ly": -1.27,
+        "net_id": 25,
+        "net_name": "/PWMA_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "34": {
+        "wx": 86.68,
+        "wy": 96.1,
+        "lx": -16.51,
+        "ly": 1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "35": {
+        "wx": 84.14,
+        "wy": 93.56,
+        "lx": -19.05,
+        "ly": -1.27,
+        "net_id": 5,
+        "net_name": "/AIN2_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "36": {
+        "wx": 84.14,
+        "wy": 96.1,
+        "lx": -19.05,
+        "ly": 1.27,
+        "net_id": 31,
+        "net_name": "Net-(U_PI4-GPIO16_AIN1_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "37": {
+        "wx": 81.6,
+        "wy": 93.56,
+        "lx": -21.59,
+        "ly": -1.27,
+        "net_id": 3,
+        "net_name": "/AIN1_L",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "38": {
+        "wx": 81.6,
+        "wy": 96.1,
+        "lx": -21.59,
+        "ly": 1.27,
+        "net_id": 32,
+        "net_name": "Net-(U_PI4-GPIO20_AIN2_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "39": {
+        "wx": 79.06,
+        "wy": 93.56,
+        "lx": -24.13,
+        "ly": -1.27,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "40": {
+        "wx": 79.06,
+        "wy": 96.1,
+        "lx": -24.13,
+        "ly": 1.27,
+        "net_id": 46,
+        "net_name": "unconnected-(U_PI4-GPIO21_BIN1_R-Pad40)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "C3": {
+    "fp_name": "robot_electronics:CP_Radial_D6.3mm_P2.50mm",
+    "at": [
+      126.0,
+      100.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 126.0,
+        "wy": 100.0,
+        "lx": 0.0,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 128.5,
+        "wy": 100.0,
+        "lx": 2.5,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "C4": {
+    "fp_name": "robot_electronics:C_Disc_D5.0mm_W2.5mm_P5.00mm",
+    "at": [
+      119.0,
+      100.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 119.0,
+        "wy": 100.0,
+        "lx": 0.0,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 124.0,
+        "wy": 100.0,
+        "lx": 5.0,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "J_OLED": {
+    "fp_name": "robot_electronics:Sensor_OLED_1.3",
+    "at": [
+      145.0,
+      95.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 141.19,
+        "wy": 95.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 143.73,
+        "wy": 95.0,
+        "lx": -1.27,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "3": {
+        "wx": 146.27,
+        "wy": 95.0,
+        "lx": 1.27,
+        "ly": 0.0,
+        "net_id": 12,
+        "net_name": "/I2C_SCL",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "4": {
+        "wx": 148.81,
+        "wy": 95.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 13,
+        "net_name": "/I2C_SDA",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP1": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      130.0,
+      84.0
+    ],
+    "rot": 270.0,
+    "pads": {
+      "1": {
+        "wx": 130.0,
+        "wy": 87.81,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 30,
+        "net_name": "Net-(U_PI4-GPIO12_PWMB_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 130.0,
+        "wy": 80.19,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 26,
+        "net_name": "/PWMA_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP2": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      133.5,
+      84.0
+    ],
+    "rot": 270.0,
+    "pads": {
+      "1": {
+        "wx": 133.5,
+        "wy": 87.81,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 31,
+        "net_name": "Net-(U_PI4-GPIO16_AIN1_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 133.5,
+        "wy": 80.19,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 4,
+        "net_name": "/AIN1_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP3": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      137.0,
+      84.0
+    ],
+    "rot": 270.0,
+    "pads": {
+      "1": {
+        "wx": 137.0,
+        "wy": 87.81,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 32,
+        "net_name": "Net-(U_PI4-GPIO20_AIN2_R)",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 137.0,
+        "wy": 80.19,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 6,
+        "net_name": "/AIN2_R",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP4": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      114.0,
+      78.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 110.19,
+        "wy": 78.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 117.81,
+        "wy": 78.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 2,
+        "net_name": "/+5V_PWR",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP5": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      122.0,
+      78.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 118.19,
+        "wy": 78.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 125.81,
+        "wy": 78.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 1,
+        "net_name": "/+3V3_LOGIC",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  },
+  "R_JMP6": {
+    "fp_name": "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+    "at": [
+      130.0,
+      78.0
+    ],
+    "rot": 0.0,
+    "pads": {
+      "1": {
+        "wx": 126.19,
+        "wy": 78.0,
+        "lx": -3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      },
+      "2": {
+        "wx": 133.81,
+        "wy": 78.0,
+        "lx": 3.81,
+        "ly": 0.0,
+        "net_id": 11,
+        "net_name": "/GND",
+        "size": [
+          2.0,
+          2.0
+        ],
+        "drill": 0.8
+      }
+    }
+  }
+}

@@ -5,3 +5,4 @@ import re
 matches = [m.start() for m in re.finditer(r'Edge\.Cuts', pcb)]
 for m in matches:
     print(pcb[m-100:m+200])
+

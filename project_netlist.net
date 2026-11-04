@@ -1,0 +1,3328 @@
+(export
+	(version "E")
+	(design
+		(source "D:\\Study\\DATN\\Pi4_Robot_Carrier_1Layer.kicad_sch")
+		(date "2026-11-04T19:46:49")
+		(tool "Eeschema 10.0.7")
+		(sheet
+			(number "1")
+			(name "/")
+			(tstamps "/")
+			(title_block
+				(title "SO DO NGUYEN LY ROBOT 4WD RASPBERRY PI 4 (CHUAN CONG NGHIEP - 1 LOP)")
+				(company "DATN - He Thong Nhung & Dien Tu Cong Suat")
+				(rev "15.0")
+				(date "2026-11-04")
+				(source "Pi4_Robot_Carrier_1Layer.kicad_sch")
+				(comment
+					(number "1")
+					(value "Thiet ke chong sap nguon, loc nhieu bulk/decoupling, triet tieu ground loop")
+				)
+				(comment
+					(number "2")
+					(value "Logic 3.3V bao ve Pi 4, STBY noi truc tiep 3.3V, 0R jumpers chinh thuc")
+				)
+				(comment
+					(number "3")
+					(value "")
+				)
+				(comment
+					(number "4")
+					(value "")
+				)
+				(comment
+					(number "5")
+					(value "")
+				)
+				(comment
+					(number "6")
+					(value "")
+				)
+				(comment
+					(number "7")
+					(value "")
+				)
+				(comment
+					(number "8")
+					(value "")
+				)
+				(comment
+					(number "9")
+					(value "")
+				)
+			)
+		)
+	)
+	(components
+		(comp
+			(ref "BT1")
+			(value "BAT_3S2P_11.1V")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Battery_2P")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "6fe77b4a-19ae-493b-8061-38a9c8705618")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C1")
+			(value "470uF_25V")
+			(footprint "robot_electronics:CP_Radial_D8.0mm_P3.50mm")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:CP_Radial_D8.0mm_P3.50mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "C_Polarized")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "30a7c47e-3e3e-4e73-93fa-11300e89aa92")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C2")
+			(value "470uF_25V")
+			(footprint "robot_electronics:CP_Radial_D8.0mm_P3.50mm")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:CP_Radial_D8.0mm_P3.50mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "C_Polarized")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "d600c702-898e-4606-8082-1662d9166655")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C3")
+			(value "470uF_10V")
+			(footprint "robot_electronics:CP_Radial_D6.3mm_P2.50mm")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:CP_Radial_D6.3mm_P2.50mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "C_Polarized")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "4ea42f40-c7bc-4901-8931-d5031ed4b37c")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "C4")
+			(value "100nF")
+			(footprint "robot_electronics:C_Disc_D5.0mm_W2.5mm_P5.00mm")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:C_Disc_D5.0mm_W2.5mm_P5.00mm")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "C_Polarized")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a628cfd9-3890-4f60-8c30-b4207f6d3c77")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "F1")
+			(value "7.5A_Blade")
+			(footprint "robot_electronics:Fuseholder_Blade_Mini_Keystone_3568")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Fuseholder_Blade_Mini_Keystone_3568")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Fuse")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "3bb57c67-08b5-4353-bcd7-8d202ad7140d")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J_M1")
+			(value "MOTOR_FL")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Conn_01x02")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "12f9c62b-6c6a-4e3d-b39a-b81f63d4d8bf")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J_M2")
+			(value "MOTOR_RL")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Conn_01x02")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "184f875c-f223-48d7-b126-1f5402a1f78f")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J_M3")
+			(value "MOTOR_FR")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Conn_01x02")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "40a2c550-9a4c-4924-b0e0-86bf0987bf36")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J_M4")
+			(value "MOTOR_RR")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Conn_01x02")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "27b8344a-04b2-4c09-a0f6-dd2178b1c512")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "J_OLED")
+			(value "OLED_1.3_I2C")
+			(footprint "robot_electronics:Sensor_OLED_1.3")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Sensor_OLED_1.3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Display_OLED_1.3_I2C")
+				(description "OLED 1.3 inch I2C Display Module (SSD1306/SH1106)")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5b9942ab-10be-4f8f-aa10-ba5f8f2296a9")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R1")
+			(value "1k")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "d5220e9b-4691-41fc-99e0-945a1d006a8a")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R2")
+			(value "2k")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "95f85b33-4d25-45b8-98f7-1f42a2f85f6b")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R3")
+			(value "1k")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "a7cb7725-a2da-4106-8a00-71342a74d141")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R4")
+			(value "2k")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5094d73e-3f3e-4e2d-86ed-5fc8e411d399")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP1")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "d639e246-e705-4317-818a-9bb863ca3124")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP2")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "d8192b6d-6bfb-4160-aeea-ad9288ed4672")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP3")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "e20fb31e-4ceb-4c5a-991d-f5e9cb858253")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP4")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "c0cad57e-e638-4d29-a302-8c3d35525571")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP5")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "4e5e5c72-45be-4c9b-94ef-6390e4baf2e4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "R_JMP6")
+			(value "0R")
+			(footprint "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "R")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "36694706-166b-4466-8cd5-a2ab52e3f426")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "SW1")
+			(value "SW_MAIN_10A")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "SW_SPST")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "4b4047f2-a84d-419e-8d7f-a4944702ea80")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U1")
+			(value "XL4015_Buck_5A")
+			(footprint "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-4-5.08")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-4-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "XL4015_Buck_Module")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5dcca4b6-8939-4c6e-a4d0-08755646e6e5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_LINE")
+			(value "TCRT5000_3CH")
+			(footprint "robot_electronics:Sensor_Line_TCRT5000_3CH")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Sensor_Line_TCRT5000_3CH")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Sensor_Line_TCRT5000_3CH")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "24958b21-9af6-4d11-bf87-ab7be4f238e5")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_PI4")
+			(value "Raspberry_Pi_4_40Pin")
+			(footprint "robot_electronics:PinSocket_2x20_P2.54mm_Vertical")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:PinSocket_2x20_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Raspberry_Pi_4_40Pin")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "5ea1e90d-f679-4674-9e61-6aac89f7d1b3")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "15")
+						)
+						(pin
+							(num "17")
+						)
+						(pin
+							(num "19")
+						)
+						(pin
+							(num "21")
+						)
+						(pin
+							(num "23")
+						)
+						(pin
+							(num "25")
+						)
+						(pin
+							(num "27")
+						)
+						(pin
+							(num "29")
+						)
+						(pin
+							(num "31")
+						)
+						(pin
+							(num "33")
+						)
+						(pin
+							(num "35")
+						)
+						(pin
+							(num "37")
+						)
+						(pin
+							(num "39")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "16")
+						)
+						(pin
+							(num "18")
+						)
+						(pin
+							(num "20")
+						)
+						(pin
+							(num "22")
+						)
+						(pin
+							(num "24")
+						)
+						(pin
+							(num "26")
+						)
+						(pin
+							(num "28")
+						)
+						(pin
+							(num "30")
+						)
+						(pin
+							(num "32")
+						)
+						(pin
+							(num "34")
+						)
+						(pin
+							(num "36")
+						)
+						(pin
+							(num "38")
+						)
+						(pin
+							(num "40")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_TB1")
+			(value "TB6612_Left")
+			(footprint "robot_electronics:Module_TB6612FNG_Breakout")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Module_TB6612FNG_Breakout")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Module_TB6612FNG_Breakout")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "b66d3eec-af4d-4082-9928-478298e231b6")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "15")
+						)
+						(pin
+							(num "16")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_TB2")
+			(value "TB6612_Right")
+			(footprint "robot_electronics:Module_TB6612FNG_Breakout")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Module_TB6612FNG_Breakout")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Module_TB6612FNG_Breakout")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "87ba43f5-6405-4559-a599-c6e53aa527a0")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+						(pin
+							(num "5")
+						)
+						(pin
+							(num "6")
+						)
+						(pin
+							(num "7")
+						)
+						(pin
+							(num "8")
+						)
+						(pin
+							(num "9")
+						)
+						(pin
+							(num "10")
+						)
+						(pin
+							(num "11")
+						)
+						(pin
+							(num "12")
+						)
+						(pin
+							(num "13")
+						)
+						(pin
+							(num "14")
+						)
+						(pin
+							(num "15")
+						)
+						(pin
+							(num "16")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_US1")
+			(value "HC_SR04_Left")
+			(footprint "robot_electronics:Sensor_HC_SR04")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Sensor_HC_SR04")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Sensor_HC_SR04")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "3717f1cb-c9da-4ae0-8b41-1b2e3fc35015")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+		(comp
+			(ref "U_US2")
+			(value "HC_SR04_Right")
+			(footprint "robot_electronics:Sensor_HC_SR04")
+			(fields
+				(field
+					(name "Footprint") "robot_electronics:Sensor_HC_SR04")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(libsource
+				(lib "robot_electronics")
+				(part "Sensor_HC_SR04")
+				(description "")
+			)
+			(property
+				(name "Sheetname")
+				(value "Pi4_Robot_Carrier_1Layer")
+			)
+			(property
+				(name "Sheetfile")
+				(value "Pi4_Robot_Carrier_1Layer.kicad_sch")
+			)
+			(sheetpath
+				(names "/")
+				(tstamps "/")
+			)
+			(tstamps "dac1e385-cec0-4187-bf38-1447704077d4")
+			(units
+				(unit
+					(name "A")
+					(pins
+						(pin
+							(num "1")
+						)
+						(pin
+							(num "2")
+						)
+						(pin
+							(num "3")
+						)
+						(pin
+							(num "4")
+						)
+					)
+				)
+			)
+		)
+	)
+	(groups)
+	(variants)
+	(libparts
+		(libpart
+			(lib "robot_electronics")
+			(part "Battery_2P")
+			(fields
+				(field
+					(name "Reference") "BT")
+				(field
+					(name "Value") "BAT_3S2P")
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "+")
+					(type "power_out")
+				)
+				(pin
+					(num "2")
+					(name "-")
+					(type "power_out")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "C_Polarized")
+			(fields
+				(field
+					(name "Reference") "C")
+				(field
+					(name "Value") "470uF")
+				(field
+					(name "Footprint") "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "+")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "-")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Conn_01x02")
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Conn_01x02")
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Display_OLED_1.3_I2C")
+			(description "OLED 1.3 inch I2C Display Module (SSD1306/SH1106)")
+			(fields
+				(field
+					(name "Reference") "J")
+				(field
+					(name "Value") "Display_OLED_1.3_I2C")
+				(field
+					(name "Footprint") "robot_electronics:Sensor_OLED_1.3")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description") "OLED 1.3 inch I2C Display Module (SSD1306/SH1106)")
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "VCC")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "SCL")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "SDA")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Fuse")
+			(fields
+				(field
+					(name "Reference") "F")
+				(field
+					(name "Value") "Fuse")
+				(field
+					(name "Footprint") "robot_electronics:Fuseholder_Blade_Mini_Keystone_3568")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "power_out")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Module_TB6612FNG_Breakout")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TB6612FNG_Breakout")
+				(field
+					(name "Footprint") "robot_electronics:Module_TB6612FNG_Breakout")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "PWMA")
+					(type "input")
+				)
+				(pin
+					(num "2")
+					(name "AIN2")
+					(type "input")
+				)
+				(pin
+					(num "3")
+					(name "AIN1")
+					(type "input")
+				)
+				(pin
+					(num "4")
+					(name "STBY")
+					(type "input")
+				)
+				(pin
+					(num "5")
+					(name "BIN1")
+					(type "input")
+				)
+				(pin
+					(num "6")
+					(name "BIN2")
+					(type "input")
+				)
+				(pin
+					(num "7")
+					(name "PWMB")
+					(type "input")
+				)
+				(pin
+					(num "8")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "9")
+					(name "VM")
+					(type "power_in")
+				)
+				(pin
+					(num "10")
+					(name "VCC")
+					(type "power_in")
+				)
+				(pin
+					(num "11")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "12")
+					(name "AO1")
+					(type "output")
+				)
+				(pin
+					(num "13")
+					(name "AO2")
+					(type "output")
+				)
+				(pin
+					(num "14")
+					(name "BO2")
+					(type "output")
+				)
+				(pin
+					(num "15")
+					(name "BO1")
+					(type "output")
+				)
+				(pin
+					(num "16")
+					(name "GND")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "R")
+			(fields
+				(field
+					(name "Reference") "R")
+				(field
+					(name "Value") "R")
+				(field
+					(name "Footprint") "robot_electronics:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Raspberry_Pi_4_40Pin")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "Raspberry_Pi_4_40Pin")
+				(field
+					(name "Footprint") "robot_electronics:PinSocket_2x20_P2.54mm_Vertical")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "+3V3_PWR")
+					(type "power_out")
+				)
+				(pin
+					(num "2")
+					(name "+5V_PWR")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "GPIO2_SDA")
+					(type "bidirectional")
+				)
+				(pin
+					(num "4")
+					(name "+5V_PWR")
+					(type "power_in")
+				)
+				(pin
+					(num "5")
+					(name "GPIO3_SCL")
+					(type "bidirectional")
+				)
+				(pin
+					(num "6")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "7")
+					(name "GPIO4_AIN1_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "8")
+					(name "GPIO14_TXD")
+					(type "bidirectional")
+				)
+				(pin
+					(num "9")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "10")
+					(name "GPIO15_RXD")
+					(type "bidirectional")
+				)
+				(pin
+					(num "11")
+					(name "GPIO17_STBY")
+					(type "bidirectional")
+				)
+				(pin
+					(num "12")
+					(name "GPIO18_PWMB_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "13")
+					(name "GPIO27")
+					(type "bidirectional")
+				)
+				(pin
+					(num "14")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "15")
+					(name "GPIO22_BIN2_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "16")
+					(name "GPIO23_TRIG_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "17")
+					(name "+3V3_PWR")
+					(type "power_out")
+				)
+				(pin
+					(num "18")
+					(name "GPIO24_ECHO_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "19")
+					(name "GPIO10_LINE_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "20")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "21")
+					(name "GPIO9_LINE_C")
+					(type "bidirectional")
+				)
+				(pin
+					(num "22")
+					(name "GPIO25_TRIG_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "23")
+					(name "GPIO11_LINE_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "24")
+					(name "GPIO8_CE0")
+					(type "bidirectional")
+				)
+				(pin
+					(num "25")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "26")
+					(name "GPIO7_CE1")
+					(type "bidirectional")
+				)
+				(pin
+					(num "27")
+					(name "GPIO0_ID_SD")
+					(type "bidirectional")
+				)
+				(pin
+					(num "28")
+					(name "GPIO1_ID_SC")
+					(type "bidirectional")
+				)
+				(pin
+					(num "29")
+					(name "GPIO5_AIN2_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "30")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "31")
+					(name "GPIO6_BIN1_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "32")
+					(name "GPIO12_PWMB_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "33")
+					(name "GPIO13_PWMA_L")
+					(type "bidirectional")
+				)
+				(pin
+					(num "34")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "35")
+					(name "GPIO19_PWMA_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "36")
+					(name "GPIO16_AIN1_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "37")
+					(name "GPIO26_BIN2_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "38")
+					(name "GPIO20_AIN2_R")
+					(type "bidirectional")
+				)
+				(pin
+					(num "39")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "40")
+					(name "GPIO21_BIN1_R")
+					(type "bidirectional")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "SW_SPST")
+			(fields
+				(field
+					(name "Reference") "SW")
+				(field
+					(name "Value") "SW_SPST")
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-2-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "1")
+					(type "passive")
+				)
+				(pin
+					(num "2")
+					(name "2")
+					(type "passive")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Sensor_HC_SR04")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "HC-SR04")
+				(field
+					(name "Footprint") "robot_electronics:Sensor_HC_SR04")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "VCC")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "TRIG")
+					(type "input")
+				)
+				(pin
+					(num "3")
+					(name "ECHO")
+					(type "output")
+				)
+				(pin
+					(num "4")
+					(name "GND")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "Sensor_Line_TCRT5000_3CH")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "TCRT5000_3CH")
+				(field
+					(name "Footprint") "robot_electronics:Sensor_Line_TCRT5000_3CH")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "GND")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "R")
+					(type "output")
+				)
+				(pin
+					(num "3")
+					(name "C")
+					(type "output")
+				)
+				(pin
+					(num "4")
+					(name "L")
+					(type "output")
+				)
+				(pin
+					(num "5")
+					(name "VCC")
+					(type "power_in")
+				)
+			)
+		)
+		(libpart
+			(lib "robot_electronics")
+			(part "XL4015_Buck_Module")
+			(fields
+				(field
+					(name "Reference") "U")
+				(field
+					(name "Value") "XL4015_Buck")
+				(field
+					(name "Footprint") "robot_electronics:TerminalBlock_Phoenix_MKDS-1,5-4-5.08")
+				(field
+					(name "Datasheet")
+				)
+				(field
+					(name "Description")
+				)
+			)
+			(pins
+				(pin
+					(num "1")
+					(name "IN+")
+					(type "power_in")
+				)
+				(pin
+					(num "2")
+					(name "IN-")
+					(type "power_in")
+				)
+				(pin
+					(num "3")
+					(name "OUT+")
+					(type "power_out")
+				)
+				(pin
+					(num "4")
+					(name "OUT-")
+					(type "power_in")
+				)
+			)
+		)
+	)
+	(libraries
+		(library
+			(logical "robot_electronics")
+			(uri "${KIPRJMOD}/libraries/robot_electronics.kicad_sym")
+		)
+	)
+	(nets
+		(net
+			(code "1")
+			(name "/+3V3_LOGIC")
+			(class "Default")
+			(node
+				(ref "J_OLED")
+				(pin "1")
+				(pinfunction "VCC_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "R_JMP5")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R_JMP5")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_LINE")
+				(pin "5")
+				(pinfunction "VCC_5")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "1")
+				(pinfunction "+3V3_PWR_1")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "10")
+				(pinfunction "VCC_10")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "4")
+				(pinfunction "STBY_4")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "10")
+				(pinfunction "VCC_10")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "4")
+				(pinfunction "STBY_4")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "2")
+			(name "/+5V_PWR")
+			(class "Power")
+			(node
+				(ref "C3")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C4")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R_JMP4")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R_JMP4")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U1")
+				(pin "3")
+				(pinfunction "OUT+_3")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "2")
+				(pinfunction "+5V_PWR_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "4")
+				(pinfunction "+5V_PWR_4")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_US1")
+				(pin "1")
+				(pinfunction "VCC_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_US2")
+				(pin "1")
+				(pinfunction "VCC_1")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "3")
+			(name "/AIN1_L")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "37")
+				(pinfunction "GPIO26_BIN2_R_37")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "3")
+				(pinfunction "AIN1_3")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "5")
+				(pinfunction "BIN1_5")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "4")
+			(name "/AIN1_R")
+			(class "Default")
+			(node
+				(ref "R_JMP2")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "3")
+				(pinfunction "AIN1_3")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "5")
+				(pinfunction "BIN1_5")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "5")
+			(name "/AIN2_L")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "35")
+				(pinfunction "GPIO19_PWMA_R_35")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "2")
+				(pinfunction "AIN2_2")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "6")
+				(pinfunction "BIN2_6")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "6")
+			(name "/AIN2_R")
+			(class "Default")
+			(node
+				(ref "R_JMP3")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "2")
+				(pinfunction "AIN2_2")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "6")
+				(pinfunction "BIN2_6")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "7")
+			(name "/BAT+")
+			(class "Default")
+			(node
+				(ref "BT1")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "power_out")
+			)
+			(node
+				(ref "SW1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "8")
+			(name "/ECHO_L")
+			(class "Default")
+			(node
+				(ref "R1")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R2")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "13")
+				(pinfunction "GPIO27_13")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "9")
+			(name "/ECHO_R")
+			(class "Default")
+			(node
+				(ref "R3")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R4")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "18")
+				(pinfunction "GPIO24_ECHO_L_18")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "10")
+			(name "/FUSE_IN")
+			(class "Default")
+			(node
+				(ref "F1")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "SW1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+		)
+		(net
+			(code "11")
+			(name "/GND")
+			(class "Default")
+			(node
+				(ref "BT1")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "power_out")
+			)
+			(node
+				(ref "C1")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C2")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C3")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "C4")
+				(pin "2")
+				(pinfunction "-_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "J_OLED")
+				(pin "2")
+				(pinfunction "GND_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "R2")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R4")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "R_JMP6")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "R_JMP6")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U1")
+				(pin "2")
+				(pinfunction "IN-_2")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U1")
+				(pin "4")
+				(pinfunction "OUT-_4")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_LINE")
+				(pin "1")
+				(pinfunction "GND_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "14")
+				(pinfunction "GND_14")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "20")
+				(pinfunction "GND_20")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "25")
+				(pinfunction "GND_25")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "30")
+				(pinfunction "GND_30")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "34")
+				(pinfunction "GND_34")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "39")
+				(pinfunction "GND_39")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "6")
+				(pinfunction "GND_6")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "9")
+				(pinfunction "GND_9")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "11")
+				(pinfunction "GND_11")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "16")
+				(pinfunction "GND_16")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "8")
+				(pinfunction "GND_8")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "11")
+				(pinfunction "GND_11")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "16")
+				(pinfunction "GND_16")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "8")
+				(pinfunction "GND_8")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_US1")
+				(pin "4")
+				(pinfunction "GND_4")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_US2")
+				(pin "4")
+				(pinfunction "GND_4")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "12")
+			(name "/I2C_SCL")
+			(class "Default")
+			(node
+				(ref "J_OLED")
+				(pin "3")
+				(pinfunction "SCL_3")
+				(pintype "input")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "5")
+				(pinfunction "GPIO3_SCL_5")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "13")
+			(name "/I2C_SDA")
+			(class "Default")
+			(node
+				(ref "J_OLED")
+				(pin "4")
+				(pinfunction "SDA_4")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "3")
+				(pinfunction "GPIO2_SDA_3")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "14")
+			(name "/LINE_C")
+			(class "Default")
+			(node
+				(ref "U_LINE")
+				(pin "3")
+				(pinfunction "C_3")
+				(pintype "output")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "21")
+				(pinfunction "GPIO9_LINE_C_21")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "15")
+			(name "/LINE_L")
+			(class "Default")
+			(node
+				(ref "U_LINE")
+				(pin "4")
+				(pinfunction "L_4")
+				(pintype "output")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "19")
+				(pinfunction "GPIO10_LINE_L_19")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "16")
+			(name "/LINE_R")
+			(class "Default")
+			(node
+				(ref "U_LINE")
+				(pin "2")
+				(pinfunction "R_2")
+				(pintype "output")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "23")
+				(pinfunction "GPIO11_LINE_R_23")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "17")
+			(name "/M1_A")
+			(class "Default")
+			(node
+				(ref "J_M1")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "12")
+				(pinfunction "AO1_12")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "18")
+			(name "/M1_B")
+			(class "Default")
+			(node
+				(ref "J_M1")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "13")
+				(pinfunction "AO2_13")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "19")
+			(name "/M2_A")
+			(class "Default")
+			(node
+				(ref "J_M2")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "15")
+				(pinfunction "BO1_15")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "20")
+			(name "/M2_B")
+			(class "Default")
+			(node
+				(ref "J_M2")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "14")
+				(pinfunction "BO2_14")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "21")
+			(name "/M3_A")
+			(class "Default")
+			(node
+				(ref "J_M3")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "12")
+				(pinfunction "AO1_12")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "22")
+			(name "/M3_B")
+			(class "Default")
+			(node
+				(ref "J_M3")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "13")
+				(pinfunction "AO2_13")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "23")
+			(name "/M4_A")
+			(class "Default")
+			(node
+				(ref "J_M4")
+				(pin "2")
+				(pinfunction "2_2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "15")
+				(pinfunction "BO1_15")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "24")
+			(name "/M4_B")
+			(class "Default")
+			(node
+				(ref "J_M4")
+				(pin "1")
+				(pinfunction "1_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "14")
+				(pinfunction "BO2_14")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "25")
+			(name "/PWMA_L")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "33")
+				(pinfunction "GPIO13_PWMA_L_33")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "1")
+				(pinfunction "PWMA_1")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "7")
+				(pinfunction "PWMB_7")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "26")
+			(name "/PWMA_R")
+			(class "Default")
+			(node
+				(ref "R_JMP1")
+				(pin "2")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "1")
+				(pinfunction "PWMA_1")
+				(pintype "input")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "7")
+				(pinfunction "PWMB_7")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "27")
+			(name "/TRIG_L")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "11")
+				(pinfunction "GPIO17_STBY_11")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_US1")
+				(pin "2")
+				(pinfunction "TRIG_2")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "28")
+			(name "/TRIG_R")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "16")
+				(pinfunction "GPIO23_TRIG_L_16")
+				(pintype "bidirectional")
+			)
+			(node
+				(ref "U_US2")
+				(pin "2")
+				(pinfunction "TRIG_2")
+				(pintype "input")
+			)
+		)
+		(net
+			(code "29")
+			(name "/VM_MOTOR")
+			(class "Power")
+			(node
+				(ref "C1")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "C2")
+				(pin "1")
+				(pinfunction "+_1")
+				(pintype "passive")
+			)
+			(node
+				(ref "F1")
+				(pin "2")
+				(pintype "power_out")
+			)
+			(node
+				(ref "U1")
+				(pin "1")
+				(pinfunction "IN+_1")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB1")
+				(pin "9")
+				(pinfunction "VM_9")
+				(pintype "power_in")
+			)
+			(node
+				(ref "U_TB2")
+				(pin "9")
+				(pinfunction "VM_9")
+				(pintype "power_in")
+			)
+		)
+		(net
+			(code "30")
+			(name "Net-(U_PI4-GPIO12_PWMB_R)")
+			(class "Default")
+			(node
+				(ref "R_JMP1")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "32")
+				(pinfunction "GPIO12_PWMB_R_32")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "31")
+			(name "Net-(U_PI4-GPIO16_AIN1_R)")
+			(class "Default")
+			(node
+				(ref "R_JMP2")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "36")
+				(pinfunction "GPIO16_AIN1_R_36")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "32")
+			(name "Net-(U_PI4-GPIO20_AIN2_R)")
+			(class "Default")
+			(node
+				(ref "R_JMP3")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_PI4")
+				(pin "38")
+				(pinfunction "GPIO20_AIN2_R_38")
+				(pintype "bidirectional")
+			)
+		)
+		(net
+			(code "33")
+			(name "Net-(U_US1-ECHO)")
+			(class "Default")
+			(node
+				(ref "R1")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_US1")
+				(pin "3")
+				(pinfunction "ECHO_3")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "34")
+			(name "Net-(U_US2-ECHO)")
+			(class "Default")
+			(node
+				(ref "R3")
+				(pin "1")
+				(pintype "passive")
+			)
+			(node
+				(ref "U_US2")
+				(pin "3")
+				(pinfunction "ECHO_3")
+				(pintype "output")
+			)
+		)
+		(net
+			(code "35")
+			(name "unconnected-(U_PI4-+3V3_PWR-Pad17)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "17")
+				(pinfunction "+3V3_PWR_17")
+				(pintype "power_out+no_connect")
+			)
+		)
+		(net
+			(code "36")
+			(name "unconnected-(U_PI4-GPIO0_ID_SD-Pad27)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "27")
+				(pinfunction "GPIO0_ID_SD_27")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "37")
+			(name "unconnected-(U_PI4-GPIO1_ID_SC-Pad28)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "28")
+				(pinfunction "GPIO1_ID_SC_28")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "38")
+			(name "unconnected-(U_PI4-GPIO4_AIN1_L-Pad7)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "7")
+				(pinfunction "GPIO4_AIN1_L_7")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "39")
+			(name "unconnected-(U_PI4-GPIO5_AIN2_L-Pad29)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "29")
+				(pinfunction "GPIO5_AIN2_L_29")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "40")
+			(name "unconnected-(U_PI4-GPIO6_BIN1_L-Pad31)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "31")
+				(pinfunction "GPIO6_BIN1_L_31")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "41")
+			(name "unconnected-(U_PI4-GPIO7_CE1-Pad26)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "26")
+				(pinfunction "GPIO7_CE1_26")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "42")
+			(name "unconnected-(U_PI4-GPIO8_CE0-Pad24)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "24")
+				(pinfunction "GPIO8_CE0_24")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "43")
+			(name "unconnected-(U_PI4-GPIO14_TXD-Pad8)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "8")
+				(pinfunction "GPIO14_TXD_8")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "44")
+			(name "unconnected-(U_PI4-GPIO15_RXD-Pad10)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "10")
+				(pinfunction "GPIO15_RXD_10")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "45")
+			(name "unconnected-(U_PI4-GPIO18_PWMB_L-Pad12)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "12")
+				(pinfunction "GPIO18_PWMB_L_12")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "46")
+			(name "unconnected-(U_PI4-GPIO21_BIN1_R-Pad40)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "40")
+				(pinfunction "GPIO21_BIN1_R_40")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "47")
+			(name "unconnected-(U_PI4-GPIO22_BIN2_L-Pad15)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "15")
+				(pinfunction "GPIO22_BIN2_L_15")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+		(net
+			(code "48")
+			(name "unconnected-(U_PI4-GPIO25_TRIG_R-Pad22)")
+			(class "Default")
+			(node
+				(ref "U_PI4")
+				(pin "22")
+				(pinfunction "GPIO25_TRIG_R_22")
+				(pintype "bidirectional+no_connect")
+			)
+		)
+	)
+)

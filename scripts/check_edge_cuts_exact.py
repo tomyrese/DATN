@@ -12,3 +12,4 @@ for e in edges:
     ys.extend([float(e[1]), float(e[3])])
 
 print(f"Board Bounding Box: X in [{min(xs):.2f}, {max(xs):.2f}], Y in [{min(ys):.2f}, {max(ys):.2f}]")
+
