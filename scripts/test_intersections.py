@@ -9,3 +9,4 @@ def intersect(A, B, C, D):
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
 print("Intersection test helper defined.")
+

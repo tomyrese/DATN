@@ -6,3 +6,4 @@ fps = re.findall(r'\(footprint\s+"([^"]+)"[\s\S]*?\(property\s+"Reference"\s+"([
 print(f"Total footprints: {len(fps)}")
 for fp, ref, x, y in fps:
     print(f"{ref:12} ({x:>7}, {y:>7}) - {fp}")
+

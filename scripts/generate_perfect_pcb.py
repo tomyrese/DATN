@@ -450,3 +450,4 @@ with open('robot_electronics.kicad_pcb', 'w', encoding='utf-8') as f:
     f.write(final_pcb)
 
 print(f"Generated PCB: {len(segments)} segments, {len(vias)} vias, {len(silk_items)} jumpers.")
+

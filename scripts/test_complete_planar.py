@@ -413,3 +413,4 @@ with open('robot_electronics.kicad_pcb', 'w', encoding='utf-8') as f:
     f.write(final_pcb)
 
 print(f"Complete Planar PCB generated: {len(segments)} segments, {len(vias)} vias, {len(silk_items)} jumpers.")
+

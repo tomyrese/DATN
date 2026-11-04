@@ -10,3 +10,4 @@ for m in re.finditer(r'\(footprint\s+"([^"]+)"[\s\S]*?\n\t\)', text):
     ref = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', fp_text)
     ref_val = ref.group(1) if ref else "UNKNOWN"
     print(f"Ref: {ref_val:<15} Lib: {fp_lib}")
+

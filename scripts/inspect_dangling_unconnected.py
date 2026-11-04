@@ -8,3 +8,4 @@ for entry in entries:
     if '[track_dangling]' in entry or '[unconnected_items]' in entry:
         print("--------------------------------------------------")
         print(entry.strip())
+

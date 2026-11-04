@@ -6,3 +6,4 @@ segs = re.findall(r'\(segment[\s\S]*?\/\+5V_PWR[\s\S]*?\n\t\)', text)
 print(f"Total +5V_PWR segments: {len(segs)}")
 for s in segs:
     print(s)
+

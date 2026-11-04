@@ -5,3 +5,4 @@ import re
 m = re.findall(r'\(gr_line[\s\S]*?Edge\.Cuts[\s\S]*?\n\t\)', text)
 for line in m:
     print(line)
+

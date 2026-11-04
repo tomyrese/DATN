@@ -15,3 +15,4 @@ for p in [1, 2, 7, 8, 9, 10, 15, 16]:
     pad_m = re.search(rf'\(pad\s+"{p}"[\s\S]*?\(at\s+([-\d\.]+)\s+([-\d\.]+)', fp)
     net_m = re.search(rf'\(pad\s+"{p}"[\s\S]*?\(net\s+"([^"]+)"', fp)
     print(f"pad {p}: at={pad_m.groups() if pad_m else None}, net={net_m.group(1) if net_m else None}")
+

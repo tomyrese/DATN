@@ -10,3 +10,4 @@ for fp in fps:
             m = re.search(r'\(property\s+"Reference"\s+"(.*?)"', fp)
             m_old = re.search(r'\(fp_text\s+reference\s+"(.*?)"', fp)
             print(f"{r} match -> property Reference: {m.group(1) if m else None}, fp_text: {m_old.group(1) if m_old else None}")
+

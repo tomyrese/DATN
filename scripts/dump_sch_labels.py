@@ -8,3 +8,4 @@ labels = re.findall(r'\(label\s+"([^"]+)"\s+\(at\s+([-\d\.]+)\s+([-\d\.]+)(?:\s+
 print(f"Total labels in schematic: {len(labels)}")
 for l in labels:
     print(l)
+

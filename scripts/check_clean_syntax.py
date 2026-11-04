@@ -6,3 +6,4 @@ matches = re.findall(r'.{0,50}\(embedded_fonts.{0,50}', clean)
 print("Near embedded_fonts in clean:")
 for m in matches:
     print(repr(m))
+

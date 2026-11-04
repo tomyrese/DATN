@@ -26,3 +26,4 @@ def to_world(gx, gy):
     return (round(x, 4), round(y, 4))
 
 print(f"Grid dimensions: {WIDTH_CELLS} x {HEIGHT_CELLS} ({WIDTH_CELLS * HEIGHT_CELLS} cells)")
+

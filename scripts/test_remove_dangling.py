@@ -22,3 +22,4 @@ for p in v16.paths:
     new_paths.append(p)
 
 print(f"Original paths: {len(v16.paths)}, Cleaned paths: {len(new_paths)}")
+

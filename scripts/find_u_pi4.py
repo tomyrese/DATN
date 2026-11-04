@@ -9,3 +9,4 @@ if idx != -1:
     end = text.find('\n  )', idx)
     print("Found U_PI4 symbol block:")
     print(text[start:start+2500])
+

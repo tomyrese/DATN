@@ -6,3 +6,4 @@ edges = re.findall(r'\(gr_line\s+\(start\s+[-\d\.]+\s+[-\d\.]+\)[\s\S]*?\(layer\
 print(f"Total Edge.Cuts elements: {len(edges)}")
 for e in edges:
     print(e)
+

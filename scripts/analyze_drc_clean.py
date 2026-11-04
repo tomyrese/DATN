@@ -25,3 +25,4 @@ for rule, msg in items:
         seen.add(rule)
         print(f"\n--- {rule} ---")
         print(msg)
+

@@ -14,3 +14,4 @@ for m in fp_blocks:
     ref_m = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', sub)
     ref = ref_m.group(1) if ref_m else "?"
     print(f"Footprint {ref:12s} ({name:35s}) at ({x}, {y}) rot={rot or '0'}")
+

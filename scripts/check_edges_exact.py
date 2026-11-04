@@ -11,3 +11,4 @@ while True:
     print(text[start:end+3])
     print('---')
     idx = pos + 10
+

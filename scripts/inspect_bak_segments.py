@@ -15,3 +15,4 @@ for s in segments:
 
 for n, count in sorted(nets_in_bak.items()):
     print(f"{n:20}: {count} segments")
+

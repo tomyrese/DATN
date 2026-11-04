@@ -12,3 +12,4 @@ if m:
     pi_labels.sort(key=lambda item: (item[1], item[2]))
     for n, x, y in pi_labels:
         print(f"X={x:6.2f}, Y={y:6.2f}: {n}")
+

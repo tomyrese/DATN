@@ -13,3 +13,4 @@ for m in re.finditer(r'\(footprint\s+"([^"]+)"[\s\S]*?\n\t\)', text):
         pads = re.findall(r'\(pad\s+"([^"]+)"\s+\w+\s+\w+\s+\(at\s+([-\d.]+)\s+([-\d.]+)[\s\S]*?\(net\s+\d+\s+"([^"]+)"\)', fp)
         for p in pads:
             print(f"  Pad {p[0]} relative ({p[1]}, {p[2]}) net: {p[3]}")
+

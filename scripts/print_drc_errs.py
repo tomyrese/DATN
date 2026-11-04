@@ -12,3 +12,4 @@ for e in entries:
         print('=== CROSSING ===')
         print(e.strip())
         print()
+

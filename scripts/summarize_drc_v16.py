@@ -21,3 +21,4 @@ print("\n--- Other Errors (non-silk) ---")
 non_silk = [m for m in re.findall(r'\[([^\]]+)\]:[^\n]*\n(?:[ \t]+[^\n]*\n){1,3}', text) if 'silk' not in m[0].lower()]
 for m in non_silk[:10]:
     print(m.strip() if isinstance(m, str) else m)
+

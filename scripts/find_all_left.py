@@ -7,3 +7,4 @@ print(f"Found {len(matches)} occurrences of LEFT in bak")
 for m in matches[:5]:
     print(bak[m-50:m+50])
     print('---')
+

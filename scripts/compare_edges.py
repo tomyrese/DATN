@@ -16,3 +16,4 @@ print("="*40)
 print(f"Curr edges count: {len(curr_edges)}")
 for e in curr_edges:
     print(e.strip())
+

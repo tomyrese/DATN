@@ -11,3 +11,4 @@ tb_sym = re.search(r'\(symbol\s+\(lib_id\s+"robot_electronics:Module_TB6612FNG_B
 if tb_sym:
     print("\n--- U_TB1 ---")
     print(tb_sym.group(0)[:2000])
+

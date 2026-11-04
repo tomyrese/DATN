@@ -19,3 +19,4 @@ for p in range(1, 17):
 print("\nCheck Right TB6612:")
 for p in range(1, 17):
     print(f"RIGHT {p}: {wp['RIGHT'][str(p)]}")
+

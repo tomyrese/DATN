@@ -13,3 +13,4 @@ silks = re.findall(r'\(gr_text\s+"JMP[\s\S]*?\)', bak)
 print(f"\nJumpers in bak: {len(silks)}")
 for s in silks:
     print(s[:100])
+

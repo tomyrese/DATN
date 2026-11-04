@@ -7,3 +7,4 @@ for i, g in enumerate(grs):
     l_m = re.search(r'\(layer\s+"([^"]+)"\)', g)
     l = l_m.group(1) if l_m else "?"
     print(f"{i+1}: layer={l} | {g.splitlines()[0]} ... {g.splitlines()[1]}")
+

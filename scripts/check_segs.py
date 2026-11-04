@@ -15,3 +15,4 @@ for s in segs[:20]:
     n_name = net_map.get(net, net)
     if any(k in n_name for k in ['PWMA_L', 'M1_A', 'VM_MOTOR', 'AIN2_L']):
         print(f"Seg net={n_name}: ({sx}, {sy}) -> ({ex}, {ey})")
+

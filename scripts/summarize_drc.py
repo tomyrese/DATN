@@ -16,3 +16,4 @@ pos_unconn = text.find('unconnected pads')
 if pos_unconn != -1:
     print("\nUnconnected section:")
     print(text[pos_unconn:pos_unconn+1500])
+

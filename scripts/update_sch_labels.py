@@ -45,3 +45,4 @@ with open('robot_electronics.kicad_sch', 'w', encoding='utf-8') as f:
     f.write(text)
 
 print("Updated schematic files successfully!")
+

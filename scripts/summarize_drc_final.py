@@ -19,3 +19,4 @@ for code in set([c[0] for c in violations]):
     matches = re.findall(rf'\[{code}\]:[^\n]*\n(?:[ \t]+[^\n]*\n){{1,4}}', text)
     for m in matches[:3]:
         print(m.strip())
+

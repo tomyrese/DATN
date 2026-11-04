@@ -16,3 +16,4 @@ for r in ['R3', 'R4']:
                 break
     print(f"=== SCH {r} ===")
     print(text[start:end])
+

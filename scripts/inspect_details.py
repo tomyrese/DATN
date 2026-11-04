@@ -26,3 +26,4 @@ for m in fp_matches:
     for p in pads:
         p_num, p_type, p_shape, px, py, prot, net_num, net_name = p
         print(f"  Pad {p_num:>3}: at ({float(px):>7.3f}, {float(py):>7.3f}) rot={prot or '0':>4} | Net: {net_name or 'unconnected'}")
+

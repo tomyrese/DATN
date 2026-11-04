@@ -6,3 +6,4 @@ segments = re.findall(r'\(segment[\s\S]*?\n\t\)', bak)
 print(f"Matched {len(segments)} segments")
 for s in segments[:5]:
     print(s)
+

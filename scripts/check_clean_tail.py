@@ -3,3 +3,4 @@ with open('Pi4_Robot_Carrier_1Layer_clean.kicad_pcb', 'r', encoding='utf-8') as 
 
 pos = clean.rfind('(embedded_fonts no)')
 print(clean[pos-300:pos+100])
+

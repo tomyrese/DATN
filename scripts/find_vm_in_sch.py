@@ -7,3 +7,4 @@ print(f"Found {len(matches)} occurrences of VM_MOTOR in sch:")
 for m in matches:
     print(sch[m-60:m+100])
     print('---')
+

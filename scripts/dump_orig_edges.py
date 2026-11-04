@@ -8,3 +8,4 @@ print(f"Total graphics items in bak: {len(grs)}")
 for g in grs:
     if 'Edge.Cuts' in g:
         print(repr(g))
+

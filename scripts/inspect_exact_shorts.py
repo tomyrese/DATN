@@ -8,3 +8,4 @@ for entry in entries:
     if '[shorting_items]' in entry or '[track_dangling]' in entry:
         print("--------------------------------------------------")
         print(entry.strip())
+

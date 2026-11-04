@@ -84,3 +84,4 @@ with open('scripts/world_pads.json', 'w', encoding='utf-8') as f:
     json.dump(world_pads, f, indent=2)
 
 print("Saved scripts/world_pads.json")
+

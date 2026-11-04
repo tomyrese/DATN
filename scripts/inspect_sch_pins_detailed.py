@@ -21,3 +21,4 @@ pi_labels = [l for l in labels if abs(float(l[1]) - 53.34) < 1 or abs(float(l[1]
 print(f"Labels attached to Pi header: {len(pi_labels)}")
 for l in sorted(pi_labels, key=lambda x: float(x[2])):
     print(f"  Y = {float(l[2]):<6.2f} (X={float(l[1]):<6.2f}): {l[0]}")
+

@@ -17,3 +17,4 @@ def get_abs_pos(fp_x, fp_y, fp_rot, pad_x, pad_y, pad_rot):
 for p_num, px, py in [(1, -7.62, -8.89), (8, -7.62, 8.89), (9, 7.62, -8.89), (16, 7.62, 8.89)]:
     x1, y1 = get_abs_pos(67.69, 68.8275, 90, px, py, 90)
     print(f"Pad {p_num}: ({x1:.4f}, {y1:.4f})")
+

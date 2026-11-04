@@ -7,3 +7,4 @@ for i, line in enumerate(lines):
         for j in range(max(0, i-3), min(len(lines), i+6)):
             print(f"  {j+1}: {lines[j].strip()}")
         print('='*40)
+

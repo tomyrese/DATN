@@ -10,3 +10,4 @@ for s in segs:
     net = s[6]
     if any(k in net for k in ['PWMA_R', 'AIN1_R', 'AIN2_R', 'M3', 'M4', 'ECHO_R', 'US2']):
         print(f"Net {net:<18} ({s[0]}, {s[1]}) -> ({s[2]}, {s[3]}) layer: {s[5]}")
+

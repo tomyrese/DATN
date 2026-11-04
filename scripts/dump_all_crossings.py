@@ -7,3 +7,4 @@ for i, line in enumerate(lines):
     if '[tracks_crossing]' in line or '[shorting_items]' in line:
         print(f"--- Line {i+1} ---")
         print("\n".join(lines[i:i+6]))
+

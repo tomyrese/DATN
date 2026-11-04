@@ -15,3 +15,4 @@ for s in segments:
 print("Nets and segment count in bak:")
 for n, segs in sorted(nets.items()):
     print(f"{n:20}: {len(segs)} segments")
+

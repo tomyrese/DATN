@@ -8,3 +8,4 @@ m = re.search(r'\(footprint\s+"[^"]*TB6612[^"]*"[\s\S]*?\n\t\)', text)
 if m:
     print("Found TB6612 footprint, first 500 chars:")
     print(m.group(0)[:500])
+

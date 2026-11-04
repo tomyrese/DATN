@@ -13,3 +13,4 @@ print("LEFT footprint at:", at_m.groups())
 for p in [1, 8, 9, 16]:
     pad_m = re.search(rf'\(pad\s+"{p}"[\s\S]*?\(at\s+([-\d\.]+)\s+([-\d\.]+)', fp)
     print(f"pad {p}:", pad_m.groups())
+

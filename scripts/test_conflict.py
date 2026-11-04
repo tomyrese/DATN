@@ -101,3 +101,4 @@ for p in range(1, 41):
     elif net_received == "/+3V3_LOGIC" and "GND" in pi_name:
         conflict = "CRITICAL ERROR: SHORT CIRCUIT 3.3V TO GND!"
     print(f"Pi Pin {p:2d} ({pi_name:13s}): gets net '{net_received}' (from old pin {p_swap:2d}) {conflict}")
+

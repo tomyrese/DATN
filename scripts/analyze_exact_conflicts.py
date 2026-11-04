@@ -7,3 +7,4 @@ matches = re.findall(r'\[tracks_crossing\]: Tracks crossing\s+Local override; er
 print(f"Total crossing pairs: {len(matches)}")
 for idx, (p1, n1, p2, n2) in enumerate(matches):
     print(f"{idx+1:2d}. {n1:15} at {p1}  <--->  {n2:15} at {p2}")
+

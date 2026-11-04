@@ -12,3 +12,4 @@ else:
     print(f"Found {len(pins)} pin definitions")
     for p in pins[:40]:
         print(f"Pin {p[3]:2s} ({p[2]:20s}) at rel ({p[0]}, {p[1]})")
+

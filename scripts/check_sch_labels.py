@@ -7,3 +7,4 @@ with open('Pi4_Robot_Carrier_1Layer.kicad_sch', 'r', encoding='utf-8') as f:
 labels = re.findall(r'\(label\s+"([^"]+)"\s+\(at\s+([-\d\.]+)\s+([-\d\.]+)', text)
 for l in labels:
     print(l)
+

@@ -7,3 +7,4 @@ edges = re.findall(r'\(gr_line\s+\(start\s+([-\d\.]+)\s+([-\d\.]+)\)\s+\(end\s+(
 print("Board outlines (Edge.Cuts):")
 for e in edges:
     print(e)
+

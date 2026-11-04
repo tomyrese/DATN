@@ -8,3 +8,4 @@ for i, l in enumerate(lines):
             if not lines[j].strip().startswith('(net '):
                 break
         break
+

@@ -10,3 +10,4 @@ for m in re.finditer(r'\(footprint\s+"([^"]+)"[\s\S]*?\n\t\)', text):
     if ref_name in ['R1', 'R2']:
         print(f"================ {ref_name} ================")
         print(fp)
+

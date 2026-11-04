@@ -12,3 +12,4 @@ def check_sch(sch_path):
             print(f"  Label: {l[0]:<20} at ({l[1]}, {l[2]})")
 
 check_sch('Pi4_Robot_Carrier_1Layer.kicad_sch')
+

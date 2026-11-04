@@ -8,3 +8,4 @@ print(bak[pos:pos+300])
 pos_via = bak.find('(via')
 print("First via in bak:")
 print(bak[pos_via:pos_via+300])
+

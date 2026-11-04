@@ -104,3 +104,4 @@ print("Full test parenthesis balance:", full_test.count('('), full_test.count(')
 with open('test_clean_base.kicad_pcb', 'w', encoding='utf-8') as f:
     f.write(full_test)
 print("Saved test_clean_base.kicad_pcb")
+

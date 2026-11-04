@@ -9,3 +9,4 @@ for i, line in enumerate(lines):
             if lines[j].strip() == ')': # footprint end
                 break
         break
+

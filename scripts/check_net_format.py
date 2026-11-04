@@ -16,3 +16,4 @@ nets = re.findall(r'\(net\s+(\d+)\s+"([^"]+)"\)', text)
 print(f"Total nets defined: {len(nets)}")
 for n in nets[:10]:
     print(n)
+

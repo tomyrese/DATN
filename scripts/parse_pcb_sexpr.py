@@ -61,3 +61,4 @@ for item in tree:
         print(f"\nFootprint {ref} ({val}) [{fp_name}] at {at}:")
         for p in pads:
             print(f"  Pad {p[0]:>3}: at {p[3]} | Net: {p[4]}")
+

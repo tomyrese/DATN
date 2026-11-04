@@ -6,3 +6,4 @@ labels = re.findall(r'\(label\s+"([^"]+)"[\s\S]*?\(at\s+([\d\.\-]+)\s+([\d\.\-]+
 for name, x, y in labels:
     if any(k in name.upper() for k in ['OLED', 'I2C', 'SDA', 'SCL', 'MOTOR', 'PWM', 'TRIG', 'ECHO', 'LINE']):
         print(f'{name:25s} at ({x}, {y})')
+

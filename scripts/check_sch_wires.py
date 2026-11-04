@@ -6,3 +6,4 @@ import re
 lines = [l for l in text.split('\n') if any(k in l for k in ['279.4', '294.64', 'R3', 'R4', 'ECHO'])]
 for l in lines[:30]:
     print(l)
+

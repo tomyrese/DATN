@@ -11,3 +11,4 @@ for i, line in enumerate(lines):
         print(f"{i+1}: {line}", end='')
         if line.startswith('\t)'):
             break
+

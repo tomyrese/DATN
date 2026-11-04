@@ -7,3 +7,4 @@ for m in re.finditer(r'\(footprint\s+"Module_TB6612FNG_Breakout"[\s\S]*?\n\t\)',
     if 'RIGHT' in fp:
         m_at = re.search(r'\(at\s+([\d\.\-]+)\s+([\d\.\-]+)(?:\s+([\d\.\-]+))?\)', fp)
         print("RIGHT center:", m_at.group(0))
+

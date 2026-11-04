@@ -7,3 +7,4 @@ for i, line in enumerate(lines):
     if any(k in line for k in ['[shorting_items]', '[tracks_crossing]', '[copper_edge_clearance]']):
         print("\n".join(lines[i:i+6]))
         print('-'*30)
+

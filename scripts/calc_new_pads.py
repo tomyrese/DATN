@@ -42,3 +42,4 @@ for p_num, y_rel, name in [
     xw = 140.69 + y_rel
     yw = 68.8275 - x_rel
     print(f"RIGHT Pad {p_num:2d} ({name:5s}): ({xw:.2f}, {yw:.2f})")
+

@@ -7,3 +7,4 @@ for r in ['R3', 'R4']:
     import re
     pads = re.findall(r'\(pad\s+"(\d+)"[^\n]*[\s\S]*?\(net\s+"([^"]+)"\)', block)
     print(r, pads)
+

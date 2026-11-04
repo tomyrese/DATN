@@ -6,3 +6,4 @@ segs = re.findall(r'\(segment\s+\(start\s+([-\d\.]+)\s+([-\d\.]+)\)\s+\(end\s+([
 print(f"Total +5V segments in bak: {len(segs)}")
 for s in segs:
     print(s)
+

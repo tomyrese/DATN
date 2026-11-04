@@ -12,3 +12,4 @@ for m in re.finditer(r'\(footprint\s+"PinSocket_2x20_P2\.54mm_Vertical"[\s\S]*?\
         print(f"  Pad {p[0]} at ({p[1]}, {p[2]})")
     for p in pads[-4:]:
         print(f"  Pad {p[0]} at ({p[1]}, {p[2]})")
+

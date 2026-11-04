@@ -6,3 +6,4 @@ import re
 lib_pi = re.search(r'\(symbol\s+"robot_electronics:Raspberry_Pi_4_40Pin"[\s\S]*?\n\t\t\)', text)
 if lib_pi:
     print(lib_pi.group(0)[:2500])
+

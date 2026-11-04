@@ -65,3 +65,4 @@ for ref, pads in all_pads.items():
     print(f"\n{ref}: {len(pads)} pads")
     for p_num in sorted(pads.keys(), key=lambda x: int(x) if x.isdigit() else x):
         print(f"  Pad {p_num:>2}: local={pads[p_num][0]} net={pads[p_num][1]}")
+

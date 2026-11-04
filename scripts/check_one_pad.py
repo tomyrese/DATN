@@ -5,3 +5,4 @@ import re
 m = re.search(r'\(pad\s+"1"\s+thru_hole[\s\S]*?\n\t\t\)', text)
 if m:
     print(m.group(0))
+

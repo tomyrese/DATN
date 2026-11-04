@@ -7,3 +7,4 @@ segs = re.findall(r'\(segment\s+\(start\s+([-\d\.]+)\s+([-\d\.]+)\)\s+\(end\s+([
 print(f"Total segments: {len(segs)}")
 for s in segs[:15]:
     print(s)
+

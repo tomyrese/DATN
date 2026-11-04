@@ -6,3 +6,4 @@ segs = re.findall(r'\(segment\b', text)
 vias = re.findall(r'\(via\b', text)
 print(f"Total segment tokens: {len(segs)}")
 print(f"Total via tokens: {len(vias)}")
+

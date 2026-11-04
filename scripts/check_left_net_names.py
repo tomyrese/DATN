@@ -8,3 +8,4 @@ if left_fp:
     pads = re.findall(r'\(pad\s+"(\d+)"[\s\S]*?\(net\s+"([^"]*)"\)', left_fp.group(0))
     for p in pads:
         print(f"Pad {p[0]:>2}: net={p[1]}")
+

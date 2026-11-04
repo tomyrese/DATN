@@ -112,3 +112,4 @@ text = re.sub(r'\t\(gr_text\s+"JMP[\s\S]*?\n\t\)\n', '', text)
 print("Footprint nets updated and old segments stripped.")
 with open('scripts/build_rerouted_pcb.py', 'w', encoding='utf-8') as f:
     f.write("# Routing builder\n")
+
